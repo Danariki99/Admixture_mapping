@@ -1,0 +1,1 @@
+slurmstepd-phoenix-13: error: *** JOB 2816923 ON phoenix-13 CANCELLED AT 2024-03-21T02:20:38 ***

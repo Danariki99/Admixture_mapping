@@ -1,0 +1,20 @@
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/no_BMI/output_ancestry_OCE/HC132/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2,3,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/no_BMI/output_ancestry_OCE/HC132/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC132.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 21 02:36:07 2024
+2051964 MiB RAM detected, ~1778846 available; reserving 1025982 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.

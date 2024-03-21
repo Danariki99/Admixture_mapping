@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/private/home/rsmerigl/codes/Admixture_mapping/association_execution/no_BMI/association_execution_no_BMI_SAS.py", line 51, in <module>
+    subprocess.run(association_command, check=True)
+  File "/private/home/rsmerigl/anaconda3/envs/admixture/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/private/home/rsmerigl/plink2', '--vcf', '/private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_SAS.vcf', '--pheno', '/private/groups/ioannidislab/smeriglio/phe_files/HC132.phe', '--glm', 'firth-fallback', 'hide-covar', '--ci', '0.95', '--adjust', '--covar', '/private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe', '--covar-variance-standardize', '--keep', '/private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt', '--out', '/private/groups/ioannidislab/smeriglio/output/no_BMI/output_ancestry_SAS/HC132/output', '--covar-col-nums', '2,3,8-17']' died with <Signals.SIGKILL: 9>.
+slurmstepd-phoenix-19: error: Detected 1 oom-kill event(s) in StepId=2999964.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
