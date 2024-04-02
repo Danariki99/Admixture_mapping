@@ -20,6 +20,8 @@ if not os.path.exists(ancestry_output_folder):
 
 vcf_file = generic_vcf_file.replace('*', ancestry)
 
+counter = 0
+
 for pheno_file in pheno_files_list:
 
     pheno = pheno_file.split('.')[0]
@@ -48,7 +50,10 @@ for pheno_file in pheno_files_list:
 
     ]
 
-    subprocess.run(association_command, check=True)
+    if counter >= 57:
+        subprocess.run(association_command, check=True)
+
+    counter +=1
 
 
 

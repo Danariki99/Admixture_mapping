@@ -1,6 +1,6 @@
 PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
 (C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
-Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output.log.
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output.log.
 Options in effect:
   --adjust
   --ci 0.95
@@ -9,33 +9,2304 @@ Options in effect:
   --covar-variance-standardize
   --glm firth-fallback hide-covar
   --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
-  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output
-  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC132.phe
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1230.phe
   --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
 
-Start time: Thu Mar 21 02:48:37 2024
-2051964 MiB RAM detected, ~1764306 available; reserving 1025982 MiB for main
+Start time: Wed Mar 27 05:59:16 2024
+2051961 MiB RAM detected, ~1689815 available; reserving 1025980 MiB for main
 workspace.
 Using up to 2 compute threads.
 --vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
 --vcf: 10k variants converted.    --vcf:
-/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output-temporary.pgen
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output-temporary.pgen
 +
-/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output-temporary.pvar.zst
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output-temporary.pvar.zst
 +
-/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output-temporary.psam
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output-temporary.psam
 written.
 487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
 from
-/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output-temporary.psam.
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output-temporary.psam.
 20726 variants loaded from
-/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC132/output-temporary.pvar.zst.
-1 binary phenotype loaded (29630 cases, 457666 controls).
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output-temporary.pvar.zst.
+1 binary phenotype loaded (83248 cases, 404049 controls).
 --keep: 441814 samples remaining.
 13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
 441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
 remaining after main filters.
-26573 cases and 415241 controls remaining after main filters.
+75108 cases and 366706 controls remaining after main filters.
 --covar-variance-standardize: 13 covariates transformed.
 Calculating allele frequencies... 0%done.
---glm logistic-Firth hybrid regression on phenotype 'HC132': 0%
+--glm logistic-Firth hybrid regression on phenotype 'HC1230': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output.HC1230.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.491379.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1230/output.HC1230.glm.logistic.hybrid.adjusted
+.
+End time: Wed Mar 27 08:39:51 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC269.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Wed Mar 27 08:39:53 2024
+2051961 MiB RAM detected, ~1689347 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output-temporary.pvar.zst.
+1 binary phenotype loaded (65710 cases, 421586 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+59294 cases and 382520 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC269': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output.HC269.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.39225.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC269/output.HC269.glm.logistic.hybrid.adjusted
+.
+End time: Wed Mar 27 11:38:16 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC25.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Wed Mar 27 11:38:19 2024
+2051961 MiB RAM detected, ~1700668 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output-temporary.pvar.zst.
+1 binary phenotype loaded (37753 cases, 449543 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+34217 cases and 407597 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC25': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output.HC25.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.79689.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC25/output.HC25.glm.logistic.hybrid.adjusted
+.
+End time: Wed Mar 27 15:27:55 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC273.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Wed Mar 27 15:27:57 2024
+2051961 MiB RAM detected, ~1709921 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output-temporary.pvar.zst.
+1 binary phenotype loaded (110785 cases, 376511 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+99813 cases and 342001 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC273': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output.HC273.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.758249.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC273/output.HC273.glm.logistic.hybrid.adjusted
+.
+End time: Wed Mar 27 17:34:06 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC326.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Wed Mar 27 17:34:08 2024
+2051961 MiB RAM detected, ~1696258 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output-temporary.pvar.zst.
+1 binary phenotype loaded (20255 cases, 467041 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+18120 cases and 423694 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC326': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output.HC326.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 3.49408.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC326/output.HC326.glm.logistic.hybrid.adjusted
+.
+End time: Wed Mar 27 21:16:31 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1087.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Wed Mar 27 21:16:34 2024
+2051961 MiB RAM detected, ~1692822 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output-temporary.pvar.zst.
+1 binary phenotype loaded (46796 cases, 440501 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+42158 cases and 399656 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1087': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output.HC1087.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.867504.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1087/output.HC1087.glm.logistic.hybrid.adjusted
+.
+End time: Thu Mar 28 00:19:39 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1362.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 28 00:19:42 2024
+2051961 MiB RAM detected, ~1689705 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output-temporary.pvar.zst.
+1 binary phenotype loaded (35636 cases, 451661 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+32192 cases and 409622 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1362': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output.HC1362.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.606368.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1362/output.HC1362.glm.logistic.hybrid.adjusted
+.
+End time: Thu Mar 28 05:21:54 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC225.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 28 05:21:56 2024
+2051961 MiB RAM detected, ~1700526 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output-temporary.pvar.zst.
+1 binary phenotype loaded (21313 cases, 465983 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+19199 cases and 422615 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC225': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output.HC225.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.16681.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC225/output.HC225.glm.logistic.hybrid.adjusted
+.
+End time: Thu Mar 28 10:15:49 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1205.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 28 10:15:51 2024
+2051961 MiB RAM detected, ~1706043 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output-temporary.pvar.zst.
+1 binary phenotype loaded (44077 cases, 443220 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+39762 cases and 402052 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1205': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output.HC1205.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.03375.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1205/output.HC1205.glm.logistic.hybrid.adjusted
+.
+End time: Thu Mar 28 14:02:21 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC620.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 28 14:02:24 2024
+2051961 MiB RAM detected, ~1696605 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output-temporary.pvar.zst.
+1 binary phenotype loaded (21521 cases, 465776 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+19423 cases and 422391 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC620': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output.HC620.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.10806.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC620/output.HC620.glm.logistic.hybrid.adjusted
+.
+End time: Thu Mar 28 19:09:01 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1359.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 28 19:09:03 2024
+2051961 MiB RAM detected, ~1753918 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output-temporary.pvar.zst.
+1 binary phenotype loaded (28579 cases, 458718 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+25969 cases and 415845 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1359': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output.HC1359.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.05731.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1359/output.HC1359.glm.logistic.hybrid.adjusted
+.
+End time: Thu Mar 28 23:25:14 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1080.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Thu Mar 28 23:25:16 2024
+2051961 MiB RAM detected, ~1896876 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output-temporary.pvar.zst.
+1 binary phenotype loaded (58781 cases, 428516 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+52825 cases and 388989 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1080': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output.HC1080.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.517697.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1080/output.HC1080.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 01:47:54 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC316.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 01:47:56 2024
+2051961 MiB RAM detected, ~1814163 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output-temporary.pvar.zst.
+1 binary phenotype loaded (17156 cases, 470140 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+15444 cases and 426370 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC316': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output.HC316.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.92994.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC316/output.HC316.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 05:03:01 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1125.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 05:03:03 2024
+2051961 MiB RAM detected, ~2037285 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output-temporary.pvar.zst.
+1 binary phenotype loaded (26723 cases, 460574 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+24070 cases and 417744 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1125': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output.HC1125.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.73334.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1125/output.HC1125.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 08:18:53 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC689.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 08:18:54 2024
+2051961 MiB RAM detected, ~2037486 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output-temporary.pvar.zst.
+1 binary phenotype loaded (32830 cases, 454467 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+29440 cases and 412374 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC689': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output.HC689.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.82546.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC689/output.HC689.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 11:34:40 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1322.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 11:34:41 2024
+2051961 MiB RAM detected, ~2035270 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output-temporary.pvar.zst.
+1 binary phenotype loaded (25228 cases, 462069 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+22712 cases and 419102 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1322': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output.HC1322.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 3.50125.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1322/output.HC1322.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 15:14:24 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC215.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 15:14:26 2024
+2051961 MiB RAM detected, ~1992285 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output-temporary.pvar.zst.
+1 binary phenotype loaded (166441 cases, 320855 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+150124 cases and 291690 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC215': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output.HC215.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.777304.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC215/output.HC215.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 16:35:59 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC607.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 16:36:00 2024
+2051961 MiB RAM detected, ~1916221 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output-temporary.pvar.zst.
+1 binary phenotype loaded (21407 cases, 465890 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+19351 cases and 422463 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC607': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output.HC607.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.0434.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC607/output.HC607.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 20:24:38 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/cancer1003.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 20:24:40 2024
+2051961 MiB RAM detected, ~1777969 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output-temporary.pvar.zst.
+1 binary phenotype loaded (31373 cases, 455923 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+28290 cases and 413524 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'cancer1003': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output.cancer1003.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.26155.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/cancer1003/output.cancer1003.glm.logistic.hybrid.adjusted
+.
+End time: Fri Mar 29 22:54:36 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1106.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Fri Mar 29 22:54:39 2024
+2051961 MiB RAM detected, ~1836667 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output-temporary.pvar.zst.
+1 binary phenotype loaded (45470 cases, 441827 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+40901 cases and 400913 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1106': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output.HC1106.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.877647.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1106/output.HC1106.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 01:23:52 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC78.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 01:23:54 2024
+2051961 MiB RAM detected, ~1787154 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output-temporary.pvar.zst.
+1 binary phenotype loaded (29224 cases, 458072 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+26276 cases and 415538 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC78': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output.HC78.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.34336.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC78/output.HC78.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 04:41:16 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC43.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 04:41:18 2024
+2051961 MiB RAM detected, ~1726747 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output-temporary.pvar.zst.
+1 binary phenotype loaded (22633 cases, 464663 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+20307 cases and 421507 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC43': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output.HC43.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.37603.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC43/output.HC43.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 07:05:50 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1225.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 07:05:51 2024
+2051961 MiB RAM detected, ~1832268 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output-temporary.pvar.zst.
+1 binary phenotype loaded (19613 cases, 467684 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+17632 cases and 424182 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1225': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output.HC1225.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.36012.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1225/output.HC1225.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 10:06:57 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/FH1001.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 10:06:59 2024
+2051961 MiB RAM detected, ~1833663 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output-temporary.pvar.zst.
+1 binary phenotype loaded (175586 cases, 311715 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+158371 cases and 283443 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'FH1001': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output.FH1001.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.704524.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1001/output.FH1001.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 11:13:34 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1098.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 11:13:35 2024
+2051961 MiB RAM detected, ~1829798 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output-temporary.pvar.zst.
+1 binary phenotype loaded (43574 cases, 443723 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+39252 cases and 402562 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1098': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output.HC1098.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.938593.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1098/output.HC1098.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 13:19:15 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC36.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 13:19:16 2024
+2051961 MiB RAM detected, ~1828812 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output-temporary.pvar.zst.
+1 binary phenotype loaded (22586 cases, 464710 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+20334 cases and 421480 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC36': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output.HC36.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.16929.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC36/output.HC36.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 16:02:42 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/FH1220.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 16:02:44 2024
+2051961 MiB RAM detected, ~1828418 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output-temporary.pvar.zst.
+1 binary phenotype loaded (120185 cases, 367116 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+109052 cases and 332762 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'FH1220': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output.FH1220.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.65773.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1220/output.FH1220.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 17:15:44 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1094.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 17:15:46 2024
+2051961 MiB RAM detected, ~1922782 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output-temporary.pvar.zst.
+1 binary phenotype loaded (26194 cases, 461103 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+23705 cases and 418109 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1094': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output.HC1094.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.82057.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1094/output.HC1094.glm.logistic.hybrid.adjusted
+.
+End time: Sat Mar 30 21:29:51 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC937.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sat Mar 30 21:29:52 2024
+2051961 MiB RAM detected, ~1875194 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output-temporary.pvar.zst.
+1 binary phenotype loaded (30074 cases, 457223 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+26968 cases and 414846 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC937': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output.HC937.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.93954.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC937/output.HC937.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 00:36:28 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC900.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 00:36:29 2024
+2051961 MiB RAM detected, ~2031220 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output-temporary.pvar.zst.
+1 binary phenotype loaded (21360 cases, 465937 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+19288 cases and 422526 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC900': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output.HC900.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.49799.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC900/output.HC900.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 04:10:20 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1224.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 04:10:21 2024
+2051961 MiB RAM detected, ~2037423 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output-temporary.pvar.zst.
+1 binary phenotype loaded (71644 cases, 415653 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+64418 cases and 377396 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1224': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output.HC1224.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.521209.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1224/output.HC1224.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 06:18:24 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC553.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 06:18:25 2024
+2051961 MiB RAM detected, ~2037407 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output-temporary.pvar.zst.
+1 binary phenotype loaded (32068 cases, 455229 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+29032 cases and 412782 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC553': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output.HC553.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.46478.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC553/output.HC553.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 09:04:48 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC652.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 09:04:49 2024
+2051961 MiB RAM detected, ~2037320 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output-temporary.pvar.zst.
+1 binary phenotype loaded (23302 cases, 463995 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+21096 cases and 420718 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC652': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output.HC652.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 4.86236.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC652/output.HC652.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 11:50:10 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC86.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 11:50:11 2024
+2051961 MiB RAM detected, ~2037285 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output-temporary.pvar.zst.
+1 binary phenotype loaded (18480 cases, 468816 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+16799 cases and 425015 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC86': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output.HC86.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.83528.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC86/output.HC86.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 14:45:17 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC826.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 14:45:19 2024
+2051961 MiB RAM detected, ~2035538 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output-temporary.pvar.zst.
+1 binary phenotype loaded (22082 cases, 465215 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+19869 cases and 421945 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC826': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output.HC826.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.98362.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC826/output.HC826.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 17:25:43 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1088.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 17:25:44 2024
+2051961 MiB RAM detected, ~2037382 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output-temporary.pvar.zst.
+1 binary phenotype loaded (17975 cases, 469322 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+16190 cases and 425624 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1088': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output.HC1088.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.59323.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1088/output.HC1088.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 20:09:21 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1190.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 20:09:22 2024
+2051961 MiB RAM detected, ~2037377 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output-temporary.pvar.zst.
+1 binary phenotype loaded (29212 cases, 458085 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+26334 cases and 415480 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1190': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output.HC1190.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.54318.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1190/output.HC1190.glm.logistic.hybrid.adjusted
+.
+End time: Sun Mar 31 22:45:08 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1222.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Sun Mar 31 22:45:09 2024
+2051961 MiB RAM detected, ~2037304 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output-temporary.pvar.zst.
+1 binary phenotype loaded (34499 cases, 452798 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+31030 cases and 410784 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1222': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output.HC1222.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.60492.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1222/output.HC1222.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 01:18:41 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1261.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 01:18:42 2024
+2051961 MiB RAM detected, ~2037281 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output-temporary.pvar.zst.
+1 binary phenotype loaded (22982 cases, 464315 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+20662 cases and 421152 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1261': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output.HC1261.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 2.26831.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1261/output.HC1261.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 04:58:41 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/FH1019.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 04:58:42 2024
+2051961 MiB RAM detected, ~2037245 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output-temporary.pvar.zst.
+1 binary phenotype loaded (105485 cases, 381816 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+95340 cases and 346474 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'FH1019': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output.FH1019.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.184897.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1019/output.FH1019.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 06:34:21 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/FH1065.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 06:34:22 2024
+2051961 MiB RAM detected, ~2037338 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output-temporary.pvar.zst.
+1 binary phenotype loaded (290060 cases, 197241 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+262676 cases and 179138 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'FH1065': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output.FH1065.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.834197.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/FH1065/output.FH1065.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 07:48:21 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC643.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 07:48:22 2024
+2051961 MiB RAM detected, ~2035324 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output-temporary.pvar.zst.
+1 binary phenotype loaded (33128 cases, 454169 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+29825 cases and 411989 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC643': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output.HC643.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.24781.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC643/output.HC643.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 10:36:08 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1250.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 10:36:09 2024
+2051961 MiB RAM detected, ~2037279 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output-temporary.pvar.zst.
+1 binary phenotype loaded (68928 cases, 418369 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+62194 cases and 379620 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1250': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output.HC1250.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.542569.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1250/output.HC1250.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 12:40:37 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC61.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 12:40:38 2024
+2051961 MiB RAM detected, ~1344812 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output-temporary.pvar.zst.
+1 binary phenotype loaded (32171 cases, 455125 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+29066 cases and 412748 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC61': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output.HC61.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.63209.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC61/output.HC61.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 14:50:00 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1581.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 14:50:02 2024
+2051961 MiB RAM detected, ~1999493 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output-temporary.pvar.zst.
+1 binary phenotype loaded (64770 cases, 422527 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+58668 cases and 383146 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1581': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output.HC1581.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 0.422669.
+(Treating lambda as 1 in GC-corrected p-value calculation.)
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1581/output.HC1581.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 16:39:16 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC125.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 16:39:18 2024
+2051961 MiB RAM detected, ~1957689 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output-temporary.pvar.zst.
+1 binary phenotype loaded (29964 cases, 457332 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+27066 cases and 414748 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC125': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output.HC125.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.30512.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC125/output.HC125.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 19:31:25 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC1574.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 19:31:27 2024
+2051961 MiB RAM detected, ~1965508 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output-temporary.pvar.zst.
+1 binary phenotype loaded (20112 cases, 467185 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+17986 cases and 423828 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC1574': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output.HC1574.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 3.50505.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC1574/output.HC1574.glm.logistic.hybrid.adjusted
+.
+End time: Mon Apr  1 21:58:29 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC49.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Mon Apr  1 21:58:30 2024
+2051961 MiB RAM detected, ~1891487 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output-temporary.pvar.zst.
+1 binary phenotype loaded (31220 cases, 456076 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+28405 cases and 413409 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC49': 0%done.
+Results written to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output.HC49.glm.logistic.hybrid .
+--adjust: Genomic inflation est. lambda (based on median chisq) = 1.12531.
+--adjust values (14680 tests) written to
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC49/output.HC49.glm.logistic.hybrid.adjusted
+.
+End time: Tue Apr  2 00:16:53 2024
+PLINK v2.00a6LM 64-bit Intel (5 Feb 2024)      www.cog-genomics.org/plink/2.0/
+(C) 2005-2024 Shaun Purcell, Christopher Chang   GNU General Public License v3
+Logging to /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output.log.
+Options in effect:
+  --adjust
+  --ci 0.95
+  --covar /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe
+  --covar-col-nums 2-4,8-17
+  --covar-variance-standardize
+  --glm firth-fallback hide-covar
+  --keep /private/groups/ioannidislab/smeriglio/keep_file/keep_file.txt
+  --out /private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output
+  --pheno /private/groups/ioannidislab/smeriglio/phe_files/HC285.phe
+  --vcf /private/groups/ioannidislab/smeriglio/merged_vcfs/ancestry_OCE.vcf
+
+Start time: Tue Apr  2 00:16:55 2024
+2051961 MiB RAM detected, ~1893991 available; reserving 1025980 MiB for main
+workspace.
+Using up to 2 compute threads.
+--vcf: 1k variants scanned.--vcf: 2k variants scanned.--vcf: 3k variants scanned.--vcf: 4k variants scanned.--vcf: 5k variants scanned.--vcf: 6k variants scanned.--vcf: 7k variants scanned.--vcf: 8k variants scanned.--vcf: 9k variants scanned.--vcf: 10k variants scanned.--vcf: 11k variants scanned.--vcf: 12k variants scanned.--vcf: 13k variants scanned.--vcf: 14k variants scanned.--vcf: 15k variants scanned.--vcf: 16k variants scanned.--vcf: 17k variants scanned.--vcf: 18k variants scanned.--vcf: 19k variants scanned.--vcf: 20k variants scanned.--vcf: 20726 variants scanned.
+--vcf: 10k variants converted.    --vcf:
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output-temporary.pgen
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output-temporary.pvar.zst
++
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output-temporary.psam
+written.
+487409 samples (0 females, 0 males, 487409 ambiguous; 487409 founders) loaded
+from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output-temporary.psam.
+20726 variants loaded from
+/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_OCE/HC285/output-temporary.pvar.zst.
+1 binary phenotype loaded (51120 cases, 436176 controls).
+--keep: 441814 samples remaining.
+13 covariates loaded from /private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_covar.phe.
+441814 samples (0 females, 0 males, 441814 ambiguous; 441814 founders)
+remaining after main filters.
+46160 cases and 395654 controls remaining after main filters.
+--covar-variance-standardize: 13 covariates transformed.
+Calculating allele frequencies... 0%done.
+--glm logistic-Firth hybrid regression on phenotype 'HC285': 0%

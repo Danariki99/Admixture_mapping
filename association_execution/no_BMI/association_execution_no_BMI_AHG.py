@@ -20,6 +20,8 @@ if not os.path.exists(ancestry_output_folder):
 
 vcf_file = generic_vcf_file.replace('*', ancestry)
 
+counter = 0
+
 for pheno_file in pheno_files_list:
 
     pheno = pheno_file.split('.')[0]
@@ -47,8 +49,10 @@ for pheno_file in pheno_files_list:
         '--covar-col-nums', '2,3,8-17',
 
     ]
+    if counter >= 28:
+        subprocess.run(association_command, check=True)
 
-    subprocess.run(association_command, check=True)
+    counter+=1
 
 
 
