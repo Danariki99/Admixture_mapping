@@ -12,7 +12,7 @@ covar_file = '/private/groups/ioannidislab/smeriglio/covar_file/ukb24983_GWAS_co
 pheno_folder = '/private/groups/ioannidislab/smeriglio/phe_files'
 
 pheno_files_list = os.listdir(pheno_folder)
-
+counter = 0
 ancestry = 'OCE'
 ancestry_output_folder = generic_output_folder.replace('*', ancestry)
 if not os.path.exists(ancestry_output_folder):
@@ -47,8 +47,9 @@ for pheno_file in pheno_files_list:
         '--covar-col-nums', '2-4,8-17',
 
     ]
-
-    subprocess.run(association_command, check=True)
+    if counter >=58:
+        subprocess.run(association_command, check=True)
+    counter +=1
 
 
 

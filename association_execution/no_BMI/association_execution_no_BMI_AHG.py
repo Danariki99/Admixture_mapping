@@ -49,7 +49,7 @@ for pheno_file in pheno_files_list:
         '--covar-col-nums', '2,3,8-17',
 
     ]
-    if counter >= 28:
+    if counter >= 94:
         subprocess.run(association_command, check=True)
 
     counter+=1
