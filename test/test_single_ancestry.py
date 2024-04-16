@@ -9,13 +9,6 @@ num_chrom = 22
 
 ancestry_map = {
  '0': 'AFR',
- '1': 'AHG',
- '2': 'EAS',
- '3': 'EUR',
- '4': 'NAT',
- '5': 'OCE',
- '6': 'SAS',
- '7': 'WAS'
 }
 
 
@@ -25,11 +18,11 @@ for chrom_n in range(num_chrom):
     print(chrom_n)
     
     # read object
-    pickle_file = "/private/groups/ioannidislab/smeriglio/lai_object_chr_" + str(chrom_n) + ".pkl"
+    pickle_file = "/private/groups/ioannidislab/smeriglio/pickle_files/lai_object_chr_" + str(chrom_n) + ".pkl"
 
     chrom = "chr" + str(chrom_n)
 
-    chrom_folder = os.path.join("/private/groups/ioannidislab/smeriglio/vcf_files", chrom)
+    chrom_folder = os.path.join("/private/groups/ioannidislab/smeriglio/trial", chrom)
 
     if not os.path.exists(chrom_folder):
         os.mkdir(chrom_folder)
@@ -46,6 +39,7 @@ for chrom_n in range(num_chrom):
     
     #iterate for each ancestry
     for ancestry in range(len(ancestry_map)):
+        ancestry = 3
 
         # modify the values to simulate a SNP file 
         match = (lai_object.lai == ancestry).astype(int)
@@ -73,7 +67,7 @@ for chrom_n in range(num_chrom):
         )
 
         # save ancestry data as vcf
-        filename = 'ancestry_' + ancestry_map[str(ancestry)] + '.vcf'
+        filename = 'ancestry_' + 'EUR' + '.vcf'
         output_file = os.path.join(chrom_folder, filename) 
         vcf_writer = VCFWriter(variant_data_obj, output_file)
         print(output_file)

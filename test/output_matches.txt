@@ -1,0 +1,44 @@
+starting chromosome 1
+finished production of matches for chrom: 1
+starting chromosome 2
+finished production of matches for chrom: 2
+starting chromosome 3
+finished production of matches for chrom: 3
+starting chromosome 4
+finished production of matches for chrom: 4
+starting chromosome 5
+finished production of matches for chrom: 5
+starting chromosome 6
+finished production of matches for chrom: 6
+starting chromosome 7
+finished production of matches for chrom: 7
+starting chromosome 8
+finished production of matches for chrom: 8
+starting chromosome 9
+finished production of matches for chrom: 9
+starting chromosome 10
+finished production of matches for chrom: 10
+starting chromosome 11
+finished production of matches for chrom: 11
+starting chromosome 12
+finished production of matches for chrom: 12
+starting chromosome 13
+finished production of matches for chrom: 13
+starting chromosome 14
+finished production of matches for chrom: 14
+starting chromosome 15
+finished production of matches for chrom: 15
+starting chromosome 16
+finished production of matches for chrom: 16
+starting chromosome 17
+finished production of matches for chrom: 17
+starting chromosome 18
+finished production of matches for chrom: 18
+starting chromosome 19
+finished production of matches for chrom: 19
+starting chromosome 20
+finished production of matches for chrom: 20
+starting chromosome 21
+finished production of matches for chrom: 21
+starting chromosome 22
+finished production of matches for chrom: 22

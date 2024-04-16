@@ -1,0 +1,4 @@
+1
+(1871, 487409, 2)
+[0 0 0 ... 1 1 1]
+/private/groups/ioannidislab/smeriglio/trial/chr1/ancestry_EUR.vcf

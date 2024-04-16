@@ -59,5 +59,5 @@ def manhattan_plot(genetic_file, chr_col, bp_col, p_col, threshold=None, suggest
         plt.savefig(filename)
 
 # Using the function to create a Manhattan plot
-manhattan_plot('/private/groups/ioannidislab/smeriglio/output/no_BMI/output_ancestry_EUR/HC1134/output.HC1134.glm.logistic.hybrid.adjusted', 
+manhattan_plot('/private/groups/ioannidislab/smeriglio/output/no_BMI/output_ancestry_WAS/HC1134/output.HC1134.glm.logistic.hybrid.adjusted', 
                chr_col='#CHROM', bp_col='ID', p_col='BONF', title='Manhattan Plot')
