@@ -2,6 +2,8 @@ import pandas as pd
 import os
 import numpy as np
 import pickle
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 beta_path = "/private/groups/ioannidislab/smeriglio/trial/betas/output.cancer1060.glm.logistic.hybrid"
 pheno_path = "/private/groups/ioannidislab/smeriglio/phe_files/cancer1060.phe"
@@ -24,6 +26,8 @@ pickle_path = pickle_path.replace('*', str(chrom))
 with open(pickle_path, 'rb') as f:
     lai_object = pickle.load(f)
 lai_object.lai = lai_object.lai.reshape(len(lai_object.lai),int(len(lai_object.lai[0])/2), 2 )
+total_samples = len(pheno)
+print(total_samples)
 
 df_table = pheno.copy()
 df_table['#IID'] = df_table['#IID'].astype(str)
@@ -35,40 +39,51 @@ window_match = (window == ancestry).astype(int)
 # Crea un set con i valori di df_table['#IID']
 iid_set = set(df_table['#IID'].values)
 
-# Inizializza i contatori
-counter_yes_1 = 0
-counter_yes_05 = 0
-counter_yes_0 = 0
-counter_no_1 = 0
-counter_no_05 = 0
-counter_no_0 = 0
+# Create directory if it doesn't exist
+if not os.path.exists('tables'):
+    os.makedirs('tables')
 
-for sample in lai_object.sample_IDs:
-    if sample in iid_set:
-        index = df_table.index[df_table['#IID'] == sample][0]
-        mean_match = window_match[index].mean()
-        
-        if df_table.loc[index, 'cancer1060'] == 2:
-            if mean_match == 1:
-                counter_yes_1 += 1
-            elif mean_match == 0.5:
-                counter_yes_05 += 1
-            elif mean_match == 0:
-                counter_yes_0 += 1
-        else:
-            if mean_match == 1:
-                counter_no_1 += 1
-            elif mean_match == 0.5:
-                counter_no_05 += 1
-            elif mean_match == 0:
-                counter_no_0 += 1
+# Iterate over 5 indices
+for i in range(index_max - 2, index_max + 3):
+    window = lai_object.lai[i, :, :]
+    window_match = (window == ancestry).astype(int)
 
-contingency_table = pd.DataFrame({
-    '1/1': [counter_yes_1, counter_no_1],
-    '1/0 or 0/1': [counter_yes_05, counter_no_05],
-    '0/0': [counter_yes_0, counter_no_0]
-}, index=['sì', 'no'])
+    # Reset counters
+    counter_yes_1 = 0
+    counter_yes_05 = 0
+    counter_yes_0 = 0
+    counter_no_1 = 0
+    counter_no_05 = 0
+    counter_no_0 = 0
 
-print(contingency_table)
+    for sample in lai_object.sample_IDs:
+        if sample in iid_set:
+            index = df_table.index[df_table['#IID'] == sample][0]
+            mean_match = window_match[index].mean()
 
-        
+            if df_table.loc[index, 'cancer1060'] == 2:
+                if mean_match == 1:
+                    counter_yes_1 += 1
+                elif mean_match == 0.5:
+                    counter_yes_05 += 1
+                elif mean_match == 0:
+                    counter_yes_0 += 1
+            else:
+                if mean_match == 1:
+                    counter_no_1 += 1
+                elif mean_match == 0.5:
+                    counter_no_05 += 1
+                elif mean_match == 0:
+                    counter_no_0 += 1
+
+    contingency_table = pd.DataFrame({
+        '1/1': [counter_yes_1, counter_no_1],
+        '1/0 or 0/1': [counter_yes_05, counter_no_05],
+        '0/0': [counter_yes_0, counter_no_0]
+    }, index=['cancer', 'no cancer'])
+    contingency_table = contingency_table/total_samples
+    print(contingency_table)
+
+    plt.figure(figsize=(10, 7))
+    sns.heatmap(contingency_table, annot=True, cmap="YlGnBu")
+    plt.savefig(f'tables/contingency_table_{i}.png')

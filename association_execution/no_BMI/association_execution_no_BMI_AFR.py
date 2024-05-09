@@ -44,7 +44,7 @@ for pheno_file in pheno_files_list:
         '--covar-variance-standardize',
         '--keep', f'{keep_file}',
         '--out', f'{output_file}',
-        '--covar-col-nums', '2,3,8-17',
+        '--covar-col-nums', '2,3,48-57',
 
     ]
 

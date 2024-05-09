@@ -42,7 +42,7 @@ for pheno_file in pheno_files_list:
         '--adjust',
         '--covar', f'{covar_file}',
         '--covar-variance-standardize',
-        '--keep', f'{keep_file}',
+        '--keep', f'{keep_file}',queue | grep rsmerigl
         '--out', f'{output_file}',
         '--covar-col-nums', '2,3,8-17',
 
