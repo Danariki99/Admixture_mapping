@@ -40,7 +40,7 @@ for chrom_n in range(num_chrom):
 
     #print(lai_object.physical_pos)
 
-    pos_list = [val2 for val1, val2 in lai_object.physical_pos]
+    pos_list = [f"{val1}_{val2}" for val1, val2 in lai_object.physical_pos]
     #print(pos_list)
 
     

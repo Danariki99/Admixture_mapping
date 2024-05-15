@@ -32,7 +32,13 @@ def manhattan_plot(folder):
             pheno_folder = os.path.join(current_folder,pheno)
 
             current_normal_filename = os.path.join(pheno_folder,base_normal_filename).replace('*',pheno)
-            df1 = pd.read_table(current_normal_filename, sep="\t")
+            try:
+                df1 = pd.read_table(current_normal_filename, sep="\t")
+            except Exception as e:
+                print(f"Error with file: {current_normal_filename}")
+                #print(f"Error message: {str(e)}")
+                raise
+
             df1 = df1.drop('P', axis = 1)
 
             current_adjusted_filename = os.path.join(pheno_folder,base_adjusted_filename).replace('*',pheno)
@@ -49,6 +55,6 @@ def manhattan_plot(folder):
             plt.savefig(filename, bbox_inches='tight', pad_inches=0.1)
             plt.close()
 
-manhattan_plot('/private/groups/ioannidislab/smeriglio/output/no_BMI/output_ancestry_*/')
+manhattan_plot('/private/groups/ioannidislab/smeriglio/output/BMI/output_ancestry_*/')
 
 

@@ -30,7 +30,7 @@ def manhattan_plot(genetic_file, chr_col, bp_col, p_col, threshold=None, suggest
     min_pos = data[bp_col].min()
     max_pos = data[bp_col].max()
 
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(12, 6))#339484
     # Calculate the chromosome positions and labels
     chrom_positions = []
     chrom_labels = []
