@@ -1,82 +1,22 @@
-import pickle
-import numpy as np
-import pandas as pd
 import os
-from snputils.genobj.snp.snpobj import SNPObject
-from snputils.io.snp.write.vcf import VCFWriter
+from pre_processing_functions import vcf_creation
+from pre_processing_functions import vcf_merging
 
-num_chrom = 22
+if __name__ == '__main__':
 
-ancestry_map = {
- '0': 'AFR',
- '1': 'AHG',
- '2': 'EAS',
- '3': 'EUR',
- '4': 'NAT',
- '5': 'OCE',
- '6': 'SAS',
- '7': 'WAS'
-}
+    # Define the ancestry map
+    ancestry_map = {
+     '0': 'AFR'
+    }
 
+    #Define the folders
+    msp_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/msp_files/ukbb'
+    output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/ukbb'
 
-for chrom_n in range(num_chrom):
-    chrom_n+=1
+    # Start the VCF creation
+    print('Starting the VCF creation')
+    #vcf_creation(ancestry_map, msp_folder, output_folder)
 
-    print(chrom_n)
-    
-    # read object
-    pickle_file = "/private/groups/ioannidislab/smeriglio/lai_object_chr_" + str(chrom_n) + ".pkl"
-
-    chrom = "chr" + str(chrom_n)
-
-    chrom_folder = os.path.join("/private/groups/ioannidislab/smeriglio/vcf_files", chrom)
-
-    if not os.path.exists(chrom_folder):
-        os.mkdir(chrom_folder)
-
-
-    with open(pickle_file, 'rb') as f:
-        lai_object = pickle.load(f)
-
-    #print(lai_object.physical_pos)
-
-    pos_list = [f"{val1}_{val2}" for val1, val2 in lai_object.physical_pos]
-    #print(pos_list)
-
-    
-    #iterate for each ancestry
-    for ancestry in range(len(ancestry_map)):
-
-        # modify the values to simulate a SNP file 
-        match = (lai_object.lai == ancestry).astype(int)
-        match = match.reshape(len(lai_object.lai),int(len(lai_object.lai[0])/2), 2 )
-
-        # create vcf object
-        calldata_gt = match
-        samples = np.array(lai_object.sample_IDs)
-        variants_chrom = np.full(calldata_gt.shape[0], chrom, dtype='U5')
-        variants_list = [str(i+1) for i in range(len(lai_object.window_size))]
-        variants_id = np.array(variants_list)
-        variants_ref = np.full(calldata_gt.shape[0], 'A', dtype='U5')
-        variants_alt = np.full((calldata_gt.shape[0], 3), ['T', 'G', 'C'], dtype='U1')
-        qual = np.full(variants_id.shape, 100)
-
-        variant_data_obj = SNPObject(
-            calldata_gt=calldata_gt,
-            samples=samples,
-            variants_chrom=variants_chrom,
-            variants_id=variants_id,
-            variants_ref = variants_ref,
-            variants_alt = variants_alt,
-            variants_pos = pos_list,
-            variants_qual = qual
-        )
-
-        # save ancestry data as vcf
-        filename = 'ancestry_' + ancestry_map[str(ancestry)] + '.vcf'
-        output_file = os.path.join(chrom_folder, filename) 
-        vcf_writer = VCFWriter(variant_data_obj, output_file)
-        print(output_file)
-
-        vcf_writer.write()
-    
+    # Start the VCF merging
+    print('starting the VCF merging')
+    vcf_merging(ancestry_map, output_folder)

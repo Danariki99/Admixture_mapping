@@ -1,18 +1,24 @@
 #!/usr/bin/env Rscript
 
-###############################################################################################################
-# RETRIEVE SNP ID AND GENE NAME FROM SNP COORDINATES
-# Note: for biomart to work it requires dplyr v2.3.4 - the last working version. Otherwise we get the error
-#     Error in `collect()`: ! Failed to collect lazy table. Caused by error in `db_collect()`: ...
-###############################################################################################################
-
 # deps
 require(biomaRt)
 require(data.table)
+require(optparse)
+
+# Define command line arguments
+option_list = list(
+  make_option(c("-i", "--input"), type="character", default=NULL,
+              help="Directory to files with SNP positions per chromosome", metavar="character"),
+  make_option(c("-o", "--output"), type="character", default=NULL,
+              help="Output directory", metavar="character")
+)
+
+# Parse command line arguments
+parser = OptionParser(option_list=option_list)
+args = parse_args(parser)
 
 # Directory to files with SNP positions per chromosome
-data.dir <- "/private/groups/ioannidislab/smeriglio/output/BMI/"
-# data.dir <- "/Users/jordiabante/petra/cfuses_gnn_enrollhd_2024/data/"
+data.dir <- args$input
 
 # 1. important positions
 wind.file <- paste(data.dir, "significant_positions.tsv", sep = "")
@@ -72,13 +78,13 @@ for (i in 1:length(start)) {
       # skip if number of SNPs is 0
       if (nrow(sub.snp.tab) == 0) next
 
-      # assign gene name
-      #sub.snp.tab$gene <- gene.symb$gene_name[i]
-
       # Append to general snp tab
       snp.tab <- rbind(snp.tab, sub.snp.tab)
 }
 
 # store table
-#print(snp.tab)
-write.table(snp.tab, file = paste0(data.dir, "significant_SNPs.txt"), quote = FALSE, sep = "\t", row.names = FALSE)
+output_file <- paste0(args$output, "significant_SNPs.txt")
+write.table(snp.tab, file = output_file, quote = FALSE, sep = "\t", row.names = FALSE)
+
+# Print the output file path
+cat(output_file)
