@@ -19,8 +19,6 @@ def positions_extraction(input_file, output_folder):
     # Split the 'POS' column into 'start_pos' and 'end_pos'
     df[['POS', 'end_POS']] = df['POS'].str.split('_', expand=True)
 
-    df['#CHROM'] = df['#CHROM'].str.replace('chr', '').astype(int)
-
     # Create output file path
     output_file = os.path.join(output_folder, 'positions.csv')
     df.to_csv(output_file, sep='\t', index=False)
@@ -153,6 +151,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
                 significant_data['Ancestry'] = ancestry
 
                 # Append the data to the main DataFrame
+                significant_df = significant_df.dropna()
                 significant_df = pd.concat([significant_df, significant_data])
 
         plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--')
@@ -172,8 +171,9 @@ def SNPs_extraction(input_file, output_dir):
     # Call the R script using subprocess
     result = subprocess.run(['Rscript', 'SNPs_gene_extraction.R', '-i', input_file, '-o', output_dir], capture_output=True, text=True)
 
-    # Get the output file path from the stdout
-    output_file_path = result.stdout.strip()
+    # Split the stdout into lines and get the last line (the output file path)
+    output_lines = result.stdout.strip().split('\n')
+    output_file_path = output_lines[-1] if output_lines else ""
 
     return output_file_path
 
@@ -244,8 +244,8 @@ def FUMA_files_creation(snps_filename, output_folder):
             fuma_wind = snps_subset.drop(columns=['pos', 'rfid', 'P', 'phenotype', 'ancestry'])
             fuma_wind = fuma_wind.drop_duplicates()
 
-            output_file_snps = os.path.join(output_file_snps, f'{ancestry}_{phenotype}_snps.txt')
-            output_file_wind = os.path.join(output_file_wind, f'{ancestry}_{phenotype}_wind.txt')
+            output_file_snps = os.path.join(output_folder_snps, f'{ancestry}_{phenotype}_snps.txt')
+            output_file_wind = os.path.join(output_folder_wind, f'{ancestry}_{phenotype}_wind.txt')
             if not snps_subset.empty:
                 fuma_snps.to_csv(output_file_snps, sep='\t', index=False)
                 fuma_wind.to_csv(output_file_wind, sep='\t', index=False)

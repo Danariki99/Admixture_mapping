@@ -1,2 +1,0 @@
-/var/lib/slurm/slurmd/job3322415/slurm_script: line 12: 4171425 Killed                  python /private/home/rsmerigl/codes/Admixture_mapping/test/negative_vcf.py
-slurmstepd-phoenix-18: error: Detected 1 oom-kill event(s) in StepId=3322415.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.

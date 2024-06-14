@@ -1,2 +1,0 @@
-reading file
-finished reading file
