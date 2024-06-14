@@ -1,4 +1,3 @@
-association_execution/BMI
-association_execution/no_BMI
-association_execution/new_association/no_BMI
-association_execution/new_association/BMI
+# execution files
+execution_error.txt
+execution_output.txt

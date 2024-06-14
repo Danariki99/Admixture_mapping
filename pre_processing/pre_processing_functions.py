@@ -71,7 +71,7 @@ def vcf_creation(ancestry_map, msp_folder, output_folder):
     # return the output folder in case of necessity
     return output_folder
 
-def vcf_merging(ancestry_map, vcf_dir):
+def vcf_merging(ancestry_map, vcf_dir, tmp_dir):
 
     vcf_generic_filename = '*_#.vcf'
 
@@ -86,7 +86,7 @@ def vcf_merging(ancestry_map, vcf_dir):
         output_file = generic_output_file.replace('#', ancestry_map[str(ancestry)])
 
         # Find all files with the current ancestry
-        vcf_filenames = glob.glob(os.path.join(vcf_dir, vcf_generic_filename.replace('#', ancestry_map[str(ancestry)])))
+        vcf_filenames = glob.glob(os.path.join(tmp_dir, vcf_generic_filename.replace('#', ancestry_map[str(ancestry)])))
         print(vcf_filenames)
 
         # Extract chromosome numbers and sort the filenames

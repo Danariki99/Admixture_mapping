@@ -8,7 +8,18 @@
 #SBATCH --time=7-00:00:00
 #SBATCH --mem=512G
 
-source /private/home/rsmerigl/anaconda3/bin/activate /private/home/rsmerigl/anaconda3/envs/e_env
-python /private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/pre-processing/pre_processing.py
-./ /private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/association_execution/job_submission_BMI.sh
-python /private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/post-processing/post_processing.py
+# Check if a dataset argument is provided
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <dataset>"
+    exit 1
+fi
+
+# Assign the first argument to the variable 'dataset'
+dataset=$1
+
+source /private/home/rsmerigl/anaconda3/bin/activate /private/home/rsmerigl/anaconda3/envs/r_env
+
+# Pass the dataset variable to the Python scripts
+python pre_processing/pre_processing.py $dataset
+./association_execution/job_submission_BMI.sh $dataset
+python post_processing/post_processing.py $dataset
