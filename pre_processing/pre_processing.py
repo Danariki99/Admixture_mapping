@@ -6,7 +6,14 @@ if __name__ == '__main__':
 
     # Define the ancestry map
     ancestry_map = {
-     '0': 'AFR'
+    '0': 'AFR',
+    '1': 'AHG',
+    '2': 'EAS',
+    '3': 'EUR',
+    '4': 'NAT',
+    '5': 'OCE',
+    '6': 'SAS',
+    '7': 'WAS'
     }
 
     #Define the folders

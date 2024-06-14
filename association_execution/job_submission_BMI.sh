@@ -7,8 +7,7 @@ sbatch_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_file
 sbatch_base="job"
 
 # Ancestry array
-# ancestry=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
-ancestry=("AFR")
+ancestry=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
 
 # Get list of files in pheno folder
 pheno_folder="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/ukbb"
