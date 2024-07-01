@@ -20,6 +20,11 @@ mkdir -p $sbatch_dir
 covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar.phe"
 keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/ukbb/keep_file.txt"
 
+# File to save submitted job IDs
+job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
+# Clear the file to start fresh
+> $job_ids_file
+
 # Create and submit sbatch scripts
 job_counter=1
 for anc in "${ancestry[@]}"
@@ -28,23 +33,18 @@ do
 
     for pheno_file in "${pheno_files[@]}"
     do
-        # Update the current_pheno_file and output_file variables for each combination of ancestry and phenotype
         current_pheno_file="$pheno_folder/$pheno_file"
         
-        # Get the base name of the phenotype file
         pheno_base=$(basename $pheno_file)
         pheno_base=${pheno_base%.phe}
         echo "Processing $pheno_base"
                 
-        # Construct the output file path
         output_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/ukbb/output_ancestry_${anc}/$pheno_base"
         mkdir -p $output_dir
         output_file="$output_dir/output"
 
-        # Command to run
         command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $current_pheno_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-4,48-57"
 
-        # Create sbatch script
         sbatch_file="$sbatch_dir/${anc}_${pheno_base}_$job_counter.sh"
         echo "#!/bin/bash" > $sbatch_file
         echo "#SBATCH --partition=long" >> $sbatch_file
@@ -57,10 +57,15 @@ do
         echo "#SBATCH --mem=512G" >> $sbatch_file
         echo "$command_to_run" >> $sbatch_file
 
-        # Submit sbatch script
-        sbatch $sbatch_file
+        # Submit sbatch script and capture the output
+        sbatch_output=$(sbatch $sbatch_file)
+        # Extract job ID
+        job_id=$(echo $sbatch_output | grep -oP '(?<=Submitted batch job )\d+')
+        echo "Submitted job ID: $job_id"
 
-        # Increment job counter
+        # Save the job ID to the file
+        echo "$job_id" >> $job_ids_file
+
         ((job_counter++))
     done
 done

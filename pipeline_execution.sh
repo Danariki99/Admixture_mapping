@@ -21,5 +21,35 @@ source /private/home/rsmerigl/anaconda3/bin/activate /private/home/rsmerigl/anac
 
 # Pass the dataset variable to the Python scripts
 python pre_processing/pre_processing.py $dataset
-./association_execution/job_submission_BMI.sh $dataset
+
+# Execute job_submission_BMI.sh and capture the path of the file containing job IDs
+job_ids_file=$(./association_execution/job_submission_BMI.sh $dataset)
+
+job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
+
+# Read job IDs from the file
+job_ids=$(cat "$job_ids_file")
+
+# Loop until all jobs are completed
+all_done=0
+while [ $all_done -eq 0 ]; do
+    all_done=1
+    for job_id in $job_ids; do
+        # Check if the job is still in the queue or running
+        if squeue --job $job_id 2>&1 | grep -q "$job_id"; then
+            all_done=0
+            break
+        fi
+    done
+    
+    # If not all jobs are completed, wait an hour before checking again
+    if [ $all_done -eq 0 ]; then
+        sleep 1h
+    fi
+done
+ echo "All jobs are completed, starting post processing"
+# All jobs are completed, execute the desired command
 python post_processing/post_processing.py $dataset
+
+# Cleanup: remove the job IDs file
+rm "$job_ids_file"
