@@ -160,8 +160,8 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         plt.xticks(chrom_positions, chrom_labels)
         plt.xlabel('Chromosome')
         plt.ylabel('-log10(p)')
-        plt.title('Manhattan Plot_' + ancestry)
-        plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.pdf'))
+        plt.title('Manhattan Plot ' + ancestry)
+        plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.png'))
     significant_file = os.path.join(general_output_folder, 'significant_positions.tsv')
     significant_df.to_csv(significant_file, sep='\t', index=False)
     return significant_file

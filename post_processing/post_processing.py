@@ -11,7 +11,6 @@ if __name__ == '__main__':
     dataset = sys.argv[1]
 
     ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "SAS", "WAS"]
-    #ancestry_list = ["AFR"]
 
     # Use the dataset variable to construct file paths
     phe_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/{dataset}'
