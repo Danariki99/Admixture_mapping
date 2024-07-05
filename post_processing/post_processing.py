@@ -10,7 +10,7 @@ if __name__ == '__main__':
     # The dataset variable is taken from the command line argument
     dataset = sys.argv[1]
 
-    ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "OCE", "SAS", "WAS"]
+    ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "SAS", "WAS"]
     #ancestry_list = ["AFR"]
 
     # Use the dataset variable to construct file paths
