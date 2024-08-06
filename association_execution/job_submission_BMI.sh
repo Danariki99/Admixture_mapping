@@ -17,7 +17,7 @@ pheno_files=($(ls $pheno_folder))
 mkdir -p $sbatch_dir
 
 # Variables for the command
-covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar.phe"
+covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar_filtered.phe"
 keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/ukbb/keep_file.txt"
 
 # File to save submitted job IDs
@@ -43,7 +43,7 @@ do
         mkdir -p $output_dir
         output_file="$output_dir/output"
 
-        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $current_pheno_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-4,48-57"
+        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $current_pheno_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-14"
 
         sbatch_file="$sbatch_dir/${anc}_${pheno_base}_$job_counter.sh"
         echo "#!/bin/bash" > $sbatch_file
