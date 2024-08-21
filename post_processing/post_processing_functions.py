@@ -169,7 +169,9 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
 
 def SNPs_extraction(input_file, output_dir):
     # Call the R script using subprocess
-    result = subprocess.run(['Rscript', 'SNPs_gene_extraction.R', '-i', input_file, '-o', output_dir], capture_output=True, text=True)
+    current_dir = os.getcwd()
+    
+    result = subprocess.run(['Rscript', os.path.join(current_dir, 'SNPs_gene_extraction.R'), '-i', input_file, '-o', output_dir], capture_output=True, text=True)
 
     # Split the stdout into lines and get the last line (the output file path)
     output_lines = result.stdout.strip().split('\n')

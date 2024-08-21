@@ -23,8 +23,7 @@ source /private/home/rsmerigl/anaconda3/bin/activate /private/home/rsmerigl/anac
 python pre_processing/pre_processing.py $dataset
 
 # Execute job_submission_BMI.sh and capture the path of the file containing job IDs
-job_ids_file=$(./association_execution/job_submission_BMI.sh $dataset)
-exit 1
+./association_execution/job_submission_BMI.sh $dataset
 
 job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
 
@@ -48,7 +47,7 @@ while [ $all_done -eq 0 ]; do
         sleep 1h
     fi
 done
- echo "All jobs are completed, starting post processing"
+echo "All jobs are completed, starting post processing"
 # All jobs are completed, execute the desired command
 python post_processing/post_processing.py $dataset
 
