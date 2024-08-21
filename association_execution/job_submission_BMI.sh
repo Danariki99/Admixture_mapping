@@ -1,7 +1,15 @@
 #!/bin/bash
 
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <dataset>"
+    exit 1
+fi
+
+# Assign the first argument to the variable 'dataset'
+dataset=$1
+
 # Directory where sbatch scripts will be created
-sbatch_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_files/ukbb"
+sbatch_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_files/${dataset}"
 
 # Base name for sbatch scripts
 sbatch_base="job"
@@ -10,15 +18,15 @@ sbatch_base="job"
 ancestry=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
 
 # Get list of files in pheno folder
-pheno_folder="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/ukbb"
+pheno_folder="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}"
 pheno_files=($(ls $pheno_folder))
 
 # Create the sbatch scripts directory if it doesn't exist
 mkdir -p $sbatch_dir
 
 # Variables for the command
-covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar_filtered.phe"
-keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/ukbb/keep_file.txt"
+covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/${dataset}/ukb24983_GWAS_covar_filtered.phe"
+keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/${dataset}/keep_file.txt"
 
 # File to save submitted job IDs
 job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
@@ -29,7 +37,7 @@ job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submi
 job_counter=1
 for anc in "${ancestry[@]}"
 do
-    vcf_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/ukbb/ancestry_${anc}.vcf"
+    vcf_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/${dataset}/ancestry_${anc}.vcf"
 
     for pheno_file in "${pheno_files[@]}"
     do
@@ -39,7 +47,7 @@ do
         pheno_base=${pheno_base%.phe}
         echo "Processing $pheno_base"
                 
-        output_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/ukbb/output_ancestry_${anc}/$pheno_base"
+        output_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/${dataset}/output_ancestry_${anc}/$pheno_base"
         mkdir -p $output_dir
         output_file="$output_dir/output"
 

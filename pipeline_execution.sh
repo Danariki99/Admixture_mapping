@@ -24,6 +24,7 @@ python pre_processing/pre_processing.py $dataset
 
 # Execute job_submission_BMI.sh and capture the path of the file containing job IDs
 job_ids_file=$(./association_execution/job_submission_BMI.sh $dataset)
+exit 1
 
 job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
 
