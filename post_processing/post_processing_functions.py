@@ -79,7 +79,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         chrom_labels = sorted(data['#CHROM'].unique())
 
         # compute bonferroni threshold
-        bonferroni_threshold = significance_threshold / (len(data) * len(pheno_list ) * len(ancestry_list))
+        bonferroni_threshold = significance_threshold / (len(data) * len(pheno_list) * len(ancestry_list))
         
         # Filter and sort the data for the first phenotype
         first_filtered_data = data.loc[data[first_pheno] < bonferroni_threshold]

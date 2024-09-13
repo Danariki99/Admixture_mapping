@@ -29,7 +29,6 @@ if __name__ == '__main__':
     # result analysis and manhattan plot creation
     print("Analyzing results")
     significant_position_file = result_analysis(ancestry_list, phe_folder, general_file, window_pos_file, output_file, plot_output_folder, general_output_folder)
-    
     # extraction of the SNPs
     print("Extracting SNPs")
     total_SNPs_file = SNPs_extraction(significant_position_file, general_output_folder)
