@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
             #read the file in pandas and extract the list of snps
             df = pd.read_csv(tmp_file_snps)
-            list_of_snps.extend(df['ID'].values)
+            list_of_snps.extend(df['#ID'].values)
 
             # delete the folder and recreate it to free space
             shutil.rmtree(tmp_folder)
