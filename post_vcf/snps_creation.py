@@ -58,13 +58,13 @@ if __name__ == '__main__':
 
             #read the file in pandas and extract the list of snps
             df = pd.read_csv(tmp_file_snps)
-            list_of_snps.extend(df['#ID'].values)
+            list_of_snps.extend(df['ID'].values)
 
             # delete the folder and recreate it to free space
             shutil.rmtree(tmp_folder)
             os.makedirs(tmp_folder)
 
-        last_df = pd.DataFrame(list_of_snps, columns=['ID'])
+        last_df = pd.DataFrame(list_of_snps, columns=['#ID'])
         last_df.to_csv(output_file, index=False)
         print(f"File {output_file} created")
 
