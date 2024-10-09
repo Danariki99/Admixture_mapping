@@ -23,7 +23,6 @@ if __name__ == '__main__':
     wind_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/{dataset}/wind'
     vcf_generic_filename = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/{dataset}/ancestry_*.vcf'
     tmp_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp'
-    output_samples_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/{dataset}/selected_samples.txt'
     old_keep_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/{dataset}/keep_file.txt'
 
     list_of_files = os.listdir(wind_folder)
@@ -93,5 +92,11 @@ if __name__ == '__main__':
         new_keep.to_csv(output_file, index=False)
 
         print(f'Finished processing {wind_filename}\nThe number of samples in the new keep file is {len(new_keep)}')
+
+        # Clean up the temporary files
+        os.remove(tmp_file)
+
+
+
 
         
