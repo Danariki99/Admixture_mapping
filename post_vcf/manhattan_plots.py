@@ -73,7 +73,7 @@ if __name__ == '__main__':
             chrom_data['ABS_POS'] = chrom_data['POS'] + chrom_offsets[chrom]
             
             plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data['P']), 
-                        color=chromosome_colors[i % len(chromosome_colors)], label=f'Chromosome {chrom}', s=10)
+                        color=chromosome_colors[int(chrom+1) % len(chromosome_colors)], label=f'Chromosome {chrom}', s=10)
 
         # Set the x-axis limits
         plt.xlim(0, 22 * max_distance)
