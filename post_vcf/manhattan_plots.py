@@ -28,6 +28,10 @@ if __name__ == '__main__':
 
     list_folders = os.listdir(output_folder_general)
 
+    df_list = []
+
+    max_distance = 0  
+
     for fold_name in list_folders:
 
         # Read the file and compute the Bonferroni threshold
@@ -36,6 +40,25 @@ if __name__ == '__main__':
 
         df = pd.read_csv(current_file, sep='\t')
 
+        # Group by chromosome and calculate the distance (max_pos - min_pos) for each chromosome
+        for chrom, chrom_data in df.groupby('#CHROM'):
+            chrom_max_pos = chrom_data['POS'].max()  # Maximum position in this chromosome
+            chrom_min_pos = chrom_data['POS'].min()  # Minimum position in this chromosome
+            distance = chrom_max_pos - chrom_min_pos  # Distance between max and min positions
+
+            # Update the global maximum distance if the current distance is greater
+            if distance > max_distance:
+                max_distance = distance
+        df_list.append(df)
+
+    # Calculate the absolute position for each SNP
+    for df in df_list:
+        df['ABS_POS'] = df['POS'] + max_distance * df['#CHROM']
+
+    index = 0
+    for fold_name in list_folders:
+
+        df = df_list[index]
         # Bonferroni correction
         bonferroni_threshold = significance_threshold / len(df)
 
@@ -47,7 +70,7 @@ if __name__ == '__main__':
 
         # Plot Manhattan points for each chromosome, assigning a unique color to each chromosome
         for i, (chrom, chrom_data) in enumerate(df.groupby('#CHROM')):
-            plt.scatter(chrom_data['POS'], -np.log10(chrom_data['P']), 
+            plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data['P']), 
                         color=chromosome_colors[i % len(chromosome_colors)], label=f'Chromosome {chrom}', s=10)
 
         # Plot the Bonferroni significance threshold
@@ -55,7 +78,7 @@ if __name__ == '__main__':
 
         # Add labels and titles
         plt.title(f'Manhattan Plot {fold_name}')
-        plt.xlabel('Chromosome Position')
+        plt.xlabel('Chromosome Position (ABS_POS)')
         plt.ylabel('-log10(p-value)')
         plt.legend(title='Chromosomes')
 
@@ -65,6 +88,7 @@ if __name__ == '__main__':
         plt.savefig(os.path.join(output_folder, f'manhattan_plot_{fold_name}.png'))
         plt.close()
         print(f'Manhattan plot of {fold_name} saved to {output_folder}')
+        index += 1
 
 
 
