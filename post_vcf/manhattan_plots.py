@@ -43,8 +43,7 @@ if __name__ == '__main__':
         # Group by chromosome and calculate the distance (max_pos - min_pos) for each chromosome
         for chrom, chrom_data in df.groupby('#CHROM'):
             chrom_max_pos = chrom_data['POS'].max()  # Maximum position in this chromosome
-            chrom_min_pos = chrom_data['POS'].min()  # Minimum position in this chromosome
-            distance = chrom_max_pos - chrom_min_pos  # Distance between max and min positions
+            distance = chrom_max_pos
 
             # Update the global maximum distance if the current distance is greater
             if distance > max_distance:
@@ -68,8 +67,13 @@ if __name__ == '__main__':
         # Create the plot
         plt.figure(figsize=(12, 6))
 
-        # Plot Manhattan points for each chromosome, assigning a unique color to each chromosome
+        chrom_offsets = {chrom: max_distance * (chrom - 1) for chrom in range(1, 23)}
+
+        # Plot Manhattan points for each chromosome, using the calculated offsets
         for i, (chrom, chrom_data) in enumerate(df.groupby('#CHROM')):
+
+            chrom_data['ABS_POS'] = chrom_data['POS'] + chrom_offsets[chrom]
+            
             plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data['P']), 
                         color=chromosome_colors[i % len(chromosome_colors)], label=f'Chromosome {chrom}', s=10)
 
