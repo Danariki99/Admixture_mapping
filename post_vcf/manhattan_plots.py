@@ -68,14 +68,20 @@ if __name__ == '__main__':
         plt.figure(figsize=(12, 6))
 
         chrom_offsets = {chrom: max_distance * (chrom - 1) for chrom in range(1, 23)}
-
         # Plot Manhattan points for each chromosome, using the calculated offsets
         for i, (chrom, chrom_data) in enumerate(df.groupby('#CHROM')):
-
             chrom_data['ABS_POS'] = chrom_data['POS'] + chrom_offsets[chrom]
             
             plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data['P']), 
                         color=chromosome_colors[i % len(chromosome_colors)], label=f'Chromosome {chrom}', s=10)
+
+        # Set the x-axis limits
+        plt.xlim(0, 22 * max_distance)
+
+        # Add chromosome labels at equal intervals
+        chrom_labels = [str(c) for c in range(1, 23)]
+        chrom_positions = [chrom_offsets[c] + max_distance / 2 for c in range(1, 23)]
+        plt.xticks(chrom_positions, chrom_labels)
 
         # Plot the Bonferroni significance threshold
         plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--')
@@ -93,8 +99,6 @@ if __name__ == '__main__':
         plt.close()
         print(f'Manhattan plot of {fold_name} saved to {output_folder}')
         index += 1
-
-
 
 
 
