@@ -23,6 +23,7 @@ vcf_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_win
 # keep directory
 keep_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/keep_files"
 
+keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/${dataset}/keep_file.txt"
 
 keep_files=$(ls $keep_dir)
 
@@ -37,11 +38,9 @@ job_counter=1
 # loop on the keep files    
 for keep_filename in $keep_files
 do
-    keep_file=$keep_dir/$keep_filename
-
     snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files/${keep_filename/keep/snps}"
 
-    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output/${keep_filename/_keep.txt}
+    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_all_samp/${keep_filename/_keep.txt}
     
     mkdir -p $output_folder
 
