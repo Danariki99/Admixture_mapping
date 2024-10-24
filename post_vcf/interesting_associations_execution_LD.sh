@@ -18,14 +18,12 @@ sbatch_base="job"
 mkdir -p $sbatch_dir
 
 # Variables for the command
-covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/${dataset}/ukb24983_GWAS_covar_filtered.phe"
 vcf_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/vcf_file/ukbb.vcf.gz"
+
 # keep directory
-keep_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/keep_files"
+snps_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files"
 
-keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/${dataset}/keep_file.txt"
-
-keep_files=$(ls $keep_dir)
+snps_files=$(ls $snps_dir)
 
 # File to save submitted job IDs
 job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
@@ -36,22 +34,22 @@ job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submi
 job_counter=1
 
 # loop on the keep files    
-for keep_filename in $keep_files
+for snps_filename in $snps_files
 do
-    snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files/${keep_filename/keep/snps}"
+    snps_file=$snps_dir/$snps_filename
 
-    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_LD/${keep_filename/_keep.txt}
+    output_folder="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_LD/${snps_filename/_snps.txt}"
     
     mkdir -p $output_folder
 
-    output_file=$output_folder/${keep_filename/keep.txt/output}
+    output_file=$output_folder/${snps_filename/snps.txt/output}
     
-    pheno=${keep_filename:4}
-    pheno=${pheno/_keep.txt}
+    pheno=${snps_filename:4}
+    pheno=${pheno/_snps.txt}
 
-    phe_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}/$pheno.phe"
+    input_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_all_samp/${snps_filename/_snps.txt}/${snps_filename/_snps.txt}_output.${pheno}.glm.hybrid"
 
-    command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --clump --keep $keep_file --out $output_file --covar-col-nums 2-14"
+    command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --extract $snps_file  --clump $input_file --out $output_file"
 
     sbatch_file="$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.sh"
 
