@@ -47,7 +47,7 @@ do
     pheno=${snps_filename:4}
     pheno=${pheno/_snps.txt}
 
-    input_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_all_samp/${snps_filename/_snps.txt}/${snps_filename/_snps.txt}_output.${pheno}.glm.hybrid"
+    input_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_all_samp/${snps_filename/_snps.txt}/${snps_filename/_snps.txt}_output.${pheno}.glm.logistic.hybrid"
 
     command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --extract $snps_file  --clump $input_file --out $output_file"
 
