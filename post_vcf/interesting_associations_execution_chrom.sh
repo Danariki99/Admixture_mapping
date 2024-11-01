@@ -21,7 +21,7 @@ mkdir -p $sbatch_dir
 covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/${dataset}/ukb24983_GWAS_covar_filtered.phe"
 vcf_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/vcf_file/ukbb.vcf.gz"
 # keep directory
-keep_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/keep_files"
+keep_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/keep_files_chrom"
 
 keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/${dataset}/keep_file.txt"
 
@@ -38,16 +38,17 @@ job_counter=1
 # loop on the keep files    
 for keep_filename in $keep_files
 do
-    snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files/${keep_filename/keep/snps}"
-
-    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_all_samp/${keep_filename/_keep.txt}
-    
+    chrom=$(echo "$keep_filename" | awk -F'chr' '{print $2}' | awk -F'.' '{print $1}')
+    snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files_chrom/${keep_filename/keep/snps}"
+    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_chrom/${keep_filename/_keep_chr$chrom.txt}_chr$chrom
     mkdir -p $output_folder
 
-    output_file=$output_folder/${keep_filename/keep.txt/output}
+    output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
+    output_file="${output_file:0:-6}chr${chrom}_output"
+
     
     pheno=${keep_filename:4}
-    pheno=${pheno/_keep.txt}
+    pheno=${pheno/_keep_chr$chrom.txt/}
 
     phe_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}/$pheno.phe"
 

@@ -3,6 +3,7 @@ import sys
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+import statsmodels.api as sm
 
 if __name__ == '__main__':
     # Check if the dataset argument is provided
@@ -61,6 +62,40 @@ if __name__ == '__main__':
         # Bonferroni correction
         bonferroni_threshold = significance_threshold / len(df)
 
+        # Benjamini-Hochberg correction
+        fdr_bh = sm.stats.multipletests(df['P'], alpha=significance_threshold, method='fdr_bh')
+
+        #extract the p-values that are below the threshold
+        reject_bh = fdr_bh[0]
+        pvals_bh = fdr_bh[1]
+        accepted_pvals = df['P'][reject_bh]
+
+        # Calculate the maximum accepted p-value to compute the threshold
+        max_accepted_p_value = accepted_pvals.max() if not accepted_pvals.empty else None
+
+        if max_accepted_p_value is not None:
+            fdr_bh_threshold = max_accepted_p_value
+        else:
+            fdr_bh_threshold = None
+
+        # Benjamini-Yekutieli correction
+        fdr_by = sm.stats.multipletests(df['P'], alpha=significance_threshold, method='fdr_by')
+
+        # Extract the rejection decision and adjusted p-values
+        reject_by = fdr_by[0]
+        pvals_by = fdr_by[1]
+
+        # Get the accepted original p-values based on the rejection decision
+        accepted_pvals_by = df['P'][reject_by]
+
+        # Calculate the maximum accepted p-value to compute the threshold
+        max_accepted_p_value_by = accepted_pvals_by.max() if not accepted_pvals_by.empty else None
+
+        if max_accepted_p_value_by is not None:
+            fdr_by_threshold = max_accepted_p_value_by
+        else:
+            fdr_by_threshold = None
+
         # Create Manhattan plot for each file
         output_folder = os.path.join(base_folder, 'manhattan_plots')
 
@@ -84,7 +119,12 @@ if __name__ == '__main__':
         plt.xticks(chrom_positions, chrom_labels)
 
         # Plot the Bonferroni significance threshold
-        plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--')
+        plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--', label='Bonferroni')
+        if fdr_bh_threshold is not None:
+            plt.axhline(y=-np.log10(fdr_bh_threshold), color='g', linestyle='--', label='FDR BH')
+        if fdr_by_threshold is not None:
+            plt.axhline(y=-np.log10(fdr_by_threshold), color='b', linestyle='--', label='FDR BY')
+
 
         # Add labels and titles
         plt.title(f'Manhattan Plot {fold_name}')
