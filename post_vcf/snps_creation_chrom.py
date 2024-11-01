@@ -35,7 +35,7 @@ if __name__ == '__main__':
             list_of_snps = []
 
             # read the current window file into pandas and extract chrom, start, end
-            wind_df = wind_df.loc[wind_df['chr'] == chr]
+            wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
             for index, row in wind_df.iterrows():
                 chrom = row['chr']
                 start = row['start']
