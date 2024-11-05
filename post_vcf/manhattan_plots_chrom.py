@@ -98,7 +98,8 @@ if __name__ == '__main__':
             fdr_by_threshold = None
 
         # Create Manhattan plot for each file
-        output_folder = os.path.join(base_folder, 'manhattan_plots_all_samp')
+        output_folder = os.path.join(base_folder, 'manhattan_plots_chrom')
+
 
         # Create the plot
         plt.figure(figsize=(12, 6))

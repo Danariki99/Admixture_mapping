@@ -70,6 +70,7 @@ do
 
     # Submit sbatch script and capture the output
     sbatch_output=$(sbatch $sbatch_file)
+
     # Extract job ID
     job_id=$(echo $sbatch_output | grep -oP '(?<=Submitted batch job )\d+')
     
