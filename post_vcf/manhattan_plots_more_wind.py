@@ -98,7 +98,7 @@ if __name__ == '__main__':
             fdr_by_threshold = None
 
         # Create Manhattan plot for each file
-        output_folder = os.path.join(base_folder, 'manhattan_plots_chrom')
+        output_folder = os.path.join(base_folder, 'manhattan_plots_more_wind')
 
 
         # Create the plot
