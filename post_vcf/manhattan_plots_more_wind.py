@@ -26,7 +26,7 @@ if __name__ == '__main__':
     significance_threshold = 0.05
     
     base_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/{dataset}'
-    output_folder_general = os.path.join(base_folder, 'output_more_wind')
+    output_folder_general = os.path.join(base_folder, 'output_more_wind_6')
 
     list_folders = os.listdir(output_folder_general)
 
@@ -98,7 +98,7 @@ if __name__ == '__main__':
             fdr_by_threshold = None
 
         # Create Manhattan plot for each file
-        output_folder = os.path.join(base_folder, 'manhattan_plots_more_wind')
+        output_folder = os.path.join(base_folder, 'manhattan_plots_more_wind_6')
 
 
         # Create the plot

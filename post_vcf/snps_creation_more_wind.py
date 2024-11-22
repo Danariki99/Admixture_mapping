@@ -15,7 +15,7 @@ if __name__ == '__main__':
     dataset = sys.argv[1]
 
     # Use the dataset variable to construct file paths
-    output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/{dataset}/snps_files_more_wind'
+    output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/{dataset}/snps_files_more_wind_6'
     wind_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/{dataset}/wind'
     vcf_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/{dataset}/vcf_file/ukbb.vcf.gz'
     tmp_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp'
@@ -54,7 +54,7 @@ if __name__ == '__main__':
             # read the current window file into pandas and extract chrom, start, end
             wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
 
-            n_wind = 3
+            n_wind = 6
 
             # Assume df and wind_df are sorted by 'chr' and 'start' (ascending)
             df = df.sort_values(['start']).reset_index(drop=True)

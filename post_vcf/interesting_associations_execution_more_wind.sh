@@ -39,8 +39,8 @@ job_counter=1
 for keep_filename in $keep_files
 do
     chrom=$(echo "$keep_filename" | awk -F'chr' '{print $2}' | awk -F'.' '{print $1}')
-    snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files_more_wind/${keep_filename/keep/snps}"
-    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_more_wind/${keep_filename/_keep_chr$chrom.txt}_chr$chrom
+    snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files_more_wind_6/${keep_filename/keep/snps}"
+    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/output_more_wind_6/${keep_filename/_keep_chr$chrom.txt}_chr$chrom
     mkdir -p $output_folder
 
     output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
