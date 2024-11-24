@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from io import StringIO
+from adjustText import adjust_text
 
 def positions_extraction(input_file, output_folder):
     # Define the command
@@ -30,7 +31,12 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
 
     significance_threshold = 0.05
 
-    
+    #read excel file for ukbb (modify for allofus)
+    excel_df = pd.read_excel(
+        '/private/home/rsmerigl/codes/cleaned_codes/ukbb_v1.xlsx', 
+        sheet_name='first_batch',
+        usecols="B:C"
+    )
 
     significant_df = pd.DataFrame(columns=['#CHROM', 'POS', 'end_POS', 'ABS_POS', 'P', 'Phenotype', 'Ancestry'])
 
@@ -80,6 +86,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
 
         # compute bonferroni threshold
         bonferroni_threshold = significance_threshold / (len(data) * len(pheno_list) * len(ancestry_list))
+        local_bonferroni_threshold = significance_threshold / len(data)
         
         # Filter and sort the data for the first phenotype
         first_filtered_data = data.loc[data[first_pheno] < bonferroni_threshold]
@@ -128,6 +135,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         plt.figure(figsize=(12, 6))
 
         # Iterate over the first two phenotypes
+        texts = []
         for i, phe_file in enumerate(pheno_list):
             pheno = phe_file.replace('.phe', '')
 
@@ -141,7 +149,16 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
                 max_row = significant_data.loc[significant_data[pheno].idxmin()]
                 offset_x = np.random.uniform(-1e6, 1e6)  # Adjust these values as needed
                 offset_y = np.random.uniform(-0.5, 0.5)  # Adjust these values as needed
-                plt.annotate(f'{pheno}_chr{max_row["#CHROM"].astype(int)}_{max_row["POS"].astype(int)}_{max_row["end_POS"].astype(int)}', (max_row['ABS_POS'] + offset_x, -np.log10(max_row[pheno]) + offset_y))        # Add a horizontal line at -log10(significance_threshold)
+                annotation_text = (
+                    f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
+                    f'chrom {int(max_row["#CHROM"])}, {int(max_row["POS"])}-{int(max_row["end_POS"])}'
+                )
+                text = plt.annotate(
+                    annotation_text,
+                    (max_row['ABS_POS'] + offset_x, -np.log10(max_row[pheno]) + offset_y)
+                )
+                texts.append(text)
+                
 
                 # Rename the phenotype column to 'P'
                 significant_data = significant_data.rename(columns={pheno: 'P'})
@@ -154,14 +171,17 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
                 significant_df = significant_df.dropna()
                 significant_df = pd.concat([significant_df, significant_data])
 
-        plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--')
+        adjust_text(texts)
+        line1 = plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--', label='Bonferroni threshold')
+        line2 = plt.axhline(y=-np.log10(local_bonferroni_threshold), color='b', linestyle='--', label='Local Bonferroni threshold')
 
         # Set x-axis ticks to the chromosome positions and labels
         plt.xticks(chrom_positions, chrom_labels)
         plt.xlabel('Chromosome')
         plt.ylabel('-log10(p)')
         plt.title('Manhattan Plot ' + ancestry)
-        plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.png'))
+        plt.legend(handles=[line1, line2], loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2)
+        plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.png'), bbox_inches='tight')
     significant_file = os.path.join(general_output_folder, 'significant_positions.tsv')
     significant_df.to_csv(significant_file, sep='\t', index=False)
     return significant_file
