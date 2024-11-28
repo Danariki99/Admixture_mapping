@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from io import StringIO
 from adjustText import adjust_text
+import requests
+
 
 def positions_extraction(input_file, output_folder):
     # Define the command
@@ -149,9 +151,10 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
                 max_row = significant_data.loc[significant_data[pheno].idxmin()]
                 offset_x = np.random.uniform(-1e6, 1e6)  # Adjust these values as needed
                 offset_y = np.random.uniform(-0.5, 0.5)  # Adjust these values as needed
+                name = fetch_cytoband(f"chr{int(max_row['#CHROM'])}", int(max_row["POS"]), int(max_row["end_POS"]))
                 annotation_text = (
                     f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
-                    f'chrom {int(max_row["#CHROM"])}, {int(max_row["POS"])}-{int(max_row["end_POS"])}'
+                    f'{name}'
                 )
                 text = plt.annotate(
                     annotation_text,
@@ -273,6 +276,37 @@ def FUMA_files_creation(snps_filename, output_folder):
                 fuma_wind.to_csv(output_file_wind, sep='\t', index=False)
             
     return output_folder_snps, output_folder_wind
+
+def fetch_cytoband(chromosome, start, end, genome="hg38"):
+    url = "https://genome.ucsc.edu/cgi-bin/hgTables"
+    params = {
+        "db": genome,
+        "hgta_group": "allTracks",
+        "hgta_track": "cytoBand",
+        "hgta_table": "cytoBand",
+        "hgta_regionType": "range",
+        "position": f"{chromosome}:{start}-{end}",
+        "hgta_outputType": "primaryTable",
+        "boolshad.sendToGalaxy": "0",
+        "boolshad.sendToGreat": "0",
+        "hgta_doTopSubmit": "get output",
+    }
+    
+    # Effettua la richiesta a UCSC
+    response = requests.post(url, data=params)
+    if response.status_code != 200:
+        raise Exception(f"Errore durante la connessione a UCSC: {response.status_code}")
+    
+    # Analizza la risposta
+    response_text = response.text.strip()
+    if not response_text:
+        return "Unknown"
+    
+    # Converte l'output in righe e seleziona la banda più rilevante
+    lines = response_text.split("\n")
+    fields = lines[1].split("\t")  # Splitta la riga in una lista
+    name = f"{fields[0].replace('chr', '')}{fields[3]}"
+    return name
 
 
     
