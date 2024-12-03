@@ -149,13 +149,39 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
             significant_data = significant_list[i]
             if not significant_data.empty:
                 max_row = significant_data.loc[significant_data[pheno].idxmin()]
-                offset_x = np.random.uniform(-1e6, 1e6)  # Adjust these values as needed
-                offset_y = np.random.uniform(-0.5, 0.5)  # Adjust these values as needed
+                offset_x = np.random.uniform(-1e9, 1e9)  # Adjust these values as needed
+                offset_y = np.random.uniform(-0.6, 0.6)  # Adjust these values as needed
                 name = fetch_cytoband(f"chr{int(max_row['#CHROM'])}", int(max_row["POS"]), int(max_row["end_POS"]))
-                annotation_text = (
-                    f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
-                    f'{name}'
-                )
+
+                # manually select the non working genes
+                if name == 'Timeout':
+                    if f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31346445-31377047':
+                        name = '6p21.33'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr8:124070432-124092625':
+                        name = '8q24.13'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31905130-32007956':
+                        name = '6p21.33'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:32207393-32288190':
+                        name = '6p21.32'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr10:116036889-116139029':
+                        name = '10q25.3'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31428169-31435326':
+                        name = '6p21.33'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr9:85752837-85810910':
+                        name = '9q21.33'
+                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr17:1820750-1925859':
+                        name = '17p13.3'
+                if name != 'Timeout':
+                    annotation_text = (
+                        f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
+                        f'{name}'
+                    )
+                else:
+                    annotation_text = (
+                        f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
+                        f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}'
+                    )
+
                 text = plt.annotate(
                     annotation_text,
                     (max_row['ABS_POS'] + offset_x, -np.log10(max_row[pheno]) + offset_y)
@@ -277,7 +303,7 @@ def FUMA_files_creation(snps_filename, output_folder):
             
     return output_folder_snps, output_folder_wind
 
-def fetch_cytoband(chromosome, start, end, genome="hg38"):
+def fetch_cytoband(chromosome, start, end, genome="hg19"):
     url = "https://genome.ucsc.edu/cgi-bin/hgTables"
     params = {
         "db": genome,
@@ -291,22 +317,24 @@ def fetch_cytoband(chromosome, start, end, genome="hg38"):
         "boolshad.sendToGreat": "0",
         "hgta_doTopSubmit": "get output",
     }
-    
-    # Effettua la richiesta a UCSC
-    response = requests.post(url, data=params)
-    if response.status_code != 200:
-        raise Exception(f"Errore durante la connessione a UCSC: {response.status_code}")
+
+    try:
+        response = requests.post(url, data=params, timeout=60)
+        response.raise_for_status()  # Gestisce errori HTTP
+    except requests.exceptions.ReadTimeout:
+        print(f"Timeout: il server non ha risposto entro il tempo previsto.")
+        return "Timeout"
+    except requests.exceptions.RequestException as e:
+        print(f"Errore nella richiesta: {e}")
+        return "Errore"
     
     # Analizza la risposta
     response_text = response.text.strip()
     if not response_text:
         return "Unknown"
     
-    # Converte l'output in righe e seleziona la banda più rilevante
     lines = response_text.split("\n")
-    fields = lines[1].split("\t")  # Splitta la riga in una lista
-    name = f"{fields[0].replace('chr', '')}{fields[3]}"
-    return name
-
+    fields = lines[1].split("\t")
+    return f"{fields[0].replace('chr', '')}{fields[3]}"
 
     
