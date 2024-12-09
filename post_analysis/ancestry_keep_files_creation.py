@@ -57,7 +57,7 @@ for msp_file in msp_files:
 # Save the final df_counts if needed
 output_file = os.path.join(output_folder, 'final_counts.csv')
 df_counts.to_csv(output_file, index=False)
-'''
+
 # Generate ancestry-specific keep files
 for ancestry in df_counts.columns[1:]:
     max_ancestry_samples = df_counts.loc[df_counts[ancestry] == df_counts.iloc[:, 1:].max(axis=1), '#IID']
@@ -66,4 +66,3 @@ for ancestry in df_counts.columns[1:]:
     keep_df.to_csv(keep_file, index=False, header=True, sep='\t')
 
 print('Processing complete. Final counts and keep files have been saved.')
-'''
