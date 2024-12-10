@@ -3,9 +3,23 @@ import pandas as pd
 import numpy as np
 
 #modify this thing to take all the files in the final output folder
-output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/ukbb'
+output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/ukbb/keep_files'
 
-df_counts = pd.DataFrame(columns=['#IID', 'AFR', 'AHG', 'EAS', 'EUR', 'NAT', 'OCE', 'SAS', 'WAS'])
+counts_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/ukbb/counts'
+
+counts_files = os.listdir(counts_folder)
+
+df_counts = None
+
+for count_file in counts_files:
+    df = pd.read_csv(os.path.join(counts_folder, count_file))
+    df = df.set_index('#IID')
+    df = df.dropna()
+    df = df.astype(int)
+    if df_counts is None:
+        df_counts = df
+    else:
+        df_counts = df_counts.add(df, fill_value=0)
 
 # Generate ancestry-specific keep files
 for ancestry in df_counts.columns[1:]:

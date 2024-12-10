@@ -6,7 +6,7 @@
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --time=7-00:00:00
-#SBATCH --mem=128G
+#SBATCH --mem=512G
 
 # Controlla se è stato fornito un argomento
 if [ "$#" -ne 1 ]; then
