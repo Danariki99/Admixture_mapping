@@ -35,7 +35,7 @@ if __name__ == '__main__':
 
     list_of_files = os.listdir(wind_folder)
 
-    for wind_filename in [list_of_files[0]]:
+    for wind_filename in list_of_files:
         ancestry = wind_filename.split('_')[0]
         pheno = wind_filename.split('_')[1]
         input_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/{dataset}/ancestry_{ancestry}.vcf'
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         wind_df_1 = pd.read_csv(wind_file, sep='\t')
         chroms = wind_df_1['chr'].unique()
 
-        for chr in [chroms[0]]:
+        for chr in chroms:
             msp_file = generic_msp_file.replace('*', str(chr))
             output_file_1 = os.path.join(tmp_folder, 'processed_msp_1.tsv')
 
@@ -116,25 +116,45 @@ if __name__ == '__main__':
 
             total_counts = 2 * len(pandas_df)
 
-            # Step 1: Count occurrences of each ancestry for each row (for both haplotypes .0 and .1)
-            ancestry_columns = [f'{id}.0' for id in old_covar_df['IID']] + [f'{id}.1' for id in old_covar_df['IID']]
-            counts_df = pd.DataFrame(columns=ancestry_map.keys())
+            covar_file = os.path.join(output_folder, f'{ancestry}_{pheno}_covar_chr{chr}.tsv')
 
-            for ancestry in ancestry_map.keys():
-                # Count occurrences for the ancestry in both haplotypes (.0 and .1)
-                counts_df[ancestry] = (
-                    (pandas_df[ancestry_columns].values == ancestry_map[ancestry]).sum(axis=1)
-                )
+            ids = old_covar_df['IID'].tolist()
 
-            # Step 2: Determine the ancestry with the most counts for each individual
-            dominant_ancestry = counts_df.idxmax(axis=1)  # This gives the ancestry with the highest count for each row
+            # Calcolo delle occorrenze per ogni ancestry
+            ancestry_columns = [f"{id}.0" for id in ids] + [f"{id}.1" for id in ids]
+            valid_ancestry_columns = list(set(ancestry_columns) & set(pandas_df.columns))
 
-            # Step 3: Create the ancestry indicator column and the percentage column
-            pandas_df[f'{ancestry}'] = dominant_ancestry == ancestry  # Indicator: 1 if the ancestry is the dominant one
-            pandas_df[f'{ancestry}_percentage'] = counts_df[ancestry] / (2 * len(pandas_df))  # Percentage of the current ancestry
+            counts_df = pd.DataFrame(index=old_covar_df['IID'])
+            for ancestry in ancestry_map:
+                if valid_ancestry_columns:
+                    counts_df[ancestry] = (
+                        (pandas_df[valid_ancestry_columns].values == ancestry_map[ancestry]).sum(axis=1)
+                    )
 
-            # Step 4: Merge the updated data with old_covar_df
-            covar_df = pd.merge(old_covar_df, pandas_df[['IID', f'{ancestry}', f'{ancestry}_percentage']], on='IID', how='inner')
+            # Creazione del DataFrame finale
+            covar_df = pd.DataFrame(columns=['IID', f'{ancestry}', f'{ancestry}_percentage'])
+
+            for id in ids:
+                # Calcolare il numero di occorrenze per ciascun ancestry
+                ancestry_counts = {ancestry: counts_df[ancestry][pandas_df['IID'] == id].sum() for ancestry in ancestry_map}
+                
+                # Trovare l'ancestry con il conteggio massimo
+                max_ancestry = max(ancestry_counts, key=ancestry_counts.get)
+                max_count = ancestry_counts[max_ancestry]
+                
+                # Calcolare la percentuale
+                percentage = max_count / total_counts
+
+                # Assegnare 1 se l'ancestry ha il conteggio massimo, altrimenti 0
+                if max_count > total_counts / len(ancestry_map):
+                    covar_df[covar_df['IID'] == id] = [id, max_ancestry, percentage]
+                else:
+                    covar_df[covar_df['IID'] == id] = [id, 0, percentage]
+
+            # Unire il covar_df con il vecchio covar_df
+            covar_df = pd.merge(old_covar_df, covar_df, on='IID', how='inner')
+
+
 
             # Step 5: Save or use the covar_df
             covar_file = os.path.join(output_folder, f'{ancestry}_{pheno}_covar_chr{chr}.tsv')
