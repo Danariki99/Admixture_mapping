@@ -25,20 +25,20 @@ if __name__ == '__main__':
     # extraction of the windows positions
     print("Extracting windows positions")
     window_pos_file = positions_extraction(window_input_file, wind_output_folder)
-
+    for ancestry in ancestry_list:
     # result analysis and manhattan plot creation
-    print("Analyzing results")
-    significant_position_file = result_analysis(ancestry_list, phe_folder, general_file, window_pos_file, output_file, plot_output_folder, general_output_folder)
-    '''
-    # extraction of the SNPs
-    print("Extracting SNPs")
-    total_SNPs_file = SNPs_extraction(significant_position_file, general_output_folder)
+        print("Analyzing results")
+        significant_position_file = result_analysis([ancestry], phe_folder, general_file, window_pos_file, output_file, plot_output_folder, general_output_folder)
+        if significant_position_file is not None:
+            # extraction of the SNPs
+            print("Extracting SNPs")
+            total_SNPs_file = SNPs_extraction(significant_position_file, general_output_folder)
 
-    # associate SNPs to windows
-    print("Associating SNPs to windows")
-    SNPs_with_P_info = associate_SNPs_to_windows(total_SNPs_file, significant_position_file, general_output_folder)
+            # associate SNPs to windows
+            print("Associating SNPs to windows")
+            SNPs_with_P_info = associate_SNPs_to_windows(total_SNPs_file, significant_position_file, general_output_folder)
 
-    # create FUMA ready files
-    print("Creating FUMA ready files")
-    output_folder_snps, output_folder_wind = FUMA_files_creation(SNPs_with_P_info, FUMA_folder)
-    '''
+            # create FUMA ready files
+            print("Creating FUMA ready files")
+            output_folder_snps, output_folder_wind = FUMA_files_creation(SNPs_with_P_info, FUMA_folder)
+            

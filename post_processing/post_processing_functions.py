@@ -87,7 +87,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         chrom_labels = sorted(data['#CHROM'].unique())
 
         # compute bonferroni threshold
-        bonferroni_threshold = significance_threshold / (len(data) * len(pheno_list) * len(ancestry_list))
+        bonferroni_threshold = significance_threshold / (len(data) * len(pheno_list) * 7)
         local_bonferroni_threshold = significance_threshold / len(data)
         
         # Filter and sort the data for the first phenotype
@@ -212,8 +212,11 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         plt.legend(handles=[line1, line2], loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2)
         plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.png'), bbox_inches='tight')
     significant_file = os.path.join(general_output_folder, 'significant_positions.tsv')
-    significant_df.to_csv(significant_file, sep='\t', index=False)
-    return significant_file
+    if not significant_df.empty:
+        significant_df.to_csv(significant_file, sep='\t', index=False)
+        return significant_file
+    else:
+        return None
 
 
 def SNPs_extraction(input_file, output_dir):
