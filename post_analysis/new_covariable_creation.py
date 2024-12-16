@@ -125,17 +125,17 @@ if __name__ == '__main__':
             valid_ancestry_columns = list(set(ancestry_columns) & set(pandas_df.columns))
 
             counts_df = pd.DataFrame(index=old_covar_df['IID'])
-            for ancestry in ancestry_map:
+            for ancestry, value in ancestry_map.items():
                 if valid_ancestry_columns:
                     counts_df[ancestry] = (
-                        (pandas_df[valid_ancestry_columns].values == ancestry_map[ancestry]).sum(axis=1)
+                        (pandas_df[valid_ancestry_columns].values == value).sum(axis=1)
                     )
 
             # Creazione del DataFrame finale
             covar_df = pd.DataFrame(columns=['IID', f'{ancestry}', f'{ancestry}_percentage'])
 
             for id in ids:
-                # Calcolare il numero di occorrenze per ciascun ancestry
+                # Calcolare il numero di occorrenze per ciascun ancestry (ora usiamo il valore numerico)
                 ancestry_counts = {ancestry: counts_df[ancestry][pandas_df['IID'] == id].sum() for ancestry in ancestry_map}
                 
                 # Trovare l'ancestry con il conteggio massimo
@@ -153,8 +153,6 @@ if __name__ == '__main__':
 
             # Unire il covar_df con il vecchio covar_df
             covar_df = pd.merge(old_covar_df, covar_df, on='IID', how='inner')
-
-
 
             # Step 5: Save or use the covar_df
             covar_file = os.path.join(output_folder, f'{ancestry}_{pheno}_covar_chr{chr}.tsv')
