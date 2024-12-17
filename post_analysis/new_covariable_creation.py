@@ -3,157 +3,141 @@ import subprocess
 import os
 import pandas as pd
 import polars as pl
+import snputils as su
+import numpy as np
+
 
 if __name__ == '__main__':
     # Check if the dataset argument is provided
     if len(sys.argv) != 2:
-        print("Usage: python post_processing.py <dataset>")
+        print("Usage: python post_processing.py <wind_filename>")
         sys.exit(1)
 
     # The dataset variable is taken from the command line argument
-    dataset = sys.argv[1]
+    wind_filename = sys.argv[1]
 
     # Use the dataset variable to construct file paths
     output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files'
-    wind_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/{dataset}/wind'
+    wind_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
     tmp_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp'
     generic_msp_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/msp_files/ukbb/ukb_hap_chr*_v2_rfmix.msp.tsv'
     old_covar_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar_filtered.phe'
 
-    ancestry_map = {
-        "AFR": 0,
-        "AHG": 1,
-        "EAS": 2,
-        "EUR": 3,
-        "NAT": 4,
-        "OCE": 5,
-        "SAS": 6,
-        "WAS": 7
-    }
-
+    # Load old covariate file
     old_covar_df = pd.read_csv(old_covar_file, sep='\t')
 
-    list_of_files = os.listdir(wind_folder)
+    ancestry = wind_filename.split('_')[0]
+    pheno = wind_filename.split('_')[1]
+    input_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/ukbb/ancestry_{ancestry}.vcf'
+    wind_file = os.path.join(wind_folder, wind_filename)
+    wind_df_1 = pd.read_csv(wind_file, sep='\t')
+    chroms = wind_df_1['chr'].unique()
 
-    for wind_filename in list_of_files:
-        ancestry = wind_filename.split('_')[0]
-        pheno = wind_filename.split('_')[1]
-        input_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/{dataset}/ancestry_{ancestry}.vcf'
-        wind_file = os.path.join(wind_folder, wind_filename)
-        wind_df_1 = pd.read_csv(wind_file, sep='\t')
-        chroms = wind_df_1['chr'].unique()
+    for chr in chroms:
+        msp_file = generic_msp_file.replace('*', str(chr))
+        output_file_1 = os.path.join(tmp_folder, f'{pheno}_{ancestry}_{chr}_1.tsv')
 
-        for chr in chroms:
-            msp_file = generic_msp_file.replace('*', str(chr))
-            output_file_1 = os.path.join(tmp_folder, 'processed_msp_1.tsv')
+        # Awk command to skip lines and extract CHROM and POS columns
+        print(f"Running awk command for chromosome {chr}")
+        awk_command = f"awk '!/^##/ && $1 == \"{chr}\" {{print $1, $2}}' {input_file} > {output_file_1}"
+        subprocess.run(awk_command, shell=True, check=True)
 
-            # Awk command to skip lines starting with '##' and extract only the CHROM and POS columns
-            print(f'Starting awk command for chromosome {chr}')
-            awk_command = f"awk '!/^##/ && $1 == \"{chr}\" {{print $1, $2}}' {input_file} > {output_file_1}"
+        # Process the output_file_1 to extract ranges
+        df = pd.read_csv(output_file_1, sep=' ', header=None, names=['chr', 'pos'])
+        df[['start', 'end']] = df['pos'].str.split('_', expand=True)
+        df['start'] = df['start'].astype(int)
+        df['end'] = df['end'].astype(int)
+        df = df.drop(columns=['pos'])
 
-            # Run the command using subprocess
+        wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
+        n_wind = 3
+
+        # Sort and filter ranges
+        min_start = wind_df['start'].min()
+        max_end = wind_df['end'].max()
+
+        extended_df = df[(df['start'] >= min_start) & (df['end'] <= max_end)].copy()
+        start_idx = df[df['start'] == min_start].index[0]
+        end_idx = df[df['end'] == max_end].index[0]
+
+        start_extension = df.iloc[max(0, start_idx - n_wind):start_idx]
+        end_extension = df.iloc[end_idx + 1:end_idx + 1 + n_wind]
+
+        extended_wind_df = pd.concat([start_extension, extended_df, end_extension]).drop_duplicates().reset_index(drop=True)
+
+        output_file_2 = os.path.join(tmp_folder, f'{pheno}_{ancestry}_{chr}_2.tsv')
+        print(f"Writing header to {output_file_2}")
+        awk_header_command = f"awk 'NR == 1 || NR == 2 {{print}}' {msp_file} > {output_file_2}"
+        subprocess.run(awk_header_command, shell=True, check=True)
+
+        for _, row in extended_wind_df.iterrows():
+            awk_command = f"awk '$1 == \"{row['chr']}\" && $2 == {row['start']} && $3 == {row['end']} {{print}}' {msp_file} >> {output_file_2}"
             subprocess.run(awk_command, shell=True, check=True)
 
-            # Load the output into a DataFrame
-            df = pd.read_csv(output_file_1, sep=' ', header=None, names=['chr', 'pos'])
+        
+        laiobj = su.MSPReader(output_file_2).read()
+        df_counts = pd.DataFrame(columns=['#IID', 'AFR', 'AHG', 'EAS', 'EUR', 'NAT', 'OCE', 'SAS', 'WAS'])
+        # Initialize df_counts if empty
+        if df_counts.empty:
+            df_counts['#IID'] = laiobj.samples
+            df_counts.iloc[:, 1:] = 0  # Initialize counts to 0
 
-            df[['start', 'end']] = df['pos'].str.split('_', expand=True)
+        # Update the DataFrame with counts
+        n_wind, n_haplotypes = laiobj.lai.shape
+        n_samp = len(laiobj.samples)
+        print(laiobj.ancestry_map)
 
-            # Convert 'start' and 'end' columns to integers
-            df['start'] = df['start'].astype(int)
-            df['end'] = df['end'].astype(int)
+        print('start counting')
 
-            df = df.drop(columns=['pos'])
+        # Vettorializzazione per evitare il ciclo annidato
+        hap_to_sample = np.arange(n_haplotypes) // 2  # Map haplotype index to sample index
+        ancestry_codes = laiobj.lai  # Entire LAI matrix
 
-            # Read the current window file into pandas and extract chrom, start, end
-            wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
 
-            n_wind = 3
+        ancestry_to_col = {v: i for i, v in enumerate(df_counts.columns[1:])}  # Map ancestry labels to columns
 
-            # Assume df and wind_df are sorted by 'chr' and 'start' (ascending)
-            df = df.sort_values(['start']).reset_index(drop=True)
-            wind_df = wind_df.sort_values(['start']).reset_index(drop=True)
+        temp_counts = np.zeros((n_samp, len(df_counts.columns) - 1), dtype=int)  # Temporary counts array
 
-            # Get the minimum start and maximum end from wind_df
-            min_start = wind_df['start'].min()
-            max_end = wind_df['end'].max()
+            # Vettorializzare il calcolo dei counts
+        for wind in range(n_wind):
+            ancestry_labels = [laiobj.ancestry_map.get(str(code), None) for code in ancestry_codes[wind, :]]
+            ancestry_indices = [ancestry_to_col.get(label, None) for label in ancestry_labels]
 
-            # Find rows in df that fall within this range
-            extended_df = df[(df['start'] >= min_start) & (df['end'] <= max_end)].copy()
+            valid_indices = [(hap_idx, col) for hap_idx, col in enumerate(ancestry_indices) if col is not None]
+            for hap_idx, col in valid_indices:
+                temp_counts[hap_to_sample[hap_idx], col] += 1
 
-            # Get the index of the first and last rows in df that match min_start and max_end
-            start_idx = df[df['start'] == min_start].index[0]
-            end_idx = df[df['end'] == max_end].index[0]
+        # Aggiungiamo i counts nel df
+        for i, sample in enumerate(laiobj.samples):
+            df_counts.loc[i, df_counts.columns[1:]] = temp_counts[i]
+        
+        covar_df = pd.DataFrame(columns=['IID', f'{ancestry}', f'{ancestry}_percent'])
 
-            # Add the n_wind rows before the start and after the end
-            start_extension = df.iloc[max(0, start_idx - n_wind):start_idx]
-            end_extension = df.iloc[end_idx + 1:end_idx + 1 + n_wind]
+        # Calcolo dei total counts (uguale per tutti i campioni)
+        total_counts = 2 * n_wind
 
-            # Concatenate the extensions with the main range
-            extended_wind_df = pd.concat([start_extension, extended_df, end_extension]).drop_duplicates().reset_index(drop=True)
+        # Copia degli IID dal vecchio covar
+        covar_df['IID'] = laiobj.samples
 
-            print(extended_wind_df)
-            # Now, execute awk commands one by one for each row in extended_wind_df
+        # Estrazione dei counts per l'ancestry corrente
+        ancestry_counts = df_counts[ancestry]
 
-            # First, output the header (second row)
-            output_file_2 = os.path.join(tmp_folder, 'processed_msp_2.tsv')
-            print(f"Printing header row to {output_file_2}")
-            awk_header_command = f"awk 'NR == 2 {{print}}' {msp_file} > {output_file_2}"
-            subprocess.run(awk_header_command, shell=True, check=True)
+        # Calcolo della percentuale di ancestry
+        covar_df[f'{ancestry}_percent'] = ancestry_counts / total_counts * 100
 
-            # Then, run the awk command for each row of the extended window data
-            for _, row in extended_wind_df.iterrows():
-                # Generate the awk command for this particular row
-                awk_command = f"awk '$1 == \"{row['chr']}\" && $2 == {row['start']} && $3 == {row['end']} {{print}}' {msp_file} >> {output_file_2}"
-                print(f"Running awk command for row: {row['chr']} {row['start']} {row['end']}")
-                subprocess.run(awk_command, shell=True, check=True)
+        # Ottieni il massimo dei counts per ogni sample (per tutti gli ancestries)
+        max_counts_per_sample = df_counts.iloc[:, 1:].max(axis=1)
 
-            # Load the final processed file into a Polars DataFrame
-            polars_df = pl.read_csv(output_file_2, separator=' ')
+        # Aggiungi solo le due colonne necessarie e rimuovi la colonna binary
+        covar_df[f'{ancestry}'] = (ancestry_counts == max_counts_per_sample).astype(int)
 
-            # Convert Polars DataFrame to Pandas DataFrame
-            pandas_df = polars_df.to_pandas()
+        # subset old covar
+        old_covar_df['IID'] = old_covar_df['IID'].astype(str)
+        covar_df['IID'] = covar_df['IID'].astype(str)
 
-            total_counts = 2 * len(pandas_df)
+        old_covar_df = old_covar_df[old_covar_df['IID'].isin(covar_df['IID'])]
 
-            covar_file = os.path.join(output_folder, f'{ancestry}_{pheno}_covar_chr{chr}.tsv')
+        # Unisci il vecchio covar_df con il nuovo (aggiungi solo le nuove colonne)
+        covar_df = pd.merge(old_covar_df, covar_df[['IID', f'{ancestry}', f'{ancestry}_percent']], on='IID')
 
-            ids = old_covar_df['IID'].tolist()
-
-            # Calcolo delle occorrenze per ogni ancestry
-            ancestry_columns = [f"{id}.0" for id in ids] + [f"{id}.1" for id in ids]
-            valid_ancestry_columns = list(set(ancestry_columns) & set(pandas_df.columns))
-
-            counts_df = pd.DataFrame(index=old_covar_df['IID'])
-            for ancestry, value in ancestry_map.items():
-                if valid_ancestry_columns:
-                    counts_df[ancestry] = (
-                        (pandas_df[valid_ancestry_columns].values == value).sum(axis=1)
-                    )
-
-            # Creazione del DataFrame finale
-            covar_df = pd.DataFrame(columns=['IID', f'{ancestry}', f'{ancestry}_percentage'])
-
-            for id in ids:
-                # Calcolare il numero di occorrenze per ciascun ancestry (ora usiamo il valore numerico)
-                ancestry_counts = {ancestry: counts_df[ancestry][pandas_df['IID'] == id].sum() for ancestry in ancestry_map}
-                
-                # Trovare l'ancestry con il conteggio massimo
-                max_ancestry = max(ancestry_counts, key=ancestry_counts.get)
-                max_count = ancestry_counts[max_ancestry]
-                
-                # Calcolare la percentuale
-                percentage = max_count / total_counts
-
-                # Assegnare 1 se l'ancestry ha il conteggio massimo, altrimenti 0
-                if max_count > total_counts / len(ancestry_map):
-                    covar_df[covar_df['IID'] == id] = [id, max_ancestry, percentage]
-                else:
-                    covar_df[covar_df['IID'] == id] = [id, 0, percentage]
-
-            # Unire il covar_df con il vecchio covar_df
-            covar_df = pd.merge(old_covar_df, covar_df, on='IID', how='inner')
-
-            # Step 5: Save or use the covar_df
-            covar_file = os.path.join(output_folder, f'{ancestry}_{pheno}_covar_chr{chr}.tsv')
-            covar_df.to_csv(covar_file, sep='\t', index=False)
+        covar_df.to_csv(os.path.join(output_folder, f'{ancestry}_{pheno}_covar_chr{chr}.tsv'), sep='\t', index=False)
