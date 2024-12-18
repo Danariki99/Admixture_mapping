@@ -18,7 +18,6 @@ sbatch_base="job"
 mkdir -p $sbatch_dir
 
 # Variables for the command
-covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/${dataset}/ukb24983_GWAS_covar_filtered.phe"
 vcf_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/vcf_file/ukbb.vcf.gz"
 # keep directory
 keep_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/keep_files_chrom"
@@ -49,11 +48,13 @@ do
     pheno=${pheno/_keep_chr$chrom.txt/}
     ancestry=${keep_filename:0:3}
 
+    covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files/${keep_filename/keep/covar}"
+
     keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/${dataset}/keep_files/${ancestry}_keep.txt"
 
     phe_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}/$pheno.phe"
 
-    command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-14"
+    command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15"
 
     sbatch_file="$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.sh"
 
