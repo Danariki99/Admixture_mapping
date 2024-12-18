@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import statsmodels.api as sm
 
-
 if __name__ == '__main__':
     # Check if the dataset argument is provided
     if len(sys.argv) != 2:
@@ -32,8 +31,6 @@ if __name__ == '__main__':
 
     df_list = []
 
-    max_distance = 0  
-
     for fold_name in list_folders:
 
         # Read the file and compute the Bonferroni threshold
@@ -41,103 +38,60 @@ if __name__ == '__main__':
         current_file = os.path.join(current_out_folder, f'{fold_name}_output.{fold_name.split("_")[1]}.glm.logistic.hybrid')
 
         df = pd.read_csv(current_file, sep='\t')
-
-        # Group by chromosome and calculate the distance (max_pos - min_pos) for each chromosome
-        for chrom, chrom_data in df.groupby('#CHROM'):
-            chrom_max_pos = chrom_data['POS'].max()  # Maximum position in this chromosome
-            distance = chrom_max_pos
-
-            # Update the global maximum distance if the current distance is greater
-            if distance > max_distance:
-                max_distance = distance
         df_list.append(df)
-
-    # Calculate the absolute position for each SNP
-    for df in df_list:
-        df['ABS_POS'] = df['POS'] + max_distance * df['#CHROM']
 
     index = 0
     for fold_name in list_folders:
 
         df = df_list[index]
-        # Bonferroni correction
-        bonferroni_threshold = significance_threshold / len(df)
-
-        # Benjamini-Hochberg correction
-        fdr_bh = sm.stats.multipletests(df['P'], alpha=significance_threshold, method='fdr_bh')
-
-        #extract the p-values that are below the threshold
-        reject_bh = fdr_bh[0]
-        pvals_bh = fdr_bh[1]
-        accepted_pvals = df['P'][reject_bh]
-
-        # Calculate the maximum accepted p-value to compute the threshold
-        max_accepted_p_value = accepted_pvals.max() if not accepted_pvals.empty else None
-
-        if max_accepted_p_value is not None:
-            fdr_bh_threshold = max_accepted_p_value
-        else:
-            fdr_bh_threshold = None
-
-        # Benjamini-Yekutieli correction
-        fdr_by = sm.stats.multipletests(df['P'], alpha=significance_threshold, method='fdr_by')
-
-        # Extract the rejection decision and adjusted p-values
-        reject_by = fdr_by[0]
-        pvals_by = fdr_by[1]
-
-        # Get the accepted original p-values based on the rejection decision
-        accepted_pvals_by = df['P'][reject_by]
-
-        # Calculate the maximum accepted p-value to compute the threshold
-        max_accepted_p_value_by = accepted_pvals_by.max() if not accepted_pvals_by.empty else None
-
-        if max_accepted_p_value_by is not None:
-            fdr_by_threshold = max_accepted_p_value_by
-        else:
-            fdr_by_threshold = None
+        
+        # Find the SNP with the minimum p-value across the entire dataframe
+        min_p_value_snp = df.loc[df['P'].idxmin()]
 
         # Create Manhattan plot for each file
-        output_folder = os.path.join(base_folder, 'manhattan_plots_more_wind_3')
-
+        output_folder = os.path.join(base_folder, 'manhattan_plots_fine_mapping')
 
         # Create the plot
         plt.figure(figsize=(12, 6))
 
-        chrom_offsets = {chrom: max_distance * (chrom - 1) for chrom in range(1, 23)}
-        # Plot Manhattan points for each chromosome, using the calculated offsets
-        for i, (chrom, chrom_data) in enumerate(df.groupby('#CHROM')):
-            chrom_data['ABS_POS'] = chrom_data['POS'] + chrom_offsets[chrom]
-            
-            plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data['P']), 
-                        color=chromosome_colors[int(chrom+1) % len(chromosome_colors)], label=f'Chromosome {chrom}', s=10)
+        # There is only one chromosome per file; extract its label
+        chrom = df['#CHROM'].iloc[0]
 
-        # Set the x-axis limits
-        plt.xlim(0, 22 * max_distance)
+        plt.scatter(df['POS'], -np.log10(df['P']), 
+                    color=chromosome_colors[int(chrom+1) % len(chromosome_colors)], 
+                    label=f'Chromosome {chrom}', s=10)
 
-        # Add chromosome labels at equal intervals
-        chrom_labels = [str(c) for c in range(1, 23)]
-        chrom_positions = [chrom_offsets[c] + max_distance / 2 for c in range(1, 23)]
-        plt.xticks(chrom_positions, chrom_labels)
+        # Set the x-axis limits based on the data
+        plt.xlim(df['POS'].min(), df['POS'].max())
+
+        # Set the x-axis label and ticks
+        plt.xlabel(f'Chromosome {chrom}')
 
         # Plot the Bonferroni significance threshold
+        bonferroni_threshold = significance_threshold / len(df)
         plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--', label='Bonferroni')
-        if fdr_bh_threshold is not None:
-            plt.axhline(y=-np.log10(fdr_bh_threshold), color='g', linestyle='--', label='FDR BH')
-        if fdr_by_threshold is not None:
-            plt.axhline(y=-np.log10(fdr_by_threshold), color='b', linestyle='--', label='FDR BY')
 
         # Add labels and titles
         plt.title(f'Manhattan Plot {fold_name}')
-        plt.xlabel('Chromosome Position (ABS_POS)')
         plt.ylabel('-log10(p-value)')
-        plt.legend(title='Chromosomes')
+        plt.legend(title='Significance Thresholds')
+
+        # Annotate the SNP with the minimum p-value
+        plt.annotate(
+            f"{min_p_value_snp['ID']}",
+            xy=(min_p_value_snp['POS'], -np.log10(min_p_value_snp['P']) + 0.2),
+            xytext=(min_p_value_snp['POS'], -np.log10(min_p_value_snp['P']) + 0.2),
+            textcoords='data',
+            color='black',
+            fontsize=9,
+            ha='center',
+            arrowprops=dict(facecolor='black', arrowstyle="->", connectionstyle="arc3,rad=.5")
+        )
 
         # Save the plot
         plt.tight_layout()
         os.makedirs(output_folder, exist_ok=True)  # Ensure output folder exists
         plt.savefig(os.path.join(output_folder, f'manhattan_plot_{fold_name}.png'))
         plt.close()
-        print(f'Manhattan plot of {fold_name} saved to {output_folder}')
+        print(f'Manhattan plot of {fold_name} (Chromosome {chrom}) saved to {output_folder}')
         index += 1
-

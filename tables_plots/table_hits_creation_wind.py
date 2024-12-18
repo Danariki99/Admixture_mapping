@@ -102,6 +102,23 @@ for fold in succesfully_pheno_anc_list:
 
     print('fetching cytoband')
     cytoband = fetch_cytoband(chrom, start, end)
+    if cytoband == 'Timeout':
+        if f'chr{chr}:{start}-{end}' == 'chr6:31346445-31377047':
+            cytoband = '6p21.33'
+        elif f'chr{chr}:{start}-{end}' == 'chr8:124070432-124092625':
+            cytoband = '8q24.13'
+        elif f'chr{chr}:{start}-{end}' == 'chr6:31905130-32007956':
+            cytoband = '6p21.33'
+        elif f'chr{chr}:{start}-{end}' == 'chr6:32207393-32288190':
+            cytoband = '6p21.32'
+        elif f'chr{chr}:{start}-{end}' == 'chr10:116036889-116139029':
+            cytoband = '10q25.3'
+        elif f'chr{chr}:{start}-{end}' == 'chr6:31428169-31435326':
+            cytoband = '6p21.33'
+        elif f'chr{chr}:{start}-{end}' == 'chr9:85752837-85810910':
+            cytoband = '9q21.33'
+        elif f'chr{chr}:{start}-{end}' == 'chr17:1820750-1925859':
+            cytoband = '17p13.3'
 
     p = row_with_min_p['P']
     oddr = row_with_min_p['OR']

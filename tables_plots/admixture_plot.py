@@ -6,13 +6,10 @@ import matplotlib.pyplot as plt
 file_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/ukbb/admixture_files/run1/train_demo.all.Q'
 
 # Carica i dati dal file .Q
-df = pd.read_csv(file_path, header=None)
+df = pd.read_csv(file_path)
 
 # Numero di gruppi di ancestry (dovrebbe corrispondere al numero di colonne)
 NUM_ANCESTRIES = 8
-
-# Supponiamo che la prima colonna sia l'identificatore #IID
-df['IID'] = df[df.columns[0]]  # Modifica per prendere la prima colonna come identificatore
 
 # Creiamo una variabile per le colonne dei gruppi di ancestry (tutte tranne la prima colonna)
 ancestry_columns = df.columns[1:]
@@ -33,7 +30,7 @@ ax.legend(title="Ancestry Groups", bbox_to_anchor=(1.05, 1), loc='upper left')
 
 # Aggiungere etichette ai tick dell'asse x (IID degli individui)
 ax.set_xticks(range(len(df)))
-ax.set_xticklabels(df['IID'], rotation=90, fontsize=10)
+ax.set_xticklabels(df[df.columns[0]], rotation=90, fontsize=10)  # Usa direttamente la colonna #IID
 
 # Visualizzare il grafico
 plt.tight_layout()

@@ -5,6 +5,8 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
+ancestry_list=("AFR" "AHG" "EAS" "EUR" "NAT" "OCE" "SAS" "WAS")
+
 # Assign the first argument to the variable 'dataset'
 dataset=$1
 
@@ -39,10 +41,6 @@ do
     snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files_more_wind_3/${keep_filename/keep/snps}"
     output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/fine_mapping_ancestries/${keep_filename/_keep_chr$chrom.txt}_chr$chrom
     mkdir -p $output_folder
-
-    output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
-    output_file="${output_file:0:-6}chr${chrom}_output"
-
     
     pheno=${keep_filename:4}
     pheno=${pheno/_keep_chr$chrom.txt/}
@@ -51,36 +49,44 @@ do
     covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_processed/${keep_filename/keep/covar}"
     covar_file="${covar_file%.txt}.tsv"
 
-    keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/${dataset}/keep_files_processed/${ancestry}_keep.txt"
-
     phe_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}/$pheno.phe"
 
-    command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15"
+    for ancestry_keep in ${ancestry_list[@]}
+    do
+        output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
 
-    sbatch_file="$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.sh"
+        output_file="${output_file:0:-6}chr${chrom}_output.${ancestry_keep}"
 
-    echo "#!/bin/bash" > $sbatch_file
-    echo "#SBATCH --partition=long" >> $sbatch_file
-    echo "#SBATCH --job-name=${sbatch_base}_${keep_filename/keep.txt/snps}_$job_counter" >> $sbatch_file
-    echo "#SBATCH --output=$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.out" >> $sbatch_file
-    echo "#SBATCH --error=$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.err" >> $sbatch_file
-    echo "#SBATCH --nodes=1" >> $sbatch_file
-    echo "#SBATCH --cpus-per-task=1" >> $sbatch_file
-    echo "#SBATCH --time=7-00:00:00" >> $sbatch_file
-    echo "#SBATCH --mem=512G" >> $sbatch_file
-    echo "$command_to_run" >> $sbatch_file
+        keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/${dataset}/keep_files_processed/${ancestry_keep}_keep.txt"
 
-    # Submit sbatch script and capture the output
-    sbatch_output=$(sbatch $sbatch_file)
+        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15"
+        
+        sbatch_file="$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.sh"
 
-    # Extract job ID
-    job_id=$(echo $sbatch_output | grep -oP '(?<=Submitted batch job )\d+')
-    
-    echo "Submitted job ID: $job_id"
+        echo "#!/bin/bash" > $sbatch_file
+        echo "#SBATCH --partition=long" >> $sbatch_file
+        echo "#SBATCH --job-name=${sbatch_base}_${keep_filename/keep.txt/snps}_$job_counter" >> $sbatch_file
+        echo "#SBATCH --output=$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.out" >> $sbatch_file
+        echo "#SBATCH --error=$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.err" >> $sbatch_file
+        echo "#SBATCH --nodes=1" >> $sbatch_file
+        echo "#SBATCH --cpus-per-task=1" >> $sbatch_file
+        echo "#SBATCH --time=7-00:00:00" >> $sbatch_file
+        echo "#SBATCH --mem=512G" >> $sbatch_file
+        echo "$command_to_run" >> $sbatch_file
 
-    # Save the job ID to the file
-    echo "$job_id" >> $job_ids_file
+        # Submit sbatch script and capture the output
+        sbatch_output=$(sbatch $sbatch_file)
 
-    ((job_counter++))
+        # Extract job ID
+        job_id=$(echo $sbatch_output | grep -oP '(?<=Submitted batch job )\d+')
+        
+        echo "Submitted job ID: $job_id"
+
+        # Save the job ID to the file
+        echo "$job_id" >> $job_ids_file
+
+        ((job_counter++))
+
+        done
     
 done
