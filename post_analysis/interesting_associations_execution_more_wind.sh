@@ -48,10 +48,10 @@ do
     pheno=${pheno/_keep_chr$chrom.txt/}
     ancestry=${keep_filename:0:3}
 
-    covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files/${keep_filename/keep/covar}"
+    covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_processed/${keep_filename/keep/covar}"
     covar_file="${covar_file%.txt}.tsv"
 
-    keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/${dataset}/keep_files/${ancestry}_keep.txt"
+    keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/${dataset}/keep_files_processed/${ancestry}_keep.txt"
 
     phe_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}/$pheno.phe"
 

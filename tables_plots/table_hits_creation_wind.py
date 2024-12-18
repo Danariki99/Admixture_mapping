@@ -48,7 +48,7 @@ def fetch_cytoband(chromosome, start, end, genome="hg19"):
 phe_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/ukbb'
 covar_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar.phe'
 keep_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/ukbb/keep_file.txt'
-significant_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/output_more_wind_3/'
+significant_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries/'
 
 # Read the covariate file
 try:
