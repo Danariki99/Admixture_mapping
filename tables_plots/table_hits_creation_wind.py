@@ -122,6 +122,8 @@ for fold in succesfully_pheno_anc_list:
 
     p = row_with_min_p['P']
     oddr = row_with_min_p['OR']
+    l95 = row_with_min_p['L95']
+    u95 = row_with_min_p['U95']
 
     out1 = pd.concat([
         out1,
@@ -129,7 +131,7 @@ for fold in succesfully_pheno_anc_list:
             'Phenotype': pheno_name.iloc[0] if not pheno_name.empty else 'Unknown',  # Nome del fenotipo
             'CytoBand': cytoband,  
             'ancestry tested': ancestry,  
-            'OR (CI = 95%)': oddr, 
+            'OR (CI = 95%)': f'{oddr} - ({l95}, {u95})', 
             'p value': p,
             'START': start,
             'END': end,

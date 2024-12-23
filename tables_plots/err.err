@@ -1,1 +1,14 @@
-slurmstepd-phoenix-13: error: *** JOB 6005860 ON phoenix-13 CANCELLED AT 2024-12-18T10:28:13 ***
+Traceback (most recent call last):
+  File "/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/admixture_plot.py", line 9, in <module>
+    df = pd.read_csv(file_path)
+  File "/private/home/rsmerigl/anaconda3/envs/r_env/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "/private/home/rsmerigl/anaconda3/envs/r_env/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "/private/home/rsmerigl/anaconda3/envs/r_env/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+  File "/private/home/rsmerigl/anaconda3/envs/r_env/lib/python3.9/site-packages/pandas/io/parsers/readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+  File "/private/home/rsmerigl/anaconda3/envs/r_env/lib/python3.9/site-packages/pandas/io/common.py", line 873, in get_handle
+    handle = open(
+FileNotFoundError: [Errno 2] No such file or directory: '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/ukbb/admixture_files/run1/train_demo.all.Q'
