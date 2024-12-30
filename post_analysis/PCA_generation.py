@@ -13,7 +13,7 @@ for keep_filname in keep_files:
     keep_file = os.path.join(keep_path, keep_filname)
 
     ancestry = keep_filname.split('.')[0].split('_')[0]
-
+    
     plink_command = [
         "/private/home/rsmerigl/plink2", 
         "--vcf", "/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/vcf_file/ukbb_filtered.vcf.gz",  

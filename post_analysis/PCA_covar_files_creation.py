@@ -31,7 +31,6 @@ for covar_file in os.listdir(covar_path):
 
         # Define the output path
         output_path = os.path.join(output_folder, f"{covar_file.split('.')[0]}_{ancestry}.tsv")
-        print(output_path)
 
         # Save the merged dataframe
         merged_df.to_csv(output_path, sep='\t', index=False)

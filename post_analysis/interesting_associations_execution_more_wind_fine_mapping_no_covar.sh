@@ -5,7 +5,7 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-ancestry_list=("AFR" "AHG" "EAS" "EUR" "NAT" "OCE" "SAS" "WAS")
+ancestry_list=("AFR" "EAS" "EUR" "NAT" "SAS" "WAS")
 
 # Assign the first argument to the variable 'dataset'
 dataset=$1
@@ -39,20 +39,21 @@ for keep_filename in $keep_files
 do
     chrom=$(echo "$keep_filename" | awk -F'chr' '{print $2}' | awk -F'.' '{print $1}')
     snps_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/snps_files_more_wind_3/${keep_filename/keep/snps}"
-    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/fine_mapping_no_covar/${keep_filename/_keep_chr$chrom.txt}_chr$chrom
+    output_folder=/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/${dataset}/fine_mapping_no_covar_PCA/${keep_filename/_keep_chr$chrom.txt}_chr$chrom
     mkdir -p $output_folder
    
     pheno=${keep_filename:4}
     pheno=${pheno/_keep_chr$chrom.txt/}
     ancestry=${keep_filename:0:3}
 
-    covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_processed/${keep_filename/keep/covar}"
-    covar_file="${covar_file%.txt}.tsv"
-
     phe_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}/$pheno.phe"
 
     for ancestry_keep in ${ancestry_list[@]}
     do
+
+        covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/$dataset/PCA_files/PCA_covar_files/${keep_filename/keep/covar}"
+        covar_file="${covar_file%.txt}_${ancestry_keep}.tsv"
+
         output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
         output_file="${output_file:0:-6}chr${chrom}_output.${ancestry_keep}"
 
