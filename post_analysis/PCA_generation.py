@@ -18,7 +18,8 @@ for keep_filname in keep_files:
         "/private/home/rsmerigl/plink2", 
         "--vcf", "/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/vcf_file/ukbb_filtered.vcf.gz",  
         "--keep", keep_file,
-        "--pca", "10", 
+        "--exclude",  "/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/PCA_files/PCA_pruned_files/output.prune.out",
+        "--pca", "approx", "10", 
         "--out", os.path.join(output_folder, f"PCA_{ancestry}.out")
     ]
 
