@@ -65,7 +65,7 @@ if __name__ == '__main__':
         input_file = os.path.join(current_folder, f'{hit}_output.{hit.split("_")[0]}.{hit.split("_")[1]}.glm.logistic.hybrid')
 
         output_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_plots/covar/single/manhattan_plot_{hit}.{hit.split("_")[0]}.png'
-
+    
         manhattan_plot(
         input_file=input_file, 
         colors=chromosome_colors,

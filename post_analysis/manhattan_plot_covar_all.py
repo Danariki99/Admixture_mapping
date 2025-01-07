@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 def manhattan_plot(
     input_files: List[str],
     colors: List[str],
+    ancestries: List[str],
     significance_threshold: float = 0.05,
     figsize: Optional[Tuple[float, float]] = (20, 10),
     title: Optional[str] = None,
@@ -14,45 +15,40 @@ def manhattan_plot(
     save: Optional[bool] = False,
     output_filename: Optional[str] = "manhattan_plot.png",
 ):
-    if len(input_files) != len(colors):
-        raise ValueError("The number of input files must match the number of colors.")
+    if len(input_files) != len(colors) or len(input_files) != len(ancestries):
+        raise ValueError("The number of input files must match the number of colors and ancestries.")
 
     plt.figure(figsize=figsize)
 
     # Concatenazione dei file in un unico DataFrame
     combined_df = pd.DataFrame()
 
-    for file, color in zip(input_files, colors):
+    for file, color, ancestry in zip(input_files, colors, ancestries):
         df = pd.read_csv(file, sep='\t')
         df['COLOR'] = color
+        df['ANCESTRY'] = ancestry
         combined_df = pd.concat([combined_df, df], ignore_index=True)
-
-    # Calcolo della soglia di significatività Bonferroni
-    bonferroni_threshold = significance_threshold / len(combined_df)
 
     # Plot degli SNP
     unique_ids = combined_df['ID'].unique()
     positions = np.arange(len(unique_ids))
 
-    for i, color in enumerate(colors):
-        subset = combined_df[combined_df['COLOR'] == color]
+    for ancestry, color in zip(ancestries, colors):
+        subset = combined_df[combined_df['ANCESTRY'] == ancestry]
         plt.scatter(
             subset['ID'].map(lambda x: np.where(unique_ids == x)[0][0]),
             -np.log10(subset['P']),
             color=color,
-            label=f"File {i + 1}"
+            label=ancestry
         )
 
-    # Impostazioni asse X
+    # Impostazioni asse X per mostrare tutti gli SNPs
     plt.xticks(
-        ticks=positions[::max(1, len(positions) // 100)],
-        labels=unique_ids[::max(1, len(positions) // 100)],
+        ticks=positions,
+        labels=unique_ids,
         rotation=90,
         fontsize=fontsize.get('xticks', 8) if fontsize else 8
     )
-
-    # Linea di soglia Bonferroni
-    plt.axhline(y=-np.log10(bonferroni_threshold), color='red', linestyle='--', label='Bonferroni threshold')
 
     # Titolo, etichette e legenda
     if title:
@@ -70,7 +66,7 @@ def manhattan_plot(
         plt.show()
 
 
-
+# Esecuzione dello script
 if __name__ == '__main__':
     colors = [
         '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', 
@@ -80,7 +76,6 @@ if __name__ == '__main__':
     ]
     ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS']
 
-
     res_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA'
 
     for hit in os.listdir(res_folder):
@@ -88,20 +83,19 @@ if __name__ == '__main__':
 
         input_files = []
         for ancestry in ancestry_list:
-            input_files.append(os.path.join(current_folder, f'{hit}_output.{ancestry}.glm.logistic.hybrid'))
+            input_files.append(os.path.join(current_folder, f'{hit}_output.{ancestry}.{hit.split("_")[1]}.glm.logistic.hybrid'))
 
         output_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_plots/covar/all/manhattan_plot_{hit}.png'
 
         manhattan_plot(
-        input_file=input_files, 
-        colors=colors[:len(input_files)],
-        significance_threshold=0.05,
-        figsize=(45, 8),
-        title=f'Manhattan Plot {hit} {hit.split("_")[0]}',
-        fontsize={'title': 20, 'xlabel': 8, 'ylabel': 8, 'legend': 8},
-        save=True,
-        output_filename=output_file
+            input_files=input_files, 
+            colors=colors[:len(input_files)],
+            ancestries=ancestry_list,
+            figsize=(45, 8),
+            title=f'Manhattan Plot {hit} {hit.split("_")[0]}',
+            fontsize={'title': 20, 'xlabel': 8, 'ylabel': 8, 'legend': 8},
+            save=True,
+            output_filename=output_file
         )
 
         print(f'Finished {hit}')
-        
