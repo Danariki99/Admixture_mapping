@@ -9,21 +9,7 @@ import requests
 import numpy as np
 
 # Paths to important files and directories
-covar_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar.phe'
-keep_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/ukbb/keep_file.txt'
-significant_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries/'
-
-# Read the covariate file
-try:
-    covar = pd.read_csv(covar_file, sep='\t')
-except Exception as e:
-    raise FileNotFoundError(f"Error reading the covariate file: {e}")
-
-# Read the keep file
-try:
-    keep = pd.read_csv(keep_file, sep='\t')
-except Exception as e:
-    raise FileNotFoundError(f"Error reading the keep file: {e}")
+significant_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA/'
 
 # Initialize an empty DataFrame to store results
 out1 = pd.DataFrame(columns=[
@@ -33,7 +19,6 @@ out1 = pd.DataFrame(columns=[
     'OR (CI = 95%)',
     'p value',
 ])
-covar = covar.rename(columns={'IID': '#IID'})
 
 df_first_batch = pd.read_excel("ukbb_v1.xlsx", sheet_name="first_batch")
 
@@ -46,7 +31,7 @@ for fold in folder_list:
 
     pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
 
-    result_path = os.path.join(significant_path, fold, f'{fold}_output.{pheno}.glm.logistic.hybrid')
+    result_path = os.path.join(significant_path, fold, f'{fold}_output.{fold.split("_")[0]}.{pheno}.glm.logistic.hybrid')
     chr = int(chrom.replace('chr', ''))
 
     df = pd.read_table(result_path, sep='\t')
@@ -64,18 +49,10 @@ for fold in folder_list:
             'Phenotype': pheno_name.iloc[0] if not pheno_name.empty else 'Unknown',  # Nome del fenotipo
             'ID': snpid,
             'ancestry tested': ancestry,  
-            'OR (CI = 95%)': oddr, 
+            'OR (CI = 95%)': f'{oddr} ({row_with_min_p["L95"]}, {row_with_min_p["U95"]})', 
             'p value': p,
         }])
 
     ], ignore_index=True)
 
-out1.to_excel('table_hits_snps.xlsx', index=False)
-
-
-    
-    
-    
-
-
-    
+out1.to_excel('table_hits_snps_covar.xlsx', index=False)
