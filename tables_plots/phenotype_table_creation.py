@@ -49,8 +49,6 @@ for phe_file in phe_files:
 
     if pd.isna(phe[phe_name].iloc[0]):
         # Split the values in the '#IID' column by '\t' and convert to integers
-        print(phe)
-        # Split the values in the '#IID' column by '\t' and convert to integers
         phe[['#IID', phe_name]] = phe['#IID'].str.split('\t', expand=True)
         phe['#IID'] = phe['#IID'].astype(int)
         phe[phe_name] = phe[phe_name].astype(int)
