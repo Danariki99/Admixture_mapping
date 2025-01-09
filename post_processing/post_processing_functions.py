@@ -35,7 +35,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
 
     #read excel file for ukbb (modify for allofus)
     excel_df = pd.read_excel(
-        '/private/home/rsmerigl/codes/cleaned_codes/ukbb_v1.xlsx', 
+        '/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx', 
         sheet_name='first_batch',
         usecols="B:C"
     )
@@ -168,7 +168,7 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
                     elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31428169-31435326':
                         name = '6p21.33'
                     elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr9:85752837-85810910':
-                        name = '9q21.33'
+                        name = '9q21.32'
                     elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr17:1820750-1925859':
                         name = '17p13.3'
                 if name != 'Timeout':

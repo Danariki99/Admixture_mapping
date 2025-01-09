@@ -116,7 +116,7 @@ for fold in succesfully_pheno_anc_list:
         elif f'chr{chr}:{start}-{end}' == 'chr6:31428169-31435326':
             cytoband = '6p21.33'
         elif f'chr{chr}:{start}-{end}' == 'chr9:85752837-85810910':
-            cytoband = '9q21.33'
+            cytoband = '9q21.32'
         elif f'chr{chr}:{start}-{end}' == 'chr17:1820750-1925859':
             cytoband = '17p13.3'
 
