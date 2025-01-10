@@ -18,6 +18,7 @@ out1 = pd.DataFrame(columns=[
     'ancestry tested',
     'OR (CI = 95%)',
     'p value',
+    'chr',
 ])
 
 df_first_batch = pd.read_excel("ukbb_v1.xlsx", sheet_name="first_batch")

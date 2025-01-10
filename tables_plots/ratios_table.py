@@ -10,6 +10,7 @@ out1 = pd.DataFrame(columns=[
     'ID',
     'ancestry tested',
     'Ratio',
+    'chr',
 ])
 
 for hit in hits:
