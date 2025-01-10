@@ -51,6 +51,7 @@ for fold in folder_list:
             'ancestry tested': ancestry,  
             'OR (CI = 95%)': f'{oddr} ({row_with_min_p["L95"]}, {row_with_min_p["U95"]})', 
             'p value': p,
+            'chr': chr
         }])
 
     ], ignore_index=True)

@@ -16,6 +16,8 @@ for hit in hits:
 
     ancestry = hit.split('_')[0]
 
+    chr = hit.split('_')[-1].replace('chr', '')
+
     ratio_file = os.path.join(ratios_path, hit, f'{hit}_output.{ancestry}.ratios.txt')
     ratio_df = pd.read_csv(ratio_file, sep=' ')
 
@@ -39,6 +41,7 @@ for hit in hits:
             'ID': snpid,
             'ancestry tested': ancestry,  
             'Ratio': ratio,
+            'chr': chr
         }])
 
     ], ignore_index=True)
