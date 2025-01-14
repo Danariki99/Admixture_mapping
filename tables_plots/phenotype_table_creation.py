@@ -65,14 +65,14 @@ for phe_file in phe_files:
     # Calculate statistics for cases
     mean_age_cases = phe_cases['age'].mean()
     sd_age_cases = phe_cases['age'].std()
-    woman_percentage_cases = (phe_cases[phe_cases['sex'] == 0].shape[0] / phe_cases.shape[0]) * 100 if phe_cases.shape[0] > 0 else 0
-    man_percentage_cases = (phe_cases[phe_cases['sex'] == 1].shape[0] / phe_cases.shape[0]) * 100 if phe_cases.shape[0] > 0 else 0
+    woman_percentage_cases = (phe_cases[phe_cases['sex'] == 1].shape[0] / phe_cases.shape[0]) * 100 if phe_cases.shape[0] > 0 else 0
+    man_percentage_cases = (phe_cases[phe_cases['sex'] == 0].shape[0] / phe_cases.shape[0]) * 100 if phe_cases.shape[0] > 0 else 0
 
     # Calculate statistics for controls
     mean_age_controls = phe_controls['age'].mean()
     sd_age_controls = phe_controls['age'].std()
-    woman_percentage_controls = (phe_controls[phe_controls['sex'] == 0].shape[0] / phe_controls.shape[0]) * 100 if phe_controls.shape[0] > 0 else 0
-    man_percentage_controls = (phe_controls[phe_controls['sex'] == 1].shape[0] / phe_controls.shape[0]) * 100 if phe_controls.shape[0] > 0 else 0
+    woman_percentage_controls = (phe_controls[phe_controls['sex'] == 1].shape[0] / phe_controls.shape[0]) * 100 if phe_controls.shape[0] > 0 else 0
+    man_percentage_controls = (phe_controls[phe_controls['sex'] == 0].shape[0] / phe_controls.shape[0]) * 100 if phe_controls.shape[0] > 0 else 0
 
     # Append results for the current phenotype to the output DataFrame
     # Create a new row as a DataFrame
