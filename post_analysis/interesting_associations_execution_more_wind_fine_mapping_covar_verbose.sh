@@ -59,7 +59,7 @@ do
 
         keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/${dataset}/keep_files_processed/${ancestry_keep}_keep.txt"
 
-        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15"
+        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback intercept --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15"
 
         sbatch_file="$sbatch_dir/${keep_filename/keep.txt/snps}_$job_counter.sh"
 
