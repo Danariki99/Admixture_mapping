@@ -9,11 +9,13 @@ ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS']
 hits_list = os.listdir(hit_folder_name)
 
 for hit in hits_list:
-    output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models/{hit}'
-    os.makedirs(output_folder, exist_ok=True)
     pheno = hit.split('_')[1]
     imp_ancestry = hit.split('_')[0]
     for ancestry in ancestry_list:
+        output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models/{hit}/{ancestry}'
+        os.makedirs(output_folder, exist_ok=True)
+
+
         file = f'{hit_folder_name}/{hit}/{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid'
         df = pd.read_csv(file, sep='\t')
 
@@ -33,10 +35,6 @@ for hit in hits_list:
 
         #now that we have all the informations needed, we can create and save the models
         # we can create a list of dataframes, one for each significant hit and windows to have the correct betas.
-        ancestry_folder_LA = f'{output_folder}/{ancestry}/LA'
-        ancestry_folder_no_LA = f'{output_folder}/{ancestry}/no_LA'
-        os.makedirs(ancestry_folder_LA, exist_ok=True)
-        os.makedirs(ancestry_folder_no_LA, exist_ok=True)
 
         for id in significant_ids:
             # Filtra per ID specifico
@@ -60,5 +58,4 @@ for hit in hits_list:
                     if p_value < 0.05:
                         df_beta[test] = np.log(or_value)
             
-            df_beta.to_csv(f'{ancestry_folder_LA}/{id}.csv', index=False)
-            df_beta.drop(columns=[imp_ancestry]).to_csv(f'{ancestry_folder_no_LA}/{id}.csv', index=False)
+            df_beta.to_csv(f'{output_folder}/{id}.csv', index=False)
