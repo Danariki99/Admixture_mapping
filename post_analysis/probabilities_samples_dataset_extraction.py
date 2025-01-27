@@ -45,7 +45,7 @@ for hit in hit_list:
         output_plink = os.path.join(tmp_folder, f'{hit}')
         chrom = hit.split('_')[-1]
         chrom_vcf_file = f'{vcf_folder}/ukb_hap_{chrom}_v2.vcf.gz'
-
+        
         # Comando Plink
         plink_command = [
             "/private/home/rsmerigl/plink2",
@@ -61,28 +61,29 @@ for hit in hit_list:
             "--recode", "A",
             "--out", os.path.join(tmp_folder, "genotypes_numeric")
         ]
-        #subprocess.run(plink_command, check=True)
-        #subprocess.run(plink_numeric_command, check=True)
+        if len(files_list) != 0:
+            subprocess.run(plink_command, check=True)
+            subprocess.run(plink_numeric_command, check=True)
 
-        raw_df = pd.read_csv(os.path.join(tmp_folder, "genotypes_numeric.raw"), sep='\t')
+            raw_df = pd.read_csv(os.path.join(tmp_folder, "genotypes_numeric.raw"), sep='\t')
 
-        raw_df.columns = [col.split('_')[0] if '_' in col else col for col in raw_df.columns]
+            raw_df.columns = [col.split('_')[0] if '_' in col else col for col in raw_df.columns]
 
-        for beta_file in files_list:
-            id = beta_file.split('.')[0]
-            output_file = os.path.join(output_folder, f'{hit}/{ancestry}/{id}.tsv')
-            beta_df = pd.read_csv(f'{current_folder}/{beta_file}')
+            for beta_file in files_list:
+                id = beta_file.split('.')[0]
+                output_file = os.path.join(output_folder, f'{hit}/{ancestry}/{id}.tsv')
+                beta_df = pd.read_csv(f'{current_folder}/{beta_file}')
 
-            interesting_columns = ['IID'] + beta_df.columns.tolist()[4:]
+                interesting_columns = ['IID'] + beta_df.columns.tolist()[4:]
 
-            dataset_df = covar_df[interesting_columns]
+                dataset_df = covar_df[interesting_columns]
 
-            add_df = raw_df[['IID', id]]
-            dataset_df = dataset_df.merge(add_df, on='IID')
-            dataset_df = dataset_df[dataset_df['IID'].isin(keep_df['IID'])]
-            dataset_df.rename(columns={id: 'ADD'}, inplace=True)
+                add_df = raw_df[['IID', id]]
+                dataset_df = dataset_df.merge(add_df, on='IID')
+                dataset_df = dataset_df[dataset_df['IID'].isin(keep_df['IID'])]
+                dataset_df.rename(columns={id: 'ADD'}, inplace=True)
 
 
-            output_file = os.path.join(output_folder_file, f'{id}.tsv')
-            dataset_df.to_csv(output_file, sep='\t', index=False)
-
+                output_file = os.path.join(output_folder_file, f'{id}.tsv')
+                dataset_df.to_csv(output_file, sep='\t', index=False)
+    
