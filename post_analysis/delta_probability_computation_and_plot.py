@@ -6,7 +6,7 @@ from scipy.special import expit
 hit_folder_name = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
 dataset_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/samples'
 models_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
-plots_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
+plots_folder_genearl = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
 output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/results'
 
 ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
@@ -74,12 +74,12 @@ for hit in hits_list:
                     deltas.append(dataset['delta_P'].tolist())
                     abs_deltas.append(dataset['delta_P_abs'].tolist())
 
-            else:
+        else:
                 deltas.append([])
                 abs_deltas.append([])
         
     # let's make the plot at the end of the iteration for all the ancestries
-    plots_folder = os.path.join(plots_folder, hit)
+    plots_folder = os.path.join(plots_folder_genearl, hit)
     os.makedirs(plots_folder, exist_ok=True)
 
    # graphs
