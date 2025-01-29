@@ -4,7 +4,7 @@ import numpy as np
 
 hit_folder_name = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
 
-ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS']
+ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
 
 hits_list = os.listdir(hit_folder_name)
 

@@ -3,7 +3,7 @@ import subprocess
 import time
 import pandas as pd
 
-ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS']
+ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
 
 # Define the folder where the files are stored
 hit_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
@@ -18,7 +18,7 @@ hit_list = os.listdir(hit_folder)
 for hit in hit_list:
     current_folder = f'{hit_folder}/{hit}'
     pheno = hit.split('_')[1]
-    for ancestry in ancestry_list:
+    for ancestry in [ancestry_list[-1]]:
         output_folder_file = os.path.join(output_folder, f'{hit}/{ancestry}')
         os.makedirs(output_folder_file, exist_ok=True)
 
