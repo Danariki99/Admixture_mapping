@@ -92,10 +92,13 @@ for hit in hits_list:
     ax.set_title("Boxplot of Delta Probabilities by Ancestry")
 
     plt.savefig(os.path.join(plots_folder, f"delta_probabilities_boxplot.png"))
+    plt.close()
+
 
     # abs graph
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.boxplot(abs_deltas, tick_labels=ancestry_list, patch_artist=True)
+    plt.close()
 
     # Etichette e limiti
     ax.set_xlabel("Ancestry")
@@ -105,6 +108,7 @@ for hit in hits_list:
 
     # Salva il grafico
     plt.savefig(os.path.join(plots_folder, f"abs_delta_probabilities_boxplot.png"))
+    plt.close()    
 
 
 
