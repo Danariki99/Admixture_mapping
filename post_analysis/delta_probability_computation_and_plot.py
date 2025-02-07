@@ -11,6 +11,9 @@ output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_fi
 
 ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
 
+colors = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
+color_map = {ancestry: colors[i % len(colors)] for i, ancestry in enumerate(ancestry_list)}
+
 hits_list = os.listdir(hit_folder_name)
 
 for hit in hits_list:
@@ -19,6 +22,7 @@ for hit in hits_list:
     imp_ancestry = hit.split('_')[0]
     deltas = []
     abs_deltas = []
+    most_significant_SNPs = []
     for ancestry in ancestry_list:
 
         file = f'{hit_folder_name}/{hit}/{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid'
@@ -36,6 +40,7 @@ for hit in hits_list:
 
             filtered_df = df[(df['TEST'] == imp_ancestry) & (df['ID'].isin(snps_list))]
             most_significant_SNP = filtered_df.loc[filtered_df['P'].idxmin()]['ID']
+            most_significant_SNPs.append(most_significant_SNP)
             for snp in snps_list:
                 dataset = pd.read_csv(f'{current_dataset_folder}/{snp}.tsv', sep='\t')
                 dataset = dataset[dataset[imp_ancestry] == 1]
@@ -77,6 +82,7 @@ for hit in hits_list:
         else:
                 deltas.append([])
                 abs_deltas.append([])
+                most_significant_SNPs.append([])
         
     # let's make the plot at the end of the iteration for all the ancestries
     plots_folder = os.path.join(plots_folder_genearl, hit)
@@ -84,39 +90,57 @@ for hit in hits_list:
 
    # graphs
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.boxplot(deltas, tick_labels=ancestry_list, patch_artist=True)
 
+    # Creazione dei boxplot con colori diversi per ogni ancestry
+    boxplots = ax.boxplot(deltas, patch_artist=True, tick_labels=ancestry_list)
+
+    # Assegna i colori
+    for patch, ancestry in zip(boxplots['boxes'], ancestry_list):
+        patch.set_facecolor(color_map[ancestry])
+
+    # Etichette e limiti
     ax.set_xlabel("Ancestry")
     ax.set_ylabel("Delta Probabilities")
     ax.set_ylim(-1, 1)
-    ax.set_title("Boxplot of Delta Probabilities by Ancestry")
+    ax.set_title(f"Boxplot of Delta Probabilities by Ancestry for {hit}")
 
+    # Creazione della legenda usando gli SNP
+    legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map[ancestry], markersize=10, label=snp)
+                    for ancestry, snp in zip(ancestry_list, most_significant_SNPs) if snp]
+
+    ax.legend(handles=legend_elements, title="Most Significant SNPs", loc='upper right', fontsize=8)
+
+    # Salva il grafico
     plt.savefig(os.path.join(plots_folder, f"delta_probabilities_boxplot.png"))
     plt.close()
 
-
-    # abs graph
+    # Creazione del grafico per i valori assoluti
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.boxplot(abs_deltas, tick_labels=ancestry_list, patch_artist=True)
-    plt.close()
+    boxplots = ax.boxplot(abs_deltas, patch_artist=True, tick_labels=ancestry_list)
+
+    # Assegna i colori
+    for patch, ancestry in zip(boxplots['boxes'], ancestry_list):
+        patch.set_facecolor(color_map[ancestry])
 
     # Etichette e limiti
     ax.set_xlabel("Ancestry")
     ax.set_ylabel("Delta Probabilities")
     ax.set_ylim(0, 1)
-    ax.set_title("Boxplot of |Delta Probabilities| by Ancestry")
+    ax.set_title(f"Boxplot of |Delta Probabilities| by Ancestry for {hit}")
+
+    # Creazione della legenda usando gli SNP
+    ax.legend(handles=legend_elements, title="Most Significant SNPs", loc='upper right', fontsize=8)
 
     # Salva il grafico
     plt.savefig(os.path.join(plots_folder, f"abs_delta_probabilities_boxplot.png"))
-    plt.close()    
+    plt.close()
 
 
 
 
 
 
-
-            
+                
 
 
 
