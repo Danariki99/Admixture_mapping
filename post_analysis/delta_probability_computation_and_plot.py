@@ -109,6 +109,8 @@ for hit in hits_list:
     pheno = hit.split('_')[1]
     pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
     pheno_name = '_'.join(pheno_name.iloc[0].split('_')[1:]) if not pheno_name.empty else 'Unknown'
+    if pheno_name == 'TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
+        pheno_name = 'TTE_acute_upper_respiratory_infections'
     ax.set_title(f"Boxplot of Delta Probabilities by Ancestry for {'_'.join([hit.split('_')[0], pheno_name, hit.split('_')[2]])}")
 
 
