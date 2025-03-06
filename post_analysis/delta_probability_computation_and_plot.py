@@ -3,6 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.special import expit
 
+df_first_batch = pd.read_excel("../tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
+
+
 hit_folder_name = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
 dataset_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/samples'
 models_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
@@ -19,6 +22,7 @@ hits_list = os.listdir(hit_folder_name)
 for hit in hits_list:
     print(hit)
     pheno = hit.split('_')[1]
+
     imp_ancestry = hit.split('_')[0]
     deltas = []
     abs_deltas = []
@@ -102,7 +106,11 @@ for hit in hits_list:
     ax.set_xlabel("Ancestry")
     ax.set_ylabel("Delta Probabilities")
     ax.set_ylim(-1, 1)
-    ax.set_title(f"Boxplot of Delta Probabilities by Ancestry for {hit}")
+    pheno = hit.split('_')[1]
+    pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
+    pheno_name = '_'.join(pheno_name.iloc[0].split('_')[1:]) if not pheno_name.empty else 'Unknown'
+    ax.set_title(f"Boxplot of Delta Probabilities by Ancestry for {'_'.join([hit.split('_')[0], pheno_name, hit.split('_')[2]])}")
+
 
     # Creazione della legenda usando gli SNP
     legend_elements = [plt.Line2D([0], [0], marker='o', color='w', markerfacecolor=color_map[ancestry], markersize=10, label=snp)
@@ -126,7 +134,7 @@ for hit in hits_list:
     ax.set_xlabel("Ancestry")
     ax.set_ylabel("Delta Probabilities")
     ax.set_ylim(0, 1)
-    ax.set_title(f"Boxplot of |Delta Probabilities| by Ancestry for {hit}")
+    ax.set_title(f"Boxplot of |Delta Probabilities| by Ancestry for {'_'.join([hit.split('_')[0], pheno_name, hit.split('_')[2]])}")
 
     # Creazione della legenda usando gli SNP
     ax.legend(handles=legend_elements, title="Most Significant SNPs", loc='upper right', fontsize=8)
