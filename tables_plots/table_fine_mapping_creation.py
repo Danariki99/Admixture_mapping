@@ -9,6 +9,10 @@ out1 = pd.DataFrame(columns=[
     'OR (CI = 95%)',
     'p value',
     'chr',
+    'Delta_P_mean',
+    'Delta_P_std',
+    'Delta_P_median',
+    'Delta_P_samples',
 ])
 
 hit_folder_name = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
@@ -16,6 +20,7 @@ dataset_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_f
 models_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
 plots_folder_genearl = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
 output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/results'
+probs_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
 
 ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
 
@@ -53,6 +58,8 @@ for hit in hits_list:
             oddr = row_with_min_p['OR'].values[0]
             snpid = row_with_min_p['ID'].values[0]
 
+            delta_p_df = pd.read_csv(f'{probs_folder}/{hit}/{ancestry}/{most_significant_SNP}.tsv', sep='\t')
+
             out1 = pd.concat([
                 out1,
                 pd.DataFrame([{
@@ -62,7 +69,11 @@ for hit in hits_list:
                     'ancestry of the population': ancestry,
                     'OR (CI = 95%)': f'{oddr} ({row_with_min_p["L95"].values[0]}, {row_with_min_p["U95"].values[0]})', 
                     'p value': p,
-                    'chr': chrom
+                    'chr': chrom,
+                    'Delta_P_mean': delta_p_df['delta_P'].mean(),
+                    'Delta_P_std': delta_p_df['delta_P'].std(),
+                    'Delta_P_median': delta_p_df['delta_P'].median(),
+                    'Delta_P_samples': len(delta_p_df['delta_P'])
                 }])
 
             ], ignore_index=True)
