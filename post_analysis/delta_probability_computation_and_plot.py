@@ -11,6 +11,7 @@ dataset_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_f
 models_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
 plots_folder_genearl = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
 output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/results'
+probs_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
 
 ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
 
@@ -37,6 +38,9 @@ for hit in hits_list:
 
         result_folder = os.path.join(output_folder, hit, ancestry)
         os.makedirs(result_folder, exist_ok=True)
+
+        output_probs_folder = os.path.join(probs_folder, hit, ancestry)
+        os.makedirs(output_probs_folder, exist_ok=True)
 
         snps_list = os.listdir(current_model_folder)
         snps_list = [file_name.replace('.csv', '') for file_name in snps_list if file_name.endswith('.csv')]
@@ -82,6 +86,8 @@ for hit in hits_list:
                 if snp == most_significant_SNP:
                     deltas.append(dataset['delta_P'].tolist())
                     abs_deltas.append(dataset['delta_P_abs'].tolist())
+                    dataset.to_csv(os.path.join(output_probs_folder, f'{snp}.tsv'), sep='\t', index=False)
+
 
         else:
                 deltas.append([])
