@@ -74,10 +74,15 @@ for phe_file in phe_files:
     woman_percentage_controls = (phe_controls[phe_controls['sex'] == 1].shape[0] / phe_controls.shape[0]) * 100 if phe_controls.shape[0] > 0 else 0
     man_percentage_controls = (phe_controls[phe_controls['sex'] == 0].shape[0] / phe_controls.shape[0]) * 100 if phe_controls.shape[0] > 0 else 0
 
+    df_first_batch = pd.read_excel("ukbb_v1.xlsx", sheet_name="first_batch")
+    print(phe_name)
+    pheno_name = '_'.join(df_first_batch.loc[df_first_batch['ID'] == phe_name, 'ID2'].iloc[0].split('_')[1:])
+    print(pheno_name)
+
     # Append results for the current phenotype to the output DataFrame
     # Create a new row as a DataFrame
     new_row = pd.DataFrame([{
-        'Phenotype': phe_name,  # Use the file name as the phenotype identifier
+        'Phenotype': pheno_name,  # Use the file name as the phenotype identifier
         'Mean_Age_Cases': mean_age_cases,
         'SD_Age_Cases': sd_age_cases,
         'Mean_Age_Controls': mean_age_controls,
