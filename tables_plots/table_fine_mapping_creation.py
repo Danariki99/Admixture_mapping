@@ -3,9 +3,12 @@ import pandas as pd
 
 out1 = pd.DataFrame(columns=[
     'Phenotype',
-    'ID',
     'ancestry tested',
     'ancestry of the population',
+    'Start Position of the reduced significant region',
+    'End Position of the reduced significant region',
+    'Number of significant SNPs',
+    'ID',
     'OR (CI = 95%)',
     'p value',
     'chr',
@@ -51,6 +54,8 @@ for hit in hits_list:
         if len(snps_list) != 0:
 
             filtered_df = df[(df['TEST'] == imp_ancestry) & (df['ID'].isin(snps_list))]
+            start_pos = filtered_df['POS'].min()
+            end_pos = filtered_df['POS'].max()
             most_significant_SNP = filtered_df.loc[filtered_df['P'].idxmin()]['ID']
             most_significant_SNPs.append(most_significant_SNP)
             row_with_min_p = df[(df['ID'] == most_significant_SNP) & (df['TEST'] == 'ADD')]
@@ -64,9 +69,12 @@ for hit in hits_list:
                 out1,
                 pd.DataFrame([{
                     'Phenotype': pheno_name.iloc[0] if not pheno_name.empty else 'Unknown',  # Nome del fenotipo
-                    'ID': snpid,
                     'ancestry tested': imp_ancestry,  
                     'ancestry of the population': ancestry,
+                    'Start Position of the reduced significant region': start_pos,
+                    'End Position of the reduced significant region': end_pos,
+                    'Number of significant SNPs': len(snps_list),
+                    'ID': snpid,
                     'OR (CI = 95%)': f'{oddr} ({row_with_min_p["L95"].values[0]}, {row_with_min_p["U95"].values[0]})', 
                     'p value': p,
                     'chr': chrom,
