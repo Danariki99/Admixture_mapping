@@ -33,7 +33,7 @@ out = pd.DataFrame(columns=[
     'Mean_Age_Cases', 'SD_Age_Cases',
     'Mean_Age_Controls', 'SD_Age_Controls',
     '%Women_Cases', '%Men_Cases',
-    '%Women_Controls', '%Men_Controls'
+    '%Women_Controls', '%Men_Controls', 'Total_Cases', 'Total_Controls'
 ])
 covar = covar.rename(columns={'IID': '#IID'})
 
@@ -90,11 +90,15 @@ for phe_file in phe_files:
         '%Women_Cases': woman_percentage_cases,
         '%Men_Cases': man_percentage_cases,
         '%Women_Controls': woman_percentage_controls,
-        '%Men_Controls': man_percentage_controls
+        '%Men_Controls': man_percentage_controls,
+        'Total_Cases': phe_cases.shape[0],
+        'Total_Controls': phe_controls.shape[0]
     }])
 
     # Concatenate the new row with the existing DataFrame
     out = pd.concat([out, new_row], ignore_index=True)
+
+    print(phe_cases.shape[0]+phe_controls.shape[0])
 
 # Save the results to an Excel file
 print(out)
