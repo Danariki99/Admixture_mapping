@@ -117,6 +117,7 @@ for hit in hits_list:
     pheno_name = '_'.join(pheno_name.iloc[0].split('_')[1:]) if not pheno_name.empty else 'Unknown'
     if pheno_name == 'TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
         pheno_name = 'TTE_acute_upper_respiratory_infections'
+    pheno_name = pheno_name.replace('_', ' ')
     ax.set_title(f"Boxplot of Delta Probabilities by Ancestry for {'_'.join([hit.split('_')[0], pheno_name, hit.split('_')[2]])}")
 
 
@@ -142,7 +143,7 @@ for hit in hits_list:
     ax.set_xlabel("Ancestry")
     ax.set_ylabel("Delta Probabilities")
     ax.set_ylim(0, 1)
-    ax.set_title(f"Boxplot of |Delta Probabilities| by Ancestry for {'_'.join([hit.split('_')[0], pheno_name, hit.split('_')[2]])}")
+    ax.set_title(f"{hit.split('_')[0]} {pheno_name} {hit.split('_')[2]}")
 
     # Creazione della legenda usando gli SNP
     ax.legend(handles=legend_elements, title="Most Significant SNPs", loc='upper right', fontsize=8)
