@@ -143,14 +143,19 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
 
             # Plot Manhattan points for each chromosome
             for chrom, chrom_data in data.groupby('#CHROM'):
-                plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data[pheno]), color=chromosome_colors[chrom-1], label=pheno)
+                plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data[pheno]), color=chromosome_colors[chrom-1], label=pheno, s = 7)
 
             # Annotate significant points
             significant_data = significant_list[i]
             if not significant_data.empty:
                 max_row = significant_data.loc[significant_data[pheno].idxmin()]
-                offset_x = np.random.uniform(-1e9, 1e9)  # Adjust these values as needed
-                offset_y = np.random.uniform(-0.6, 0.6)  # Adjust these values as needed
+                if ancestry == 'SAS':
+                    value = 0.2
+                else:
+                    value = 0.6
+
+                offset_x = np.random.uniform(-1e9, 1e9)
+                offset_y = np.random.uniform(-value, value)
                 name = fetch_cytoband(f"chr{int(max_row['#CHROM'])}", int(max_row["POS"]), int(max_row["end_POS"]))
 
                 # manually select the non working genes
@@ -208,6 +213,8 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         plt.xticks(chrom_positions, chrom_labels)
         plt.xlabel('Chromosome')
         plt.ylabel('-log10(p)')
+        if ancestry == 'NAT':
+            ancestry = 'AMR'
         plt.title('Manhattan Plot ' + ancestry)
         plt.legend(handles=[line1, line2], loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2)
         plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.png'), bbox_inches='tight')
