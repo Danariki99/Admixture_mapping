@@ -6,7 +6,7 @@ from matplotlib.patches import Patch
 import random
 
 # Carica la tabella dei fenotipi
-df_first_batch = pd.read_excel("../tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
+df_first_batch = pd.read_excel("~/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
 
 # Cartelle
 hit_folder_name = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
@@ -111,9 +111,11 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
         print("Nessun dato da plottare.")
         return
 
-    fig, ax = plt.subplots(figsize=(max(14, len(filtered)*0.6), 10))
+    spacing = 1.2  # maggiore di 1 per più spazio tra i box
+    box_positions = [i * spacing for i in range(1, len(filtered) + 1)]
+
+    fig, ax = plt.subplots(figsize=(max(14, len(filtered) * 0.7), 10))
     box_data = [b[data_key] for b in filtered]
-    box_positions = list(range(1, len(filtered) + 1))
     bp = ax.boxplot(box_data, positions=box_positions, patch_artist=True)
 
     for patch, b in zip(bp['boxes'], filtered):
@@ -131,15 +133,15 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     max_values = [max(b[data_key]) for b in filtered]
     for pos, b, max_val in zip(box_positions, filtered, max_values):
         y_pos = min(max_val + random.uniform(0.05, 0.15), 1.08)
-        ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11, rotation=0)
+        ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
 
-    # Legenda ancestry
+    # Legenda: fuori dal plot
     legend_labels = {b['ancestry']: b['color'] for b in filtered}
     legend_elements = [Patch(facecolor=color, label=label) for label, color in legend_labels.items()]
-    ax.legend(handles=legend_elements, title="Ancestry", loc='upper right', fontsize=11, title_fontsize=12)
+    ax.legend(handles=legend_elements, title="Global Ancestry", loc='center left', bbox_to_anchor=(1.01, 0.5), fontsize=11, title_fontsize=12)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(plots_folder_general, filename))
+    plt.savefig(os.path.join(plots_folder_general, filename), bbox_inches='tight')
     plt.close()
 
 # Plotta risultati
