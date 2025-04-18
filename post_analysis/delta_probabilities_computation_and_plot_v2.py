@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.special import expit
 from matplotlib.patches import Patch
+import random
 
 # Carica la tabella dei fenotipi
 df_first_batch = pd.read_excel("../tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
@@ -129,7 +130,7 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     # Mostra SNP sopra il boxplot
     max_values = [max(b[data_key]) for b in filtered]
     for pos, b, max_val in zip(box_positions, filtered, max_values):
-        y_pos = min(max_val + 0.05, 1.08)
+        y_pos = min(max_val + random.uniform(0.05, 0.15), 1.08)
         ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11, rotation=0)
 
     # Legenda ancestry
