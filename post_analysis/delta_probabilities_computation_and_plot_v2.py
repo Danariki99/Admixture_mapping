@@ -111,10 +111,10 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
         print("Nessun dato da plottare.")
         return
 
-    spacing = 1.2  # maggiore di 1 per più spazio tra i box
+    spacing = 1.5  # spacing aumentato per maggiore separazione
     box_positions = [i * spacing for i in range(1, len(filtered) + 1)]
 
-    fig, ax = plt.subplots(figsize=(max(14, len(filtered) * 0.7), 10))
+    fig, ax = plt.subplots(figsize=(max(14, len(filtered) * 0.75), 10))
     box_data = [b[data_key] for b in filtered]
     bp = ax.boxplot(box_data, positions=box_positions, patch_artist=True)
 
@@ -129,13 +129,18 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     ax.set_title(title, fontsize=16)
     ax.set_ylim(-1 if ylabel == "Delta Probabilities" else 0, 1.1)
 
-    # Mostra SNP sopra il boxplot
+    # Mostra SNP sopra il boxplot con logica per affix
     max_values = [max(b[data_key]) for b in filtered]
-    for pos, b, max_val in zip(box_positions, filtered, max_values):
-        y_pos = min(max_val + random.uniform(0.05, 0.15), 1.08)
+    for i, (pos, b, max_val) in enumerate(zip(box_positions, filtered, max_values)):
+        if i + 1 < len(filtered) and filtered[i + 1]['snp'].startswith("Affx"):
+            y_pos = min(max_val + 0.2, 1.08)
+        elif i > 0 and b['snp'].startswith("Affix") and filtered[i - 1]['snp'] != b['snp']:
+            y_pos = min(max_val + 0.4, 1.08)
+        else:
+            y_pos = min(max_val + 0.2, 1.08)
         ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
 
-    # Legenda: fuori dal plot
+    # Legenda fuori dal grafico
     legend_labels = {b['ancestry']: b['color'] for b in filtered}
     legend_elements = [Patch(facecolor=color, label=label) for label, color in legend_labels.items()]
     ax.legend(handles=legend_elements, title="Global Ancestry", loc='center left', bbox_to_anchor=(1.01, 0.5), fontsize=11, title_fontsize=12)
@@ -143,6 +148,7 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     plt.tight_layout()
     plt.savefig(os.path.join(plots_folder_general, filename), bbox_inches='tight')
     plt.close()
+
 
 # Plotta risultati
 plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities by Ancestry for UKBB", "delta_probabilities_UKBB.png")
