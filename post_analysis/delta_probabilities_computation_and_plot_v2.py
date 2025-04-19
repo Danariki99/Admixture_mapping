@@ -133,11 +133,11 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     max_values = [max(b[data_key]) for b in filtered]
     for i, (pos, b, max_val) in enumerate(zip(box_positions, filtered, max_values)):
         if i + 1 < len(filtered) and filtered[i + 1]['snp'].startswith("Affx"):
-            y_pos = min(max_val + 0.2, 1.08)
+            y_pos = min(max_val + 0.1, 1.08)
         elif i > 0 and b['snp'].startswith("Affx") and filtered[i - 1]['snp'] != b['snp']:
-            y_pos = min(max_val + 0.4, 1.08)
+            y_pos = min(max_val + 0.3, 1.08)
         else:
-            y_pos = min(max_val + 0.2, 1.08)
+            y_pos = min(max_val + 0.1, 1.08)
         ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
 
     # Legenda fuori dal grafico
