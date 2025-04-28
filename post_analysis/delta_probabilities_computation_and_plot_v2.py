@@ -109,13 +109,12 @@ def data_processing():
 
 # Funzione per plottare i risultati filtrati
 def plot_filtered_boxplot(data_key, ylabel, title, filename):
-    # Filtra solo dati non vuoti
     filtered = [b for b in boxplot_data if len(b[data_key]) > 0]
     if not filtered:
         print("Nessun dato da plottare.")
         return
 
-    # 🛠️ Ordina in base alla mediana dei dati
+    # Ordina in base alla mediana dei dati
     filtered.sort(key=lambda x: np.median(x[data_key]))
 
     spacing = 2  # maggiore separazione
@@ -126,7 +125,8 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     bp = ax.boxplot(box_data, positions=box_positions, patch_artist=True)
 
     for patch, b in zip(bp['boxes'], filtered):
-        patch.set_facecolor(b['color'])
+        ancestry = b['ancestry']
+        patch.set_facecolor(color_map.get('NAT') if ancestry == 'AMR' else color_map.get(ancestry, 'gray'))
 
     x_labels = [b['label'] for b in filtered]
     ax.set_xticks(box_positions)
@@ -136,8 +136,7 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     ax.set_title(title, fontsize=16)
     ax.set_ylim(-1 if ylabel == "Delta Probabilities" else 0, 1.1)
 
-    # Mostra SNP sopra il boxplot
-    # Mostra SNP sopra il boxplot alternando l'altezza (0.1 e 0.3)
+    # Mostra SNP sopra il boxplot alternando l'altezza
     max_values = [max(b[data_key]) for b in filtered]
     for i, (pos, b, max_val) in enumerate(zip(box_positions, filtered, max_values)):
         if i % 2 == 0:
@@ -146,15 +145,20 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
             y_pos = min(max_val + 0.05, 1.08)
         ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
 
+    # 🔥 Legenda corretta: costruisci ancestry -> colore
+    ancestry_set = sorted(set(b['ancestry'] for b in filtered))
+    legend_elements = []
 
-    # Legenda fuori
-    legend_labels = {b['ancestry']: b['color'] for b in filtered}
-    legend_elements = [Patch(facecolor=color, label=label) for label, color in legend_labels.items()]
+    for ancestry in ancestry_set:
+        color = color_map.get('NAT') if ancestry == 'AMR' else color_map.get(ancestry, 'gray')
+        legend_elements.append(Patch(facecolor=color, label=ancestry))
+
     ax.legend(handles=legend_elements, title="Global Ancestry", loc='center left', bbox_to_anchor=(1.01, 0.5), fontsize=11, title_fontsize=12)
 
     plt.tight_layout()
     plt.savefig(os.path.join(plots_folder_general, filename), bbox_inches='tight')
     plt.close()
+
 
 
 
@@ -171,7 +175,7 @@ if __name__ == "__main__":
     ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
     colors = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
     color_map = {ancestry: colors[i % len(colors)] for i, ancestry in enumerate(ancestry_list)}
-    color_map['AMR'] = color_map.pop('NAT')  # NAT viene mostrato come AMR
+    #color_map['AMR'] = color_map.pop('NAT')  # NAT viene mostrato come AMR
 
     # Ricostruzione del boxplot_data
     boxplot_data = []
@@ -221,10 +225,10 @@ if __name__ == "__main__":
                     'snp': snp_to_rsid.get(snp, snp),
                     'delta': delta,
                     'delta_abs': delta_abs,
-                    'color': color_map.get(ancestry, 'gray')
+                    'color': color_map.get(ancestry, 'brown')
                 })
 
     # Plotta i grafici
-    plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities by Ancestry", "delta_probabilities_UKBB.pdf")
-    plot_filtered_boxplot('delta_abs', "|Delta Probabilities|", "Boxplot of |Delta Probabilities| by Ancestry", "abs_delta_probabilities_UKBB.pdf")
+    plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities by Ancestry for UKBB", "delta_probabilities_UKBB.pdf")
+    plot_filtered_boxplot('delta_abs', "|Delta Probabilities|", "Boxplot of |Delta Probabilities| by Ancestry for UKBB", "abs_delta_probabilities_UKBB.pdf")
 

@@ -66,6 +66,7 @@ def plot_q_file(q_file_path, output_folder, ancestry_color_map):
     fig, ax = plt.subplots(figsize=(14, 5))
     plot_admixture(ax, Q_sorted, boundary_list, col_order=None, colors=colors_for_plot)
 
+    ax.set_title("Admixture Plot for UKBB", fontsize=16)
     handles = [plt.Rectangle((0, 0), 1, 1, color=ancestry_color_map[anc]) for anc in ancestry_labels]
     ax.legend(handles, ancestry_labels, loc='upper center', bbox_to_anchor=(0.5, -0.12),
               ncol=len(ancestry_labels), frameon=False)
