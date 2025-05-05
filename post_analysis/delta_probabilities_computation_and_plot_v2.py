@@ -229,6 +229,6 @@ if __name__ == "__main__":
                 })
 
     # Plotta i grafici
-    plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities by Ancestry for UKBB", "delta_probabilities_UKBB.png")
-    plot_filtered_boxplot('delta_abs', "|Delta Probabilities|", "Boxplot of |Delta Probabilities| by Ancestry for UKBB", "abs_delta_probabilities_UKBB.png")
+    plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities by Ancestry for UKBB", "delta_probabilities_UKBB.pdf")
+    plot_filtered_boxplot('delta_abs', "|Delta Probabilities|", "Boxplot of |Delta Probabilities| by Ancestry for UKBB", "abs_delta_probabilities_UKBB.pdf")
 
