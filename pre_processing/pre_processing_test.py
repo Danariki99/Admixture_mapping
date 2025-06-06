@@ -24,3 +24,5 @@ if __name__ == '__main__':
     # Start the VCF creation
     print('Starting the VCF creation')
     vcf_creation(ancestry_map, msp_folder, output_folder)
+
+    vcf_merging(ancestry_map, output_folder, output_folder)

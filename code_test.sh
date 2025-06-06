@@ -16,3 +16,26 @@ python pre_processing/pre_processing_testy.py "$file"
 ./association_execution/analysis_execution_test.sh 
 
 python post_processing/post_processing_test.py
+
+python post_analysis/ancestry_counts_test.py "$file"
+
+python post_analysis/keep_files_test.py
+
+python post_analysis/keep_files_post_processing_test.py
+
+python post_vcf/snps_creation_more_wind_test.py
+
+python post_analysis/PCA_generation_test.py
+
+./post_analysis/interesting_associations_execution_more_wind_fine_mapping_covar_verbose_test.sh
+
+python post_analysis/betas_extraction_test.py
+
+python post_analysis/probabilities_samples_dataset_extraction_test.py
+
+python post_analysis/delta_probabilities_computation_and_plot_v2_test.py
+
+
+
+
+
