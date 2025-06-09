@@ -1,10 +1,17 @@
 import os
 import subprocess
+import sys
+
+# === Controlla argomento VCF ===
+if len(sys.argv) != 2:
+    print("Usage: python run_pca_for_ancestries.py <vcf_file.vcf.gz>")
+    sys.exit(1)
+
+vcf_file = sys.argv[1]
 
 # === File paths ===
 keep_path = './results/ancestry_keep/keep_files_processed'
 output_folder = './results/pca/PCA_res'
-vcf_file = './data/vcf_files/ukbb.vcf.gz'
 exclude_snps_file = './results/pca/PCA_pruned_files/output.prune.out'
 
 # Assicurati che la cartella di output esista

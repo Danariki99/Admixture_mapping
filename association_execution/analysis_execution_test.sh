@@ -12,9 +12,9 @@ output_root="./results"
 
 # Loop over each VCF file
 for vcf_file in "$vcf_dir"/*.vcf; do
-    # Extract ancestry from filename: e.g., chr1_AFR.vcf -> AFR
+    # Extract ancestry from filename: e.g., ancestry_EUR.vcf -> EUR
     filename=$(basename "$vcf_file")
-    ancestry=$(echo "$filename" | sed -E 's/^.*_([A-Z]+)\.vcf$/\1/')
+    ancestry=$(echo "$filename" | sed -E 's/^ancestry_([A-Z]+)\.vcf$/\1/')
 
     # Loop over each phenotype file
     for pheno_file in "$pheno_dir"/*.phe; do

@@ -3,29 +3,36 @@
 # Stop if any command fails
 set -e
 
+# === Controllo input ===
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <vcf_file.vcf.gz>"
+    exit 1
+fi
+
+vcf_file="$1"
+
+# === Configurazione pipeline ===
+
 # Define ancestry list
 ancestry_list=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
 
-# Base paths (update if needed)
-vcf_file="./data/vcf_files/ukbb.vcf.gz"
+# Percorsi
 phe_folder="./data/phe_files"
 keep_folder="./results/keep_files_processed"
 snps_folder="./results/snps_files"
-
-# ✅ Use PCA covariates folder
 covar_folder="./results/pca/PCA_covar_files"
-
 output_root="./results/fine_mapping_verbose"
 tmp_folder="./results/tmp"
+
 mkdir -p "$output_root"
 mkdir -p "$tmp_folder"
 
-# Loop on SNP files
+# Loop su tutti i file .snps
 for snps_file in "$snps_folder"/*.snps; do
     filename=$(basename "$snps_file")
     echo "Processing $filename"
 
-    # Extract components from filename: <PHENO>_<ANCESTRY>_chrN.snps
+    # Estrae PHENO e CHR dal nome file: <PHENO>_<ANCESTRY>_chrN.snps
     pheno=$(echo "$filename" | cut -d'_' -f2)
     chr=$(echo "$filename" | grep -oP 'chr\d+')
 
@@ -33,11 +40,9 @@ for snps_file in "$snps_folder"/*.snps; do
 
     for ancestry_keep in "${ancestry_list[@]}"; do
         keep_file="$keep_folder/${ancestry_keep}_keep.txt"
-        
-        # ✅ New PCA covar filename
         covar_file="${covar_folder}/covar_${pheno}_${ancestry_keep}.tsv"
 
-        output_dir="${output_root}/${pheno}/chr${chr}/${ancestry_keep}"
+        output_dir="${output_root}/${pheno}/${chr}/${ancestry_keep}"
         mkdir -p "$output_dir"
         output_file="${output_dir}/output"
 

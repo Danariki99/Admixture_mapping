@@ -17,14 +17,10 @@ models_folder = './results/fine_mapping_models'
 plots_folder_general = './results/plots'
 output_folder = './results/probabilities'
 probs_folder = './results/probabilities_probs'
-pheno_file = './data/phenotypes/ukbb_v1.xlsx'
 
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(plots_folder_general, exist_ok=True)
 os.makedirs(probs_folder, exist_ok=True)
-
-# Carica fenotipi
-df_first_batch = pd.read_excel(pheno_file, sheet_name="first_batch")
 
 # Contenitore boxplot
 boxplot_data = []
@@ -37,13 +33,8 @@ def data_processing():
         pheno = hit_parts[1]
         chrom = hit_parts[-1]
 
-        # Nome leggibile
-        pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
-        pheno_name = '_'.join(pheno_name.iloc[0].split('_')[1:]) if not pheno_name.empty else 'Unknown'
-        if pheno_name == 'TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
-            pheno_name = 'TTE_acute_upper_respiratory_infections'
-        pheno_name = pheno_name.replace('_', ' ')
-        label = f"{pheno_name} ({imp_ancestry}, {chrom})"
+        # Usa il nome grezzo del fenotipo senza tentativi di leggibilità
+        label = f"{pheno} ({imp_ancestry}, {chrom})"
 
         for ancestry in ancestry_list:
             glm_file = f'{hit_folder_name}/{hit}/{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid'
@@ -112,46 +103,3 @@ def data_processing():
                         'color': color_map[ancestry]
                     })
                     dataset.to_csv(os.path.join(output_probs_folder, f'{snp}.tsv'), sep='\t', index=False)
-
-def plot_filtered_boxplot(data_key, ylabel, title, filename):
-    filtered = [b for b in boxplot_data if len(b[data_key]) > 0]
-    if not filtered:
-        print("Nessun dato da plottare.")
-        return
-
-    filtered.sort(key=lambda x: np.median(x[data_key]))
-    spacing = 2
-    box_positions = [i * spacing for i in range(1, len(filtered) + 1)]
-
-    fig, ax = plt.subplots(figsize=(max(14, len(filtered) * 0.75), 10))
-    box_data = [b[data_key] for b in filtered]
-    bp = ax.boxplot(box_data, positions=box_positions, patch_artist=True)
-
-    for patch, b in zip(bp['boxes'], filtered):
-        ancestry = b['ancestry']
-        patch.set_facecolor(color_map.get(ancestry, 'gray'))
-
-    x_labels = [b['label'] for b in filtered]
-    ax.set_xticks(box_positions)
-    ax.set_xticklabels(x_labels, rotation=45, ha='right', fontsize=12)
-    ax.set_ylabel(ylabel, fontsize=14)
-    ax.set_title(title, fontsize=16)
-    ax.set_ylim(-1 if ylabel == "Delta Probabilities" else 0, 1.1)
-
-    max_values = [max(b[data_key]) for b in filtered]
-    for i, (pos, b, max_val) in enumerate(zip(box_positions, filtered, max_values)):
-        y_pos = min(max_val + (0.25 if i % 2 == 0 else 0.05), 1.08)
-        ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
-
-    legend_elements = [Patch(facecolor=color_map.get(a, 'gray'), label=a) for a in sorted(set(b['ancestry'] for b in filtered))]
-    ax.legend(handles=legend_elements, title="Global Ancestry", loc='center left', bbox_to_anchor=(1.01, 0.5), fontsize=11, title_fontsize=12)
-
-    plt.tight_layout()
-    plt.savefig(os.path.join(plots_folder_general, filename), bbox_inches='tight')
-    plt.close()
-
-# Esegui
-if __name__ == "__main__":
-    data_processing()
-    plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities", "delta_probabilities.pdf")
-    plot_filtered_boxplot('delta_abs', "|Delta Probabilities|", "Boxplot of |Delta Probabilities|", "abs_delta_probabilities.pdf")

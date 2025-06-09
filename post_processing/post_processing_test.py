@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     # Nuovi percorsi coerenti con il setup "data/" e "results/"
     phe_folder = './data/phe_files'
-    window_input_file = './data/vcf_files/chr1_AFR.vcf'  # puoi cambiarlo con qualsiasi .vcf valido
+    window_input_file = './data/vcf_files/ancestry_AFR.vcf'  # puoi cambiarlo con qualsiasi .vcf valido
     wind_output_folder = './results/post_processing_files'
     plot_output_folder = './results/plots'
     general_output_folder = './results/post_processing_files'

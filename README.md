@@ -34,12 +34,18 @@ pip install -r requirements.txt
 ```
 
 ### 2) Execute the pipeline:
-The pipeline includes all the steps performed after the execution of Gnomix or RFMix. Since the original input files (such as VCFs and ancestry panels) used in the study cannot be shared, we provide a minimal example .msp file located in the data/ folder to illustrate the pipeline structure.
+The pipeline includes all the steps performed after the execution of either Gnomix or RFMix for Local Ancestry Inference (LAI).
+Since the original input files (such as VCFs and reference panels) used in the study cannot be shared, we provide a minimal example .vcf.gz file located in the data/ folder to illustrate the full pipeline structure.
 
-To run the test pipeline, use:
+To run the pipeline, use the following command:
 
 ```bash
-./code_test.sh data/test.msp
+./code_test.sh <vcf_file> <LAI_software>
 ```
+Where:
+
+- <vcf_file> is the path to your input .vcf or .vcf.gz file (e.g., data/test.vcf.gz)
+
+- <LAI_software> must be either rfmix or gnomix depending on which method you want to use for local ancestry inference.
 
 All results and plots will be automatically saved in the results/ folder.
