@@ -2,26 +2,23 @@
 
 # Check if two arguments are provided
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <vcf_file> <LAI_software>"
+    echo "Usage: $0 <vcf_file> <panel_folder>"
     exit 1
 fi
 
 # Assign the arguments to variables
 file=$1
-sw=$2
+panel_folder=$2
 
-msp_folder=$(python Lai/chrom_division.py "$file")
 
-if [ "$sw" == "rfmix" ]; then
-    echo "Using RFMix software"
-    python LAI/rfmix_test.py "$msp_folder"
-elif [ "$sw" == "gnomix" ]; then
-    echo "Using GnoMix software"
-    python LAI/gnomix_test.py "$msp_folder"
-else
-    echo "Invalid software option. Please use 'rfmix' or 'gnomix'."
-    exit 1
-fi
+vcf_folder=$(python LAI/chrom_division.py --vcf "$file")
+
+echo "Using GnoMix software"
+python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --panel_folder "$panel_folder"
+
+msp_folder=$(python LAI/gnomix.py --vcf_folder "$vcf_folder" --gnomix_ref "$panel_folder")
+
+msp_folder=$(./LAI/files_moving.sh)
 
 
 # Pass the dataset variable to the Python scripts

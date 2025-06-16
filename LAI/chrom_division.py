@@ -15,7 +15,7 @@ def split_by_chromosome(vcf_file, output_dir):
     print(f"Found chromosomes: {chromosomes}")
 
     for chrom in chromosomes:
-        output_file = os.path.join(output_dir, f"chr_{chrom}.vcf.gz")
+        output_file = os.path.join(output_dir, f"{chrom}.vcf.gz")
         cmd = [
             "bcftools", "view", "-r", chrom,
             "-Oz", "-o", output_file,
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Split multi-chromosome VCF into one VCF per chromosome.")
     parser.add_argument("--vcf", required=True, help="Input VCF file (can be .vcf or .vcf.gz)")
 
-    output_dir = '../results/msp_folder'
+    output_dir = 'results/vcf_folder'
     args = parser.parse_args()
     split_by_chromosome(args.vcf, output_dir)
     print(output_dir)
