@@ -3,10 +3,7 @@ import subprocess
 import argparse
 
 # === CONFIGURAZIONI FISSE ===
-PHASE = "1"  
-GENETIC_MAP_DIR = "/private/groups/ioannidislab/smeriglio/tests_files/data/maps"  # deve contenere chrN.gmap
-SAMPLE_MAP_FILE = "/private/groups/ioannidislab/smeriglio/tests_files/data/sample_map_filtered.txt"  # file con assegnazione ancestry dei samples
-OUTPUT_DIR = "/private/groups/ioannidislab/smeriglio/tests_files/results/gnomix_models"
+
 
 def train_gnomix_model(test_vcf, chrom, gmap_file, panel_vcf, sample_map):
     output_basename = os.path.join(OUTPUT_DIR, f"{chrom}_model")
@@ -40,9 +37,15 @@ def train_gnomix_model(test_vcf, chrom, gmap_file, panel_vcf, sample_map):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train one Gnomix model per chromosome")
     parser.add_argument("--vcf_folder", required=True, help="Folder with per-chromosome test VCFs (chrN.vcf.gz)")
-    parser.add_argument("--panel_folder", required=True, help="Folder with per-chromosome reference VCFs")
+    parser.add_argument("--data_folder", required=True, help="Folder with data files")
+    parser.add_argument("--results_folder", required=True, help="Folder to save results")
     args = parser.parse_args()
     print(f"Using VCF folder: {args.vcf_folder}")
+
+    PHASE = "1"  
+    GENETIC_MAP_DIR = os.path.join(args.data_folder, "maps")
+    SAMPLE_MAP_FILE = os.path.join(args.data_folder, "sample_map_filtered.txt")
+    OUTPUT_DIR = os.path.join(args.results_folder, "gnomix_models")
 
     for fname in sorted(os.listdir(args.vcf_folder)):
         if fname.startswith("chr") and fname.endswith(".vcf.gz"):

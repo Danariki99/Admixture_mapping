@@ -1,17 +1,25 @@
-from post_processing_functions import *
+from post_processing_functions_test import *
 import os
+import sys
 
 if __name__ == '__main__':
+    result_folder = sys.argv[1]
+    data_folder = sys.argv[2]
     # Lista ancestry usate nei file
-    ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "SAS", "WAS"]
+    ancestry_list = ["AFR", "EAS", "EUR"]
 
     # Nuovi percorsi coerenti con il setup "data/" e "results/"
-    phe_folder = './data/phe_files'
-    window_input_file = './data/vcf_files/ancestry_AFR.vcf'  # puoi cambiarlo con qualsiasi .vcf valido
-    wind_output_folder = './results/post_processing_files'
-    plot_output_folder = './results/plots'
-    general_output_folder = './results/post_processing_files'
-    FUMA_folder = './results/FUMA'
+    phe_folder = os.path.join(data_folder, 'phe_files')
+    window_input_file = os.path.join(result_folder, 'vcf_files', 'ancestry_AFR.vcf')
+    wind_output_folder = os.path.join(result_folder, 'post_processing_files')
+    plot_output_folder = os.path.join(result_folder, 'plots')
+    general_output_folder = os.path.join(result_folder, 'post_processing_files')
+    FUMA_folder = os.path.join(result_folder, 'FUMA')    
+
+    os.makedirs(wind_output_folder, exist_ok=True)
+    os.makedirs(plot_output_folder, exist_ok=True)
+    os.makedirs(general_output_folder, exist_ok=True)
+    os.makedirs(FUMA_folder, exist_ok=True)
 
     # Estrazione delle posizioni delle finestre
     print("Extracting windows positions")
@@ -21,8 +29,8 @@ if __name__ == '__main__':
         print(f"\nProcessing ancestry: {ancestry}")
 
         # Percorso generico degli output PLINK per questa ancestry
-        general_file = f'./results/output_ancestry_{ancestry}/*/output.*.glm.logistic.hybrid'
-        output_file = f'./results/post_processing_files/P_info_{ancestry}.tsv'
+        general_file = os.path.join(result_folder, f'output_ancestry_{ancestry}/*/output.*.glm.logistic.hybrid')
+        output_file = os.path.join(result_folder, f'post_processing_files/P_info_{ancestry}.tsv')
 
         # Analisi dei risultati e creazione dei plot
         print("Analyzing results")

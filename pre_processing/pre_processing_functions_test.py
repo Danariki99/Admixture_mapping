@@ -5,9 +5,9 @@ import glob
 import subprocess
 import sys
 #sys.path.append('/private/home/rsmerigl/codes/cleaned_codes')
-from snputils import SNPObject
-from snputils import VCFWriter
+
 from snputils import MSPReader
+from snputils import AdmixtureMappingVCFWriter
 
 
 def vcf_creation(ancestry_map, msp_folder, output_folder):
@@ -16,6 +16,8 @@ def vcf_creation(ancestry_map, msp_folder, output_folder):
     print(msp_file_list)
 
     for msp_file_name in msp_file_list:
+
+        output_file = os.path.join(output_folder, msp_file_name.replace('.msp', '.vcf'))
 
         # read msp file 
         msp_file = os.path.join(msp_folder, msp_file_name)
@@ -27,48 +29,11 @@ def vcf_creation(ancestry_map, msp_folder, output_folder):
         print(f"Reading {msp_file}")
         lai_object = msp_reader.read()
 
-        #processing a list of position to have both the sdtart and the end position of the windows.
-        pos_list = [f"{val1}_{val2}" for val1, val2 in lai_object.physical_pos]
+        admix_map = AdmixtureMappingVCFWriter(lai_object, output_file, ancestry_map)
 
-        
-        #iterate for each ancestry
-        for ancestry in range(len(ancestry_map)):
+        admix_map.write 
 
-            # modify the values to simulate a SNP file 
-            match = (lai_object.lai == ancestry).astype(int)
-            match = match.reshape(len(lai_object.lai),int(len(lai_object.lai[0])/2), 2 )
-
-            # create vcf object
-            calldata_gt = match
-            samples = np.array(lai_object.samples)
-            variants_chrom = lai_object.chromosomes
-            variants_list = [str(i+1) for i in range(len(lai_object.window_sizes))]
-            variants_id = np.array(variants_list)
-            variants_ref = np.full(calldata_gt.shape[0], 'A', dtype='U5')
-            variants_alt = np.full((calldata_gt.shape[0], 3), ['T', 'G', 'C'], dtype='U1')
-            qual = np.full(variants_id.shape, 100)
-
-            # create the SNPObject
-            variant_data_obj = SNPObject(
-                calldata_gt=calldata_gt,
-                samples=samples,
-                variants_chrom=variants_chrom,
-                variants_id=variants_id,
-                variants_ref = variants_ref,
-                variants_alt = variants_alt,
-                variants_pos = pos_list,
-                variants_qual = qual
-            )
-
-            # create a filename and select the output folder
-            vcf_filename = f'chr{np.unique(variants_chrom)[0]}_{ancestry_map[str(ancestry)]}.vcf'
-            output_file = os.path.join(output_folder, vcf_filename)
-
-            # write the vcf file 
-            vcf_writer = VCFWriter(variant_data_obj, output_file)
-            vcf_writer.write()
-
-    # return the output folder in case of necessity
+       
     return output_folder
 
 def vcf_merging(ancestry_map, vcf_dir, tmp_dir):

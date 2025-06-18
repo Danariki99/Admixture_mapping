@@ -1,12 +1,16 @@
 import os
 import pandas as pd
+import sys
 
-ancestries = ['AFR', 'EAS', 'EUR', 'NAT', 'SAS', 'WAS']
-
+ancestries = ['AFR', 'EAS', 'EUR']
 # === Path settings ===
-covar_path = './results/wind_covar_files_processed'
-eigenvec_base_path = './results/pca/PCA_res/PCA_*.out.eigenvec'
-output_folder = './results/pca/PCA_covar_files'
+
+results_folder = sys.argv[1]
+
+
+covar_path = os.path.join(results_folder, 'wind_covar_files_processed')
+eigenvec_base_path = os.path.join(results_folder, 'PCA_files', 'PCA_res', 'PCA_*.out.eigenvec')
+output_folder = os.path.join(results_folder, 'PCA_files', 'PCA_covar_files')
 
 os.makedirs(output_folder, exist_ok=True)
 

@@ -4,25 +4,28 @@
 set -e
 
 # === Controllo input ===
-if [ "$#" -ne 1 ]; then
+if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <vcf_file.vcf.gz>"
     exit 1
 fi
 
-vcf_file="$1"
+result_folder="$1"
+data_folder="$2"
 
 # === Configurazione pipeline ===
 
 # Define ancestry list
-ancestry_list=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
+ancestry_list=("AFR" "EAS" "EUR")
 
+vcf_file="$data_folder/input.vcf.gz" 
 # Percorsi
-phe_folder="./data/phe_files"
-keep_folder="./results/keep_files_processed"
-snps_folder="./results/snps_files"
-covar_folder="./results/pca/PCA_covar_files"
-output_root="./results/fine_mapping_verbose"
-tmp_folder="./results/tmp"
+phe_folder="$data_folder/phe_files"
+keep_folder="$result_folder/keep_files_processed"
+snps_folder="$result_folder/snps_files"
+covar_folder="$result_folder/PCA_files/PCA_covar_files"
+output_root="$result_folder/fine_mapping_verbose"
+tmp_folder="$result_folder/tmp"
+
 
 mkdir -p "$output_root"
 mkdir -p "$tmp_folder"
@@ -40,6 +43,12 @@ for snps_file in "$snps_folder"/*.snps; do
 
     for ancestry_keep in "${ancestry_list[@]}"; do
         keep_file="$keep_folder/${ancestry_keep}_keep.txt"
+
+        if [ ! -f "$keep_file" ]; then
+            echo "Keep file $keep_file does not exist. Skipping $pheno, $ancestry_keep, $chr."
+            continue
+        fi
+        
         covar_file="${covar_folder}/covar_${pheno}_${ancestry_keep}.tsv"
 
         output_dir="${output_root}/${pheno}/${chr}/${ancestry_keep}"

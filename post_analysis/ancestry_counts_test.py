@@ -8,22 +8,23 @@ import glob
 
 # Usage: python generate_ancestry_counts_from_msp_folder.py <path_to_msp_folder>
 
-if len(sys.argv) != 2:
+if len(sys.argv) != 3:
     print("Usage: python generate_ancestry_counts_from_msp_folder.py <path_to_msp_folder>")
     sys.exit(1)
 
 msp_folder = sys.argv[1]
-output_folder = './results/ancestry_counts'
+result_folder = sys.argv[2]
+output_folder = os.path.join(result_folder, 'ancestry_counts')
 os.makedirs(output_folder, exist_ok=True)
 
 # Define ancestry labels
-ancestry_labels = ['AFR', 'AHG', 'EAS', 'EUR', 'NAT', 'OCE', 'SAS', 'WAS']
+ancestry_labels = ['AFR', 'EAS', 'EUR']
 df_counts = None  # Will be initialized after reading first file
 
 print(f"Processing all .msp files in folder: {msp_folder}")
 
 # Find all chr_*.msp files
-msp_files = sorted(glob.glob(os.path.join(msp_folder, 'chr_*.msp')))
+msp_files = sorted(glob.glob(os.path.join(msp_folder, 'chr*.msp')))
 
 if len(msp_files) == 0:
     print("❌ No .msp files found in folder!")

@@ -1,11 +1,16 @@
 import os
 import pandas as pd
 import numpy as np
+import sys
 
 # Cartella input/output secondo pipeline
-input_root = './results/fine_mapping_verbose'
-output_root = './results/fine_mapping_models'
-ancestry_list = ['AFR', 'AHG', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
+result_folder = sys.argv[1]
+
+input_root = os.path.join(result_folder, 'fine_mapping_verbose')
+output_root = os.path.join(result_folder, 'fine_mapping_models')
+
+ancestry_list = ['AFR', 'EAS', 'EUR']
+
 
 for pheno in os.listdir(input_root):
     pheno_path = os.path.join(input_root, pheno)
@@ -60,4 +65,3 @@ for pheno in os.listdir(input_root):
                 os.makedirs(model_output_folder, exist_ok=True)
                 df_beta.to_csv(os.path.join(model_output_folder, f'{id}.csv'), index=False)
 
-print("✅ Estrazione modelli completata.")

@@ -1,10 +1,14 @@
 import os
 import pandas as pd
+import sys
 
 # Percorsi coerenti con la tua pipeline
-keep_file_global = './data/input.keep'
-keep_folder = './results/keep_files'
-output_folder = './results/keep_files_processed'
+result_folder = sys.argv[1]
+data_folder = sys.argv[2]
+
+keep_file_global = os.path.join(data_folder,'input.keep')
+keep_folder = os.path.join(result_folder, 'keep_files')
+output_folder = os.path.join(result_folder, 'keep_files_processed')
 
 # Crea la cartella di output se non esiste
 os.makedirs(output_folder, exist_ok=True)
@@ -26,6 +30,6 @@ for keep_file in os.listdir(keep_folder):
     output_path = os.path.join(output_folder, keep_file)
     filtered_df.to_csv(output_path, sep='\t', index=False, header=False)
 
-    print(f"Saved: {output_path} ({len(filtered_df)} individuals)")
+    print(f"Saved: {output_path} ({len(filtered_df)-1} individuals)")
 
 print("✅ All ancestry-specific keep files filtered.")

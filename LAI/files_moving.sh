@@ -1,10 +1,18 @@
 #!/bin/bash
 
+# Check if an argument is passed
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $0 <results_folder>"
+  exit 1
+fi
+
+result_folder="$1"
+
 # Directory che contiene i modelli, una per ogni chr
-SOURCE_DIR="/private/groups/ioannidislab/smeriglio/tests_files/results/gnomix_models"
+SOURCE_DIR="${results_folder}/gnomix_models"
 
 # Directory dove salvare tutti i risultati MSP
-DEST_DIR="/private/groups/ioannidislab/smeriglio/tests_files/results/msp_folder"
+DEST_DIR="${results_folder}/msp_folder"
 
 mkdir -p "$DEST_DIR"
 

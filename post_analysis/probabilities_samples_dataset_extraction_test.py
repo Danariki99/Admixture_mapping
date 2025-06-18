@@ -1,19 +1,22 @@
 import os
 import subprocess
 import pandas as pd
+import sys
+
+result_folder = sys.argv[1]
 
 # Define ancestry list
-ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
+ancestry_list = ['AFR', 'EAS', 'EUR']
 
 # Define the folder where the model files are stored
-hit_folder = './results/fine_mapping_models'
+hit_folder = os.path.join(result_folder, 'fine_mapping_verbose')
 
 # Define paths to other necessary folders
-covar_folder = './data/covar_files'
-keep_folder = './results/keep_files_processed'
-output_folder = './results/fine_mapping_samples'
-tmp_folder = './results/tmp'
-vcf_folder = './data/vcf_files'
+covar_folder = os.path.join(result_folder, 'PCA_files', 'PCA_covar_files')
+keep_folder = os.path.join(result_folder, 'keep_files_processed')
+output_folder = os.path.join(result_folder, 'fine_mapping_samples')
+tmp_folder = os.path.join(result_folder, 'tmp')
+vcf_folder = os.path.join(result_folder, 'vcf_folder')
 
 # Ensure output and temporary directories exist
 os.makedirs(output_folder, exist_ok=True)
@@ -49,7 +52,7 @@ for hit in os.listdir(hit_folder):
                 f.write(snp_id + "\n")
 
         output_plink = os.path.join(tmp_folder, f'{hit}')
-        chrom_vcf_file = os.path.join(vcf_folder, f'ukb_hap_{chrom}_v2.vcf.gz')
+        chrom_vcf_file = os.path.join(vcf_folder, f'chr{chrom}.vcf.gz')
 
         # Run PLINK to extract SNPs
         plink_command = [

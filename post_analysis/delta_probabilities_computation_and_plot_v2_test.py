@@ -4,19 +4,22 @@ import matplotlib.pyplot as plt
 from scipy.special import expit
 from matplotlib.patches import Patch
 import numpy as np
+import sys
 
 # Colori e ancestry
-ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
-colors = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
+ancestry_list = ['AFR', 'EAS', 'EUR']
+colors = ['blue', 'green', 'red']
 color_map = {ancestry: colors[i % len(colors)] for i, ancestry in enumerate(ancestry_list)}
 
+result_folder = sys.argv[1]
 # Cartelle aggiornate
-hit_folder_name = './results/fine_mapping_ancestries_PCA_verbose'
-dataset_folder = './results/fine_mapping_samples'
-models_folder = './results/fine_mapping_models'
-plots_folder_general = './results/plots'
-output_folder = './results/probabilities'
-probs_folder = './results/probabilities_probs'
+hit_folder_name = os.path.join(result_folder, 'fine_mapping_verbose')
+dataset_folder = os.path.join(result_folder, 'fine_mapping_samples')
+models_folder = os.path.join(result_folder, 'fine_mapping_models')
+plots_folder_general = os.path.join(result_folder, 'plots')
+output_folder = os.path.join(result_folder, 'probabilities')
+probs_folder = os.path.join(result_folder, 'probabilities_probs')
+
 
 os.makedirs(output_folder, exist_ok=True)
 os.makedirs(plots_folder_general, exist_ok=True)

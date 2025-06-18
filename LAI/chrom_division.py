@@ -28,9 +28,11 @@ def split_by_chromosome(vcf_file, output_dir):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Split multi-chromosome VCF into one VCF per chromosome.")
-    parser.add_argument("--vcf", required=True, help="Input VCF file (can be .vcf or .vcf.gz)")
-
-    output_dir = 'results/vcf_folder'
-    args = parser.parse_args()
+    parser.add_argument("--results", required=True, help="output results folder")
+    parser.add_argument("--data", required=True, help="input data folder")
+    
+    args = parser.parse_args()  
+    vcf_file = os.path.join(args.data, "input.vcf.gz")
+    output_dir = os.path.join(args.results, "vcf_folder")
     split_by_chromosome(args.vcf, output_dir)
     print(output_dir)
