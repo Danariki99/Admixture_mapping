@@ -42,6 +42,8 @@ python post_analysis/new_covariable_creation_test.py "$result_folder" "$data_fol
 
 python post_analysis/PCA_covar_files_creation_test.py "$result_folder"
 
+python post_vcf/keep_creation_chrom_test.py "$result_folder" "$data_folder"
+
 ./post_analysis/interesting_associations_execution_more_wind_fine_mapping_covar_verbose_test.sh "$result_folder" "$data_folder"
 
 python post_analysis/betas_extraction_test.py "$result_folder"

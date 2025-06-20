@@ -1,67 +1,69 @@
-import os
 import pandas as pd
+import os
 import numpy as np
 import sys
 
-# Cartella input/output secondo pipeline
 result_folder = sys.argv[1]
 
-input_root = os.path.join(result_folder, 'fine_mapping_verbose')
-output_root = os.path.join(result_folder, 'fine_mapping_models')
+hit_folder_name = os.path.join(result_folder, 'fine_mapping_ancestries_PCA_verbose')
 
 ancestry_list = ['AFR', 'EAS', 'EUR']
 
+hits_list = os.listdir(hit_folder_name)
 
-for pheno in os.listdir(input_root):
-    pheno_path = os.path.join(input_root, pheno)
-    if not os.path.isdir(pheno_path):
-        continue
+for hit in hits_list:
+    print(f'Processing hit: {hit}')
+    pheno = hit.split('_')[1]
+    imp_ancestry = hit.split('_')[0]
+    for ancestry in ancestry_list:
+        output_folder = os.path.join(result_folder, f'probabities_pipeline/models/{hit}/{ancestry}')
+        os.makedirs(output_folder, exist_ok=True)
 
-    for chr_folder in os.listdir(pheno_path):
-        chr_path = os.path.join(pheno_path, chr_folder)
 
-        for ancestry in ancestry_list:
-            glm_file = os.path.join(chr_path, ancestry, 'output.glm.logistic.hybrid')
+        file = f'{hit_folder_name}/{hit}/{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid'
+        if not os.path.exists(file):
+            print(f'File {file} does not exist, skipping.')
+            continue
 
-            if not os.path.exists(glm_file):
-                continue
+        df = pd.read_csv(file, sep='\t')
 
-            print(f"Processing: {pheno}, {chr_folder}, {ancestry}")
-            df = pd.read_csv(glm_file, sep='\t')
+        tests = df['TEST'].unique().tolist()
 
-            # Determina i test presenti
-            tests = df['TEST'].unique().tolist()
-            ids = df['ID'].unique().tolist()
+        ids = df['ID'].unique().tolist()
+        significant_ids = []
+        for id in ids:
+            add_p_value = df[(df['ID'] == id) & (df['TEST'] == 'ADD')]['P']
+            # Filtra per imp_ancestry
+            imp_p_value = df[(df['ID'] == id) & (df['TEST'] == imp_ancestry)]['P']
 
-            # Identifica SNP significativi per ADD + ancestry
-            significant_ids = []
-            for id in ids:
-                add_p = df[(df['ID'] == id) & (df['TEST'] == 'ADD')]['P']
-                anc_p = df[(df['ID'] == id) & (df['TEST'] == ancestry)]['P']
+            # Controlla se entrambi i test hanno P < 0.05
+            if not add_p_value.empty and not imp_p_value.empty:
+                if add_p_value.values[0] < 0.05 and imp_p_value.values[0] < 0.05:
+                    significant_ids.append(id)
 
-                if not add_p.empty and not anc_p.empty:
-                    if add_p.values[0] < 0.05 and anc_p.values[0] < 0.05:
-                        significant_ids.append(id)
+        #now that we have all the informations needed, we can create and save the models
+        # we can create a list of dataframes, one for each significant hit and windows to have the correct betas.
 
-            # Salva modelli
-            for id in significant_ids:
-                df_id = df[df['ID'] == id]
-                df_beta = pd.DataFrame({'ID': [id]})
+        for id in significant_ids:
+            # Filtra per ID specifico
+            df_id = df[df['ID'] == id]
 
-                chrom_values = df_id[df_id['TEST'] == 'ADD']['#CHROM'].values
-                if len(chrom_values) > 0:
-                    df_beta['CHROM'] = chrom_values[0]
+            # Inizializza un DataFrame vuoto per i betas
+            df_beta = pd.DataFrame({'ID': [id]})  # Usa una lista per evitare problemi di broadcasting
 
-                for test in tests:
-                    test_row = df_id[df_id['TEST'] == test]
-                    if not test_row.empty:
-                        p = test_row['P'].values[0]
-                        or_ = test_row['OR'].values[0]
-                        if p < 0.05:
-                            df_beta[test] = np.log(or_)
+            # Aggiungi la colonna CHROM
+            chrom_values = df_id[df_id['TEST'] == 'ADD']['#CHROM'].values
+            if len(chrom_values) > 0:
+                df_beta['CHROM'] = chrom_values[0]  # Prendi il primo valore, se esiste
 
-                # Salva file modello
-                model_output_folder = os.path.join(output_root, pheno, chr_folder, ancestry)
-                os.makedirs(model_output_folder, exist_ok=True)
-                df_beta.to_csv(os.path.join(model_output_folder, f'{id}.csv'), index=False)
+            for test in tests:
+                test_row = df_id[df_id['TEST'] == test]
+                
+                if not test_row.empty:
+                    p_value = test_row['P'].values[0]  # Estrai il valore P
+                    or_value = test_row['OR'].values[0]  # Estrai l'OR
 
+                    if p_value < 0.05:
+                        df_beta[test] = np.log(or_value)
+            
+            df_beta.to_csv(f'{output_folder}/{id}.csv', index=False)

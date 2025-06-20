@@ -22,7 +22,7 @@ if __name__ == '__main__':
     os.makedirs(output_folder, exist_ok=True)
     wind_folder = os.path.join(result_folder, 'FUMA/wind')
     tmp_folder = os.path.join(result_folder, 'tmp')
-    generic_msp_file = os.path.join(result_folder, 'msp_files/chr*.msp')
+    generic_msp_file = os.path.join(result_folder, 'msp_folder/chr*.msp')
     old_covar_file = os.path.join(data_folder, 'input.covar')
 
     # Load old covariate file
@@ -45,11 +45,12 @@ if __name__ == '__main__':
 
             # Awk command to skip lines and extract CHROM and POS columns
             print(f"Running awk command for chromosome {chr}")
-            awk_command = f"awk '!/^##/ && $1 == \"{chr}\" {{print $1, $2}}' {input_file} > {output_file_1}"
+            awk_command = f"awk '!/^##/ && $1 == \"chr{chr}\" {{print $1, $2}}' {input_file} > {output_file_1}"
             subprocess.run(awk_command, shell=True, check=True)
 
             # Process the output_file_1 to extract ranges
             df = pd.read_csv(output_file_1, sep=' ', header=None, names=['chr', 'pos'])
+            print(df)
             df[['start', 'end']] = df['pos'].str.split('_', expand=True)
             df['start'] = df['start'].astype(int)
             df['end'] = df['end'].astype(int)

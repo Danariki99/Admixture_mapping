@@ -21,8 +21,11 @@ for covar_file in os.listdir(covar_path):
 
     for ancestry in ancestries:
         eigenvec_path = eigenvec_base_path.replace('*', ancestry)
-
-        eigenvec_df = pd.read_csv(eigenvec_path, sep='\t')
+        if os.path.exists(eigenvec_path):
+            eigenvec_df = pd.read_csv(eigenvec_path, sep='\t')
+        else:
+            print(f"⚠️ Eigenvec file for ancestry {ancestry} not found: {eigenvec_path}")
+            continue
         eigenvec_df.rename(columns={'#IID': 'IID'}, inplace=True)
 
         # Rimuovi colonne PC globali dal file covar base

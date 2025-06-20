@@ -1,73 +1,73 @@
 #!/bin/bash
 
-# Stop if any command fails
-set -e
-
-# === Controllo input ===
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <vcf_file.vcf.gz>"
+    echo "Usage: $0 <result_folder> <data_folder>"
     exit 1
 fi
 
 result_folder="$1"
 data_folder="$2"
 
-# === Configurazione pipeline ===
-
-# Define ancestry list
 ancestry_list=("AFR" "EAS" "EUR")
 
-vcf_file="$data_folder/input.vcf.gz" 
-# Percorsi
-phe_folder="$data_folder/phe_files"
-keep_folder="$result_folder/keep_files_processed"
-snps_folder="$result_folder/snps_files"
-covar_folder="$result_folder/PCA_files/PCA_covar_files"
-output_root="$result_folder/fine_mapping_verbose"
-tmp_folder="$result_folder/tmp"
+# Variables for the command
+vcf_file="${data_folder}/input.vcf.gz"
+# keep directory
+keep_dir="${result_folder}/keep_files_chrom"
+tmp_folder="${result_folder}/tmp"
 
+keep_files=$(ls $keep_dir)
 
-mkdir -p "$output_root"
-mkdir -p "$tmp_folder"
+# File to save submitted job IDs
 
-# Loop su tutti i file .snps
-for snps_file in "$snps_folder"/*.snps; do
-    filename=$(basename "$snps_file")
-    echo "Processing $filename"
+# loop on the keep files    
+for keep_filename in $keep_files
+do
+    chrom=$(echo "$keep_filename" | awk -F'chr' '{print $2}' | awk -F'.' '{print $1}')
+    snps_file="${result_folder}/snps_files/${keep_filename/keep/snps}"
+    output_folder="${result_folder}/fine_mapping_ancestries_PCA_verbose/${keep_filename/_keep_chr$chrom.txt}_chr$chrom"
+    mkdir -p $output_folder
+    
+    pheno=${keep_filename:4}
+    pheno=${pheno/_keep_chr$chrom.txt/}
+    ancestry=${keep_filename:0:3}
 
-    # Estrae PHENO e CHR dal nome file: <PHENO>_<ANCESTRY>_chrN.snps
-    pheno=$(echo "$filename" | cut -d'_' -f2)
-    chr=$(echo "$filename" | grep -oP 'chr\d+')
+    phe_file="${data_folder}/phe_files/$pheno.phe"
 
-    phe_file="$phe_folder/${pheno}.phe"
+    for ancestry_keep in ${ancestry_list[@]}
+    do
 
-    for ancestry_keep in "${ancestry_list[@]}"; do
-        keep_file="$keep_folder/${ancestry_keep}_keep.txt"
+        covar_file="${result_folder}/PCA_files/PCA_covar_files/${keep_filename/keep/covar}"
+        covar_file="${covar_file%.txt}_${ancestry_keep}.tsv"
 
-        if [ ! -f "$keep_file" ]; then
-            echo "Keep file $keep_file does not exist. Skipping $pheno, $ancestry_keep, $chr."
+        output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
+        output_file="${output_file:0:-6}chr${chrom}_output.${ancestry_keep}"
+
+        keep_file="${result_folder}/keep_files_processed/${ancestry_keep}_keep.txt"
+
+        if [ ! -f "$keep_file" ] || [ ! -f "$covar_file" ]; then
+            echo "Keep file $keep_file or Covar file $covar_file does not exist. Skipping..."
             continue
         fi
-        
-        covar_file="${covar_folder}/covar_${pheno}_${ancestry_keep}.tsv"
 
-        output_dir="${output_root}/${pheno}/${chr}/${ancestry_keep}"
-        mkdir -p "$output_dir"
-        output_file="${output_dir}/output"
+        /private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback intercept --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15
 
-        echo "→ Running PLINK2 for $pheno, $ancestry_keep, $chr"
+        glm_file="${output_file}.${pheno}.glm.logistic.hybrid"
+        echo "Processing $glm_file for ancestry $ancestry_keep"
+        if [ -f "$glm_file" ]; then
+            echo "Processing $glm_file to remove all rows containing any NA"
 
-        /private/home/rsmerigl/plink2 \
-            --vcf "$vcf_file" \
-            --pheno "$phe_file" \
-            --glm firth-fallback intercept \
-            --ci 0.95 \
-            --adjust \
-            --covar "$covar_file" \
-            --extract "$snps_file" \
-            --covar-variance-standardize \
-            --keep "$keep_file" \
-            --out "$output_file" \
-            --covar-col-nums 2-15
-    done
+            tmp_filtered="${tmp_folder}/$(basename "$glm_file").filtered"
+
+            # Remove all lines (except header) that contain 'NA' in any column
+            awk 'NR==1 || !/NA/' "$glm_file" > "$tmp_filtered"
+
+            # Overwrite the original file
+            mv "${tmp_filtered}" "$glm_file"
+        fi
+
+
+
+        done
+    
 done
