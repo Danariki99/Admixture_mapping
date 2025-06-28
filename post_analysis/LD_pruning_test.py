@@ -16,10 +16,7 @@ os.makedirs(output_folder, exist_ok=True)
 plink_command = [
     "/private/home/rsmerigl/plink2",
     "--vcf", vcf_file,
-    "--set-all-var-ids", "@:#:$r:$a",
-    "--new-id-max-allele-len", "500", "missing",
-    "--rm-dup", "force-first",
-    "--indep-pairwise", "50", "5", "0.2",
+    "--indep-pairwise", "50", "5", "0.5",
     "--out", os.path.join(output_folder, "output")
 ]
 

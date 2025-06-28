@@ -38,7 +38,9 @@ for hit in hits_list:
 
             # Controlla se entrambi i test hanno P < 0.05
             if not add_p_value.empty and not imp_p_value.empty:
-                if add_p_value.values[0] < 0.05 and imp_p_value.values[0] < 0.05:
+                print(add_p_value.values[0], imp_p_value.values[0])
+                if add_p_value.values[0] < 0.7 and imp_p_value.values[0] < 0.1:
+                    print(f'Adding significant ID: {id} with ADD P-value: {add_p_value.values[0]} and {imp_ancestry} P-value: {imp_p_value.values[0]}')
                     significant_ids.append(id)
 
         #now that we have all the informations needed, we can create and save the models
@@ -64,6 +66,24 @@ for hit in hits_list:
                     or_value = test_row['OR'].values[0]  # Estrai l'OR
 
                     if p_value < 0.05:
-                        df_beta[test] = np.log(or_value)
-            
-            df_beta.to_csv(f'{output_folder}/{id}.csv', index=False)
+                        try:
+                            df_beta[test] = np.log(or_value)  # Prova a calcolare il logaritmo
+                        except (ValueError, TypeError) as e:
+                            print(f"Errore nel calcolare il logaritmo per {test}: {e}. Il file sarà saltato.")
+                            continue  # Salta questa iterazione e non salva il file
+                    elif test == 'ADD' or test == imp_ancestry:
+                        try:
+                            df_beta[test] = np.log(or_value)  # Prova a calcolare il logaritmo
+                        except (ValueError, TypeError) as e:
+                            print(f"Errore nel calcolare il logaritmo per {test}: {e}. Il file sarà saltato.")
+                            continue  # Salta questa iterazione e non salva il file
+
+                # Se non ci sono errori, salva il file
+                if 'ADD' in df_beta.columns and imp_ancestry in df_beta.columns:
+                    if df_beta.select_dtypes(include=[np.number]).applymap(np.isfinite).all().all():
+                        df_beta.to_csv(f'{output_folder}/{id}.csv', index=False)
+                    else:
+                        print(f"⚠️  Skip saving {id} due to non-finite values in numeric columns.")
+                else:
+                    print(f"⚠️  Skip saving {id} because required columns are missing: ADD and/or {imp_ancestry}")
+

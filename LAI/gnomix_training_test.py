@@ -50,22 +50,21 @@ if __name__ == "__main__":
     for fname in sorted(os.listdir(args.vcf_folder)):
         if fname.startswith("chr") and fname.endswith(".vcf.gz"):
             chrom = fname.replace(".vcf.gz", "")
-            if chrom == "chr8" or chrom == "chr9":
-                test_vcf = os.path.join(args.vcf_folder, fname)
-                panel_vcf = os.path.join(args.panel_folder, fname)
-                gmap_file = os.path.join(GENETIC_MAP_DIR, f"{chrom}.gmap")
+            test_vcf = os.path.join(args.vcf_folder, fname)
+            panel_vcf = os.path.join(args.data_folder, "panel_chrom", fname)
+            gmap_file = os.path.join(GENETIC_MAP_DIR, f"{chrom}.gmap")
 
-                if not os.path.exists(panel_vcf):
-                    print(f"❌ Missing panel for {chrom}, skipping.")
-                    continue
-                if not os.path.exists(gmap_file):
-                    print(f"❌ Missing gmap for {chrom}, skipping.")
-                    continue
-                if not os.path.exists(SAMPLE_MAP_FILE):
-                    print(f"❌ Missing sample_map file, aborting.")
-                    break
+            if not os.path.exists(panel_vcf):
+                print(f"❌ Missing panel for {chrom}, skipping.")
+                continue
+            if not os.path.exists(gmap_file):
+                print(f"❌ Missing gmap for {chrom}, skipping.")
+                continue
+            if not os.path.exists(SAMPLE_MAP_FILE):
+                print(f"❌ Missing sample_map file, aborting.")
+                break
 
-                try:
-                    train_gnomix_model(test_vcf, chrom, gmap_file, panel_vcf, SAMPLE_MAP_FILE)
-                except subprocess.CalledProcessError:
-                    print(f"❌ Failed training model for {chrom}")
+            try:
+                train_gnomix_model(test_vcf, chrom, gmap_file, panel_vcf, SAMPLE_MAP_FILE)
+            except subprocess.CalledProcessError:
+                print(f"❌ Failed training model for {chrom}")

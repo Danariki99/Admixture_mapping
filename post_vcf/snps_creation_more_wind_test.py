@@ -38,6 +38,7 @@ for wind_filename in list_of_files:
         # Run the command using subprocess
         subprocess.run(awk_command, shell=True, check=True)
 
+
         # Load the output into a DataFrame
         df = pd.read_csv(output_file_1, sep=' ', header=None, names=['chr', 'pos'])
 
@@ -102,7 +103,7 @@ for wind_filename in list_of_files:
             ]
 
             subprocess.run(plink_command)
-
+            
             #extract only the variants ID in a tmp file
             awk_command = f"awk '!/^##/ {{print $3}}' {tmp_file_vcf} > {tmp_file_snps}"
 

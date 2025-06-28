@@ -54,17 +54,18 @@ do
 
         glm_file="${output_file}.${pheno}.glm.logistic.hybrid"
         echo "Processing $glm_file for ancestry $ancestry_keep"
+
         if [ -f "$glm_file" ]; then
-            echo "Processing $glm_file to remove all rows containing any NA"
+            echo "Filtering $glm_file (remove NA rows and assign ID)"
 
             tmp_filtered="${tmp_folder}/$(basename "$glm_file").filtered"
 
-            # Remove all lines (except header) that contain 'NA' in any column
-            awk 'NR==1 || !/NA/' "$glm_file" > "$tmp_filtered"
+            awk 'NR == 1 || !/NA/' "$glm_file" > "$tmp_filtered"
 
-            # Overwrite the original file
-            mv "${tmp_filtered}" "$glm_file"
+
+            mv "$tmp_filtered" "$glm_file"
         fi
+
 
 
 

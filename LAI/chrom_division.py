@@ -34,5 +34,5 @@ if __name__ == "__main__":
     args = parser.parse_args()  
     vcf_file = os.path.join(args.data, "input.vcf.gz")
     output_dir = os.path.join(args.results, "vcf_folder")
-    split_by_chromosome(args.vcf, output_dir)
+    split_by_chromosome(vcf_file, output_dir)
     print(output_dir)
