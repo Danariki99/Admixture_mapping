@@ -10,12 +10,16 @@ fi
 data_folder="$1"
 result_folder="$2"
 
-vcf_folder=$(python LAI/chrom_division.py --results "$result_folder" --data "$data_folder")
+vcf_folder="${result_folder}/vcf_folder"
+msp_folder="${result_folder}/msp_folder"
+
+python LAI/chrom_division.py --results "$result_folder" --data "$data_folder"
+echo "Using VCF folder: $vcf_folder"
 
 echo "Using GnoMix software"
-python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --panel_folder "$panel_folder"
+python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --data_folder "$data_folder" --result_folder "$result_folder"
 
-msp_folder=$(./LAI/files_moving.sh "$result_folder")
+./LAI/files_moving.sh "$result_folder"
 
 
 # Pass the dataset variable to the Python scripts
