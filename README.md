@@ -34,6 +34,8 @@ git clone https://github.com/Danariki99/Admixture_mapping
 
 ### 2) Install the Requirements
 
+All the codes have been executed with python:3.8.20 
+
 Install the necessary Python packages using:
 
 ```bash
