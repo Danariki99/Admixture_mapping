@@ -69,7 +69,7 @@ for hit in hit_list:
         
         # Comando Plink
         plink_command = [
-            "/private/home/rsmerigl/plink2",
+            "../plink2",
             "--vcf", chrom_vcf_file,
             "--extract", extract_file,
             "--keep", keep_file,
@@ -77,7 +77,7 @@ for hit in hit_list:
             "--out", output_plink
         ]
         plink_numeric_command = [
-            "/private/home/rsmerigl/plink2",
+            "../plink2",
             "--bfile", output_plink,  # Prefisso generato dal comando precedente
             "--recode", "A",
             "--out", os.path.join(tmp_folder, "genotypes_numeric")

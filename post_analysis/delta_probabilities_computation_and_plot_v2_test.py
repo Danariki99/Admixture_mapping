@@ -9,9 +9,6 @@ import sys
 
 def data_processing(result_folder):
 
-    # Carica la tabella dei fenotipi
-    df_first_batch = pd.read_excel("~/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
-
     # Cartelle
     hit_folder_name = os.path.join(result_folder, 'fine_mapping_ancestries_PCA_verbose')
     dataset_folder = os.path.join(result_folder, 'probabities_pipeline/samples')
