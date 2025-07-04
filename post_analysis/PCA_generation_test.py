@@ -39,7 +39,7 @@ for keep_filename in keep_files:
     output_prefix = os.path.join(output_folder, f"PCA_{ancestry}.out")
 
     plink_command = [
-        "/private/home/rsmerigl/plink2",
+        "link2",
         "--vcf", vcf_file,
         "--keep", keep_file,
         "--exclude", exclude_snps_file,

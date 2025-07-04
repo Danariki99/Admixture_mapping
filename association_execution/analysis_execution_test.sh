@@ -37,7 +37,7 @@ for vcf_file in "$vcf_dir"/*.vcf; do
         output_file="$output_dir/output"
 
         # Run plink2
-        /private/home/rsmerigl/plink2 \
+        ..//plink2 \
             --vcf "$vcf_file" \
             --pheno "$pheno_file" \
             --glm firth-fallback hide-covar \

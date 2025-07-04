@@ -1,6 +1,7 @@
 import os
 import subprocess
 import argparse
+import numpy as np
 
 # === CONFIGURAZIONI FISSE ===
 
@@ -35,6 +36,7 @@ def train_gnomix_model(test_vcf, chrom, gmap_file, panel_vcf, sample_map):
     os.chdir(current_dir)  # Torna alla cartella originale
 
 if __name__ == "__main__":
+    print(np.__version__)
     parser = argparse.ArgumentParser(description="Train one Gnomix model per chromosome")
     parser.add_argument("--vcf_folder", required=True, help="Folder with per-chromosome test VCFs (chrN.vcf.gz)")
     parser.add_argument("--data_folder", required=True, help="Folder with data files")

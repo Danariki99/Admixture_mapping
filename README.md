@@ -22,14 +22,46 @@ This repository includes the code developed for the manuscript:
 Due to access restrictions, reproducing the results presented in the manuscript requires access to the UK Biobank (UKBB) and All of Us datasets, which are not publicly available.  
 However, we provide a **testing pipeline** that can be run on a small synthetic VCF file to validate the code structure and functionality.
 
+
+
 ---
+### 1) clone the repo
+clone the repo here:
+```bash
+git clone ...
+
+```
 
 ### 1) Install the Requirements
 
 Install the necessary Python packages using:
 
 ```bash
+cd Admixture_mapping
 pip install -r requirements.txt
+
+```
+
+### 2) install plink2
+Install here plink2
+```bash
+cd ../
+wget https://s3.amazonaws.com/plink2-assets/alpha5/plink2_linux_x86_64_20250701.zip
+unzip plink2_linux_x86_64_20250701.zip
+chmod +x plink2
+
+```
+
+### 4) install gnomix
+```bash
+git clone https://github.com/AI-sandbox/gnomix
+
+```
+
+### 5) install bcftools
+
+```bash
+    sudo apt install -y bcftools
 
 ```
 
@@ -40,6 +72,7 @@ Since the original input files (such as VCFs and reference panels) used in the s
 To run the pipeline, use the following command:
 
 ```bash
+cd Admixture_mapping
 ./code_test.sh <vcf_file> <LAI_software>
 ```
 Where:

@@ -50,7 +50,7 @@ do
             continue
         fi
 
-        /private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback intercept --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15
+        ../plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback intercept --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15
 
         glm_file="${output_file}.${pheno}.glm.logistic.hybrid"
         echo "Processing $glm_file for ancestry $ancestry_keep"

@@ -14,7 +14,7 @@ output_folder = os.path.join(result_folder, "PCA_files/PCA_pruned_files/output")
 os.makedirs(output_folder, exist_ok=True)
 
 plink_command = [
-    "/private/home/rsmerigl/plink2",
+    "../plink2",
     "--vcf", vcf_file,
     "--indep-pairwise", "50", "5", "0.5",
     "--out", os.path.join(output_folder, "output")

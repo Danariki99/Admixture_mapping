@@ -23,7 +23,7 @@ python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --data_folder "$da
 
 
 # Pass the dataset variable to the Python scripts
-python pre_processing/pre_processing_testy.py "$msp_folder" "$result_folder"
+python pre_processing/pre_processing_test.py "$msp_folder" "$result_folder"
 
 # Execute job_submission_BMI.sh and capture the path of the file containing job IDs
 ./association_execution/analysis_execution_test.sh  "$result_folder" "$data_folder"
@@ -35,8 +35,6 @@ python post_analysis/ancestry_counts_test.py "$msp_folder" "$result_folder"
 python post_analysis/keep_files_test.py "$result_folder"    
 
 python post_analysis/keep_files_post_processing_test.py "$result_folder" "$data_folder"
-
-python post_vcf/snps_creation_more_wind_test.py "$result_folder" "$data_folder"
 
 python post_analysis/LD_pruning_test.py "$result_folder" "$data_folder"
 
