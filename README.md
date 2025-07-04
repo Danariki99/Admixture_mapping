@@ -25,24 +25,25 @@ However, we provide a **testing pipeline** that can be run on a small synthetic 
 
 
 ---
-### 1) clone the repo
+### 1) clone the repository
 clone the repo here:
 ```bash
-git clone ...
+git clone https://github.com/Danariki99/Admixture_mapping
 
 ```
 
-### 1) Install the Requirements
+### 2) Install the Requirements
 
 Install the necessary Python packages using:
 
 ```bash
 cd Admixture_mapping
 pip install -r requirements.txt
+pip install --no-deps scikit-allel==1.3.1
 
 ```
 
-### 2) install plink2
+### 3) install plink2
 Install here plink2
 ```bash
 cd ../
@@ -53,6 +54,7 @@ chmod +x plink2
 ```
 
 ### 4) install gnomix
+clone gnomix
 ```bash
 git clone https://github.com/AI-sandbox/gnomix
 
@@ -65,20 +67,128 @@ git clone https://github.com/AI-sandbox/gnomix
 
 ```
 
-### 2) Execute the pipeline:
-The pipeline includes all the steps performed after the execution of either Gnomix or RFMix for Local Ancestry Inference (LAI).
-Since the original input files (such as VCFs and reference panels) used in the study cannot be shared, we provide a minimal example .vcf.gz file located in the data/ folder to illustrate the full pipeline structure.
+### 6) install Rscript
+
+```bash
+    sudo apt-get install -y r-base
+
+    Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
+    Rscript -e 'BiocManager::install(version = "3.16")'
+    Rscript -e 'BiocManager::install("biomaRt")'
+    Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
+
+```
+
+
+### 7) Execute the pipeline:
+The pipeline includes all the steps performed after the execution of Gnomix for Local Ancestry Inference (LAI).
+Since the original input files (such as VCFs and reference panels) used in the study cannot be shared, we provide a minimal example .vcf.gz file to illustrate the full pipeline structure. you can find the data folder here: add_link
 
 To run the pipeline, use the following command:
 
 ```bash
 cd Admixture_mapping
-./code_test.sh <vcf_file> <LAI_software>
+./code_test.sh /path/to/data/folder path/to/your/desired/output/folder
 ```
 Where:
 
-- <vcf_file> is the path to your input .vcf or .vcf.gz file (e.g., data/test.vcf.gz)
+- </path/to/data/folder> is the path to your data folder.
 
-- <LAI_software> must be either rfmix or gnomix depending on which method you want to use for local ancestry inference.
+- <path/to/your/desired/output/folder> is the path to the folder you want to put results in
 
-All results and plots will be automatically saved in the results/ folder.
+All results and plots will be automatically saved in the path/to/your/desired/output/folder folder. 
+
+## Container
+In case of problems reproducing the results, here we provide a guide on how to run the experiments on a Singularity container, both interactively and by executing a runscript.
+
+## Experimental setup
+
+Follow these steps to setup for reproducing the experiments provided in the paper
+### 1) Install `Singularity` from https://docs.sylabs.io/guides/3.0/user-guide/installation.html:
+	* Install `Singularity` release 3.10.2, with `Go` version 1.18.4
+	* Suggestion: follow instructions provided in _Download and install singularity from a release_ section after installing `Go`
+	* Install dependencies from: https://docs.sylabs.io/guides/main/admin-guide/installation.html
+
+### 2) Clone the repository in your home folder
+
+```bash
+git clone https://github.com/Danariki99/Admixture_mapping
+
+```
+
+### 3) install plink2
+Install here plink2
+```bash
+cd ../
+wget https://s3.amazonaws.com/plink2-assets/alpha5/plink2_linux_x86_64_20250701.zip
+unzip plink2_linux_x86_64_20250701.zip
+chmod +x plink2
+
+```
+
+### 4) install gnomix
+clone gnomix
+```bash
+git clone https://github.com/AI-sandbox/gnomix
+
+```
+
+### 5) install bcftools
+
+```bash
+    sudo apt install -y bcftools
+
+```
+
+### 6) Move to the source subfolder, and build the Singularity container with 
+```bash
+cd Admixture_mapping
+sudo singularity build singularity.sif singularity.def
+```
+or using fake root privileges
+```bash
+cd Admixture_mapping
+singularity build --fakeroot singularity.sif singularity.def
+```
+
+## Reproducing the analysis interactively within the Singularity container
+
+To run testing, manually launch the Singularity container.
+
+First of all, launch the Singularity container
+```bash
+singularity shell singularity.sif
+```
+This will run a shell within the container, and the following prompt should appear:
+```bash
+Singularity>
+```
+
+Be carefull, in the singularity container you will just see the folders of the direct path to the Admixture_mapping repository. If you want to put the data folder and the results folder in another path in your PC, you can bind the path in singularity running the command:
+
+```bash
+singularity shell --bind /path/to/your/folder:/linked/path/in/singularity singularity.sif
+```
+
+Now execute the whole code runnig this command:
+
+```bash
+./code_test.sh /path/to/data/folder path/to/your/desired/output/folder
+```
+
+
+
+
+## Reproducing the analysis running the Singularity container
+
+To reproduce the analysis from this paper, you can also run the Singularity container singularity container.sif in this way:
+
+Move to the `source` folder and run the `singularity.sif` file
+```bash
+cd Admixture_mapping
+singularity run singularity.sif /path/to/data/folder path/to/your/desired/output/folder
+```
+
+## Disclaimer
+
+Although the images used in the paper were generated in this same way, they may slightly differ from those produced by running these commands due to the high degree of randomness inherent in the simulator.

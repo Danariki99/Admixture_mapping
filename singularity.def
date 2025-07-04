@@ -1,10 +1,6 @@
 Bootstrap: docker
 From: python:3.8.20
 
-%labels
-    Author YourName
-    Version v1.1
-
 %environment
     export LC_ALL=C.UTF-8
     export LANG=C.UTF-8
@@ -17,7 +13,6 @@ From: python:3.8.20
 
 
 
-    echo "🔧 Toolchain scientifico..."
     apt-get update && apt-get install -y \
         build-essential \
         gcc \
@@ -46,11 +41,6 @@ From: python:3.8.20
         numpy==1.20.3 \
         pandas==1.3.5 \
         PyYAML==5.1.2 \
-
-    pip install --no-deps \
-        scikit-allel==1.3.1 \
-
-    pip install \
         scikit-learn==1.0.1 \
         scipy==1.5.3 \
         seaborn==0.11.2 \
@@ -61,28 +51,34 @@ From: python:3.8.20
         requests==2.32.3 \
         Pillow==9.5.0 \
         snputils==0.2.11 \
+
+    pip install --no-deps \
+            scikit-allel==1.3.1 \
     
-    echo "📦 Installa librerie di sistema per R..."
-apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common \
-    dirmngr \
-    wget \
-    gnupg \
-    libcurl4-openssl-dev \
-    libssl-dev \
-    libxml2-dev
+    apt-get update && apt-get install -y --no-install-recommends \
+        software-properties-common \
+        dirmngr \
+        wget \
+        gnupg \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        libxml2-dev
 
-echo "📦 Installa R base (dal repo Debian, senza repo CRAN esterno)..."
-apt-get update && apt-get install -y r-base
+    apt-get update && apt-get install -y r-base
 
-echo "📦 Installa pacchetti R..."
-Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
-Rscript -e 'BiocManager::install(version = "3.16")'
-Rscript -e 'BiocManager::install("biomaRt")'
-Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
+    Rscript -e 'BiocManager::install(version = "3.16")'
+    Rscript -e 'BiocManager::install("biomaRt")'
+    Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
 
 
 
 %runscript
-    echo "✅ Container pronto!"
-    exec "$@"
+
+    if [ -z "$1" ] || [ -z "$2" ]; then
+        echo "❌ ERROR: You must provide <data_folder> and <result_folder> as arguments!"
+        echo "👉 Example: singularity run singularity.sif /path/to/data /path/to/results"
+        exit 1
+    fi
+
+    ./code_test.sh "$1" "$2"
