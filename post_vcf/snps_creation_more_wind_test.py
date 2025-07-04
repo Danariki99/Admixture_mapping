@@ -4,89 +4,124 @@ import subprocess
 import shutil
 import pandas as pd
 
-if __name__ == '__main__':
-    # Percorsi coerenti con la pipeline test
-    wind_folder = './results/FUMA'
-    vcf_folder = './data/vcf_files'
-    output_folder = './results/snps_files'
-    tmp_folder = './results/tmp'
 
-    os.makedirs(output_folder, exist_ok=True)
-    os.makedirs(tmp_folder, exist_ok=True)
+# Percorsi coerenti con la pipeline test
+result_folder = sys.argv[1]
+data_folder = sys.argv[2]
 
-    list_of_files = [f for f in os.listdir(wind_folder) if f.endswith(".txt")]
+wind_folder = os.path.join(result_folder, 'FUMA', 'wind')
+vcf_folder = os.path.join(result_folder, 'vcf_files')
+vcf_file = os.path.join(data_folder, 'input.vcf.gz')
+output_folder = os.path.join(result_folder, 'snps_files')
+tmp_folder = os.path.join(result_folder, 'tmp')
 
-    for wind_filename in list_of_files:
-        ancestry = wind_filename.split('_')[0]
-        input_file = os.path.join(vcf_folder, f"chr1_{ancestry}.vcf")  # usa chr1 come riferimento per posizione
-        wind_file = os.path.join(wind_folder, wind_filename)
-        wind_df_1 = pd.read_csv(wind_file, sep='\t')
+os.makedirs(output_folder, exist_ok=True)
+os.makedirs(tmp_folder, exist_ok=True)
 
-        chroms = wind_df_1['chr'].unique()
+list_of_files = os.listdir(wind_folder)
 
-        for chr in chroms:
-            output_file_1 = os.path.join(tmp_folder, 'chrom_pos_tmp.tsv')
+for wind_filename in list_of_files:  
+    ancestry = wind_filename.split('_')[0]
+    input_file = os.path.join(vcf_folder, f'ancestry_{ancestry}.vcf')
+    wind_file = os.path.join(wind_folder, wind_filename)
+    wind_df_1 = pd.read_csv(wind_file, sep='\t')
+    chroms = wind_df_1['chr'].unique()
+    for chr in chroms:
 
-            # estrai CHROM e POS dalla VCF ancestry-specifico
-            awk_command = f"awk '!/^##/ && $1 == \"{chr}\" {{print $1, $2}}' {input_file} > {output_file_1}"
+        # Path for the output file
+        output_file_1 = os.path.join(tmp_folder, 'chrom_pos_tmp.tsv')
+
+        # Awk command to skip lines starting with '##' and extract only the CHROM and POS columns
+        print(f'Starting awk command for chromosome {chr}')
+        awk_command = f"awk '!/^##/ && $1 == \"chr{chr}\" {{print $1, $2}}' {input_file} > {output_file_1}"
+
+        # Run the command using subprocess
+        subprocess.run(awk_command, shell=True, check=True)
+
+
+        # Load the output into a DataFrame
+        df = pd.read_csv(output_file_1, sep=' ', header=None, names=['chr', 'pos'])
+
+        df[['start', 'end']] = df['pos'].str.split('_', expand=True)
+
+        # Convert 'start' and 'end' columns to integers
+        df['start'] = df['start'].astype(int)
+        df['end'] = df['end'].astype(int)
+
+        df = df.drop(columns=['pos'])
+
+        # read the current window file into pandas and extract chrom, start, end
+        wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
+
+        n_wind = 6
+
+        # Assume df and wind_df are sorted by 'chr' and 'start' (ascending)
+        df = df.sort_values(['start']).reset_index(drop=True)
+        wind_df = wind_df.sort_values(['start']).reset_index(drop=True)
+
+        # Get the minimum start and maximum end from wind_df
+        min_start = wind_df['start'].min()
+        max_end = wind_df['end'].max()
+
+        # Find rows in df that fall within this range
+        extended_df = df[(df['start'] >= min_start) & (df['end'] <= max_end)].copy()
+
+        # Get the index of the first and last rows in df that match min_start and max_end
+        start_idx = df[df['start'] == min_start].index[0]
+        end_idx = df[df['end'] == max_end].index[0]
+
+        # Add the n_wind rows before the start and after the end
+        start_extension = df.iloc[max(0, start_idx - n_wind):start_idx]
+        end_extension = df.iloc[end_idx + 1:end_idx + 1 + n_wind]
+
+        # Concatenate the extensions with the main range
+        extended_wind_df = pd.concat([start_extension, extended_df, end_extension]).drop_duplicates().reset_index(drop=True)
+        
+        output_file = os.path.join(output_folder, wind_filename.replace('wind', f'snps_chr{chr}'))
+        tmp_file_vcf = os.path.join(tmp_folder, wind_filename.replace('wind.txt', 'tmp.vcf'))
+        tmp_file_snps = os.path.join(tmp_folder, wind_filename.replace('wind', 'tmp_snps'))
+
+        # define the snps list
+        list_of_snps = []
+
+        # read the current window file into pandas and extract chrom, start, end
+        wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
+        for index, row in extended_wind_df.iterrows():
+            chrom = row['chr']
+            start = row['start']
+            end = row['end']
+
+            # Create a temporary vcf file with only the SNPs in the window
+            plink_command = [
+                "/private/home/rsmerigl/plink2",    
+                "--vcf", vcf_file,                  
+                "--chr", str(chrom),               
+                "--from-bp", str(start),            
+                "--to-bp", str(end),                
+                "--recode", "vcf",                  
+                "--out", tmp_file_vcf.replace('.vcf','')                   
+            ]
+
+            subprocess.run(plink_command)
+            
+            #extract only the variants ID in a tmp file
+            awk_command = f"awk '!/^##/ {{print $3}}' {tmp_file_vcf} > {tmp_file_snps}"
+
             subprocess.run(awk_command, shell=True, check=True)
 
-            df = pd.read_csv(output_file_1, sep=' ', header=None, names=['chr', 'pos'])
-            df[['start', 'end']] = df['pos'].astype(str).str.split('_', expand=True)
-            df['start'] = df['start'].astype(int)
-            df['end'] = df['end'].astype(int)
-            df = df.drop(columns=['pos'])
+            #read the file in pandas and extract the list of snps
+            df = pd.read_csv(tmp_file_snps)
+            list_of_snps.extend(df['ID'].values)
 
-            wind_df = wind_df_1.loc[wind_df_1['chr'] == chr]
+            # delete the folder and recreate it to free space
+            shutil.rmtree(tmp_folder)
+            os.makedirs(tmp_folder)
 
-            n_wind = 3  # estensione prima e dopo
-            df = df.sort_values(['start']).reset_index(drop=True)
-            wind_df = wind_df.sort_values(['start']).reset_index(drop=True)
+        last_df = pd.DataFrame(list_of_snps, columns=['#ID'])
+        last_df.to_csv(output_file, index=False)
+        print(f"File {output_file} chr {chrom} created")
 
-            min_start = wind_df['start'].min()
-            max_end = wind_df['end'].max()
 
-            extended_df = df[(df['start'] >= min_start) & (df['end'] <= max_end)].copy()
-            start_idx = df[df['start'] == min_start].index[0]
-            end_idx = df[df['end'] == max_end].index[0]
 
-            start_extension = df.iloc[max(0, start_idx - n_wind):start_idx]
-            end_extension = df.iloc[end_idx + 1:end_idx + 1 + n_wind]
 
-            extended_wind_df = pd.concat([start_extension, extended_df, end_extension]).drop_duplicates().reset_index(drop=True)
-
-            output_file = os.path.join(output_folder, wind_filename.replace('wind', f'snps_chr{chr}'))
-            tmp_file_vcf = os.path.join(tmp_folder, wind_filename.replace('wind.txt', 'tmp.vcf'))
-            tmp_file_snps = os.path.join(tmp_folder, wind_filename.replace('wind', 'tmp_snps'))
-
-            list_of_snps = []
-
-            for _, row in extended_wind_df.iterrows():
-                chrom = row['chr']
-                start = row['start']
-                end = row['end']
-
-                plink_command = [
-                    "/private/home/rsmerigl/plink2",
-                    "--vcf", input_file,
-                    "--chr", str(chrom),
-                    "--from-bp", str(start),
-                    "--to-bp", str(end),
-                    "--recode", "vcf",
-                    "--out", tmp_file_vcf.replace('.vcf', '')
-                ]
-                subprocess.run(plink_command, check=True)
-
-                awk_command = f"awk '!/^##/ {{print $3}}' {tmp_file_vcf} > {tmp_file_snps}"
-                subprocess.run(awk_command, shell=True, check=True)
-
-                df_snps = pd.read_csv(tmp_file_snps, header=None, names=['ID'])
-                list_of_snps.extend(df_snps['ID'].dropna().tolist())
-
-                # reset temporanei
-                shutil.rmtree(tmp_folder)
-                os.makedirs(tmp_folder)
-
-            last_df = pd.DataFrame(list(set(list_of_snps)), columns=['#ID'])
-            last_df.to_csv(output_file, index=False)
-            print(f"✅ File {output_file} (chr {chrom}) creato")
+    

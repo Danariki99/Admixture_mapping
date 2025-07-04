@@ -1,12 +1,16 @@
 import os
 import pandas as pd
+import sys
 
-ancestries = ['AFR', 'EAS', 'EUR', 'NAT', 'SAS', 'WAS']
-
+ancestries = ['AFR', 'EAS', 'EUR']
 # === Path settings ===
-covar_path = './results/wind_covar_files_processed'
-eigenvec_base_path = './results/pca/PCA_res/PCA_*.out.eigenvec'
-output_folder = './results/pca/PCA_covar_files'
+
+results_folder = sys.argv[1]
+
+
+covar_path = os.path.join(results_folder, 'wind_covar_files_processed')
+eigenvec_base_path = os.path.join(results_folder, 'PCA_files', 'PCA_res', 'PCA_*.out.eigenvec')
+output_folder = os.path.join(results_folder, 'PCA_files', 'PCA_covar_files')
 
 os.makedirs(output_folder, exist_ok=True)
 
@@ -17,8 +21,11 @@ for covar_file in os.listdir(covar_path):
 
     for ancestry in ancestries:
         eigenvec_path = eigenvec_base_path.replace('*', ancestry)
-
-        eigenvec_df = pd.read_csv(eigenvec_path, sep='\t')
+        if os.path.exists(eigenvec_path):
+            eigenvec_df = pd.read_csv(eigenvec_path, sep='\t')
+        else:
+            print(f"⚠️ Eigenvec file for ancestry {ancestry} not found: {eigenvec_path}")
+            continue
         eigenvec_df.rename(columns={'#IID': 'IID'}, inplace=True)
 
         # Rimuovi colonne PC globali dal file covar base

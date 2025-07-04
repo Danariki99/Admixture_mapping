@@ -18,7 +18,7 @@ hit_list = os.listdir(hit_folder)
 for hit in hit_list:
     current_folder = f'{hit_folder}/{hit}'
     pheno = hit.split('_')[1]
-    for ancestry in [ancestry_list[-1]]:
+    for ancestry in ancestry_list:
         output_folder_file = os.path.join(output_folder, f'{hit}/{ancestry}')
         os.makedirs(output_folder_file, exist_ok=True)
 

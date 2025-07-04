@@ -1,59 +1,74 @@
 #!/bin/bash
 
-# Stop if any command fails
-set -e
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <result_folder> <data_folder>"
+    exit 1
+fi
 
-# Define ancestry list
-ancestry_list=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
+result_folder="$1"
+data_folder="$2"
 
-# Base paths (update if needed)
-vcf_file="./data/vcf_files/ukbb.vcf.gz"
-phe_folder="./data/phe_files"
-keep_folder="./results/keep_files_processed"
-snps_folder="./results/snps_files"
+ancestry_list=("AFR" "EAS" "EUR")
 
-# ✅ Use PCA covariates folder
-covar_folder="./results/pca/PCA_covar_files"
+# Variables for the command
+vcf_file="${data_folder}/input.vcf.gz"
+# keep directory
+keep_dir="${result_folder}/keep_files_chrom"
+tmp_folder="${result_folder}/tmp"
 
-output_root="./results/fine_mapping_verbose"
-tmp_folder="./results/tmp"
-mkdir -p "$output_root"
-mkdir -p "$tmp_folder"
+keep_files=$(ls $keep_dir)
 
-# Loop on SNP files
-for snps_file in "$snps_folder"/*.snps; do
-    filename=$(basename "$snps_file")
-    echo "Processing $filename"
+# File to save submitted job IDs
 
-    # Extract components from filename: <PHENO>_<ANCESTRY>_chrN.snps
-    pheno=$(echo "$filename" | cut -d'_' -f2)
-    chr=$(echo "$filename" | grep -oP 'chr\d+')
+# loop on the keep files    
+for keep_filename in $keep_files
+do
+    chrom=$(echo "$keep_filename" | awk -F'chr' '{print $2}' | awk -F'.' '{print $1}')
+    snps_file="${result_folder}/snps_files/${keep_filename/keep/snps}"
+    output_folder="${result_folder}/fine_mapping_ancestries_PCA_verbose/${keep_filename/_keep_chr$chrom.txt}_chr$chrom"
+    mkdir -p $output_folder
+    
+    pheno=${keep_filename:4}
+    pheno=${pheno/_keep_chr$chrom.txt/}
+    ancestry=${keep_filename:0:3}
 
-    phe_file="$phe_folder/${pheno}.phe"
+    phe_file="${data_folder}/phe_files/$pheno.phe"
 
-    for ancestry_keep in "${ancestry_list[@]}"; do
-        keep_file="$keep_folder/${ancestry_keep}_keep.txt"
-        
-        # ✅ New PCA covar filename
-        covar_file="${covar_folder}/covar_${pheno}_${ancestry_keep}.tsv"
+    for ancestry_keep in ${ancestry_list[@]}
+    do
 
-        output_dir="${output_root}/${pheno}/chr${chr}/${ancestry_keep}"
-        mkdir -p "$output_dir"
-        output_file="${output_dir}/output"
+        covar_file="${result_folder}/PCA_files/PCA_covar_files/${keep_filename/keep/covar}"
+        covar_file="${covar_file%.txt}_${ancestry_keep}.tsv"
 
-        echo "→ Running PLINK2 for $pheno, $ancestry_keep, $chr"
+        output_file=$output_folder/${keep_filename/keep_chr$chrom.txt/output}
+        output_file="${output_file:0:-6}chr${chrom}_output.${ancestry_keep}"
 
-        /private/home/rsmerigl/plink2 \
-            --vcf "$vcf_file" \
-            --pheno "$phe_file" \
-            --glm firth-fallback intercept \
-            --ci 0.95 \
-            --adjust \
-            --covar "$covar_file" \
-            --extract "$snps_file" \
-            --covar-variance-standardize \
-            --keep "$keep_file" \
-            --out "$output_file" \
-            --covar-col-nums 2-15
-    done
+        keep_file="${result_folder}/keep_files_processed/${ancestry_keep}_keep.txt"
+
+        if [ ! -f "$keep_file" ] || [ ! -f "$covar_file" ]; then
+            echo "Keep file $keep_file or Covar file $covar_file does not exist. Skipping..."
+            continue
+        fi
+
+        ../plink2 --vcf $vcf_file --pheno $phe_file --glm firth-fallback intercept --ci 0.95 --adjust --covar $covar_file --extract $snps_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-15
+
+        glm_file="${output_file}.${pheno}.glm.logistic.hybrid"
+        echo "Processing $glm_file for ancestry $ancestry_keep"
+
+        if [ -f "$glm_file" ]; then
+            echo "Filtering $glm_file (remove NA rows and assign ID)"
+
+            tmp_filtered="${tmp_folder}/$(basename "$glm_file").filtered"
+
+            awk 'NR == 1 || !/NA/' "$glm_file" > "$tmp_filtered"
+
+
+            mv "$tmp_filtered" "$glm_file"
+        fi
+
+
+
+
+        done
+    
 done

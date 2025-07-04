@@ -1,20 +1,30 @@
 #!/bin/bash
 
+
 # Stop execution if any command fails
 set -e
 
+# Check if an argument is passed
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <results_folder> <data_dir>"
+  exit 1
+fi
+
+# Input parameter (e.g. dataset name or base folder)
+output_root="$1"
+data_dir="$2"
+
 # Define base directories
-vcf_dir="./data/vcf_files"
-pheno_dir="./data/phe_files"
-covar_file="./data/input.covar"
-keep_file="./data/input.keep"
-output_root="./results"
+vcf_dir="$output_root/vcf_files"
+pheno_dir="$data_dir/phe_files"
+covar_file="$data_dir/input.covar"
+keep_file="$data_dir/input.keep"
 
 # Loop over each VCF file
 for vcf_file in "$vcf_dir"/*.vcf; do
-    # Extract ancestry from filename: e.g., chr1_AFR.vcf -> AFR
+    # Extract ancestry from filename: e.g., ancestry_EUR.vcf -> EUR
     filename=$(basename "$vcf_file")
-    ancestry=$(echo "$filename" | sed -E 's/^.*_([A-Z]+)\.vcf$/\1/')
+    ancestry=$(echo "$filename" | sed -E 's/^ancestry_([A-Z]+)\.vcf$/\1/')
 
     # Loop over each phenotype file
     for pheno_file in "$pheno_dir"/*.phe; do
@@ -27,7 +37,7 @@ for vcf_file in "$vcf_dir"/*.vcf; do
         output_file="$output_dir/output"
 
         # Run plink2
-        /private/home/rsmerigl/plink2 \
+        ../plink2 \
             --vcf "$vcf_file" \
             --pheno "$pheno_file" \
             --glm firth-fallback hide-covar \
