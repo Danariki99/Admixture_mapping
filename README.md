@@ -121,7 +121,6 @@ git clone https://github.com/Danariki99/Admixture_mapping
 ### 3) install plink2
 Install here plink2
 ```bash
-cd ../
 wget https://s3.amazonaws.com/plink2-assets/alpha5/plink2_linux_x86_64_20250701.zip
 unzip plink2_linux_x86_64_20250701.zip
 chmod +x plink2
