@@ -75,9 +75,10 @@ git clone https://github.com/AI-sandbox/gnomix
     sudo apt-get install -y r-base
 
     sudo Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
-    sudo Rscript -e 'BiocManager::install(version = "3.16")'
+    sudo Rscript -e 'BiocManager::install(version = "3.21")'
     sudo Rscript -e 'BiocManager::install("biomaRt")'
     sudo Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
+    sudo 
 
 ```
 
