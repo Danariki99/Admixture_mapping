@@ -6,17 +6,11 @@ MODELS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_fi
 PROBS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
 
 ANCESTRY_LIST = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
-SCENARIOS = {
-    'ancestry': 'Local Ancestry',
-    'add': 'Genotype (ADD)',
-    'environment': 'Environmental Covariates',
-}
 
 PHENO_TABLE = 'ukbb_v1.xlsx'
 PHENO_SHEET = 'first_batch'
 
 TABLE_COLUMNS = [
-    'Scenario',
     'Phenotype',
     'ancestry tested',
     'ancestry of the population',
@@ -107,39 +101,37 @@ def build_table():
             l95 = add_row['L95'].values[0]
             u95 = add_row['U95'].values[0]
 
-            for scenario_key, scenario_label in SCENARIOS.items():
-                prob_path = os.path.join(
-                    PROBS_FOLDER,
-                    scenario_key,
-                    hit,
-                    ancestry,
-                    f"{most_significant_snp}.tsv",
-                )
-                if not os.path.exists(prob_path):
-                    continue
+            prob_path = os.path.join(
+                PROBS_FOLDER,
+                'ancestry',
+                hit,
+                ancestry,
+                f"{most_significant_snp}.tsv",
+            )
+            if not os.path.exists(prob_path):
+                continue
 
-                delta_df = pd.read_csv(prob_path, sep='\t')
-                if delta_df.empty or 'delta_P' not in delta_df.columns:
-                    continue
+            delta_df = pd.read_csv(prob_path, sep='\t')
+            if delta_df.empty or 'delta_P' not in delta_df.columns:
+                continue
 
-                rows.append({
-                    'Scenario': scenario_label,
-                    'Phenotype': pheno_name,
-                    'ancestry tested': imp_ancestry,
-                    'ancestry of the population': ancestry,
-                    'Start Position of the reduced significant region': start_pos,
-                    'End Position of the reduced significant region': end_pos,
-                    'Number of significant SNPs': len(snps_list),
-                    'ID': most_significant_snp,
-                    'allele': allele,
-                    'OR (CI = 95%)': f'{odds_ratio} ({l95}, {u95})',
-                    'p value': p_value,
-                    'chr': chrom,
-                    'Delta_P_mean': delta_df['delta_P'].mean(),
-                    'Delta_P_std': delta_df['delta_P'].std(),
-                    'Delta_P_median': delta_df['delta_P'].median(),
-                    'Delta_P_samples': delta_df['delta_P'].count(),
-                })
+            rows.append({
+                'Phenotype': pheno_name,
+                'ancestry tested': imp_ancestry,
+                'ancestry of the population': ancestry,
+                'Start Position of the reduced significant region': start_pos,
+                'End Position of the reduced significant region': end_pos,
+                'Number of significant SNPs': len(snps_list),
+                'ID': most_significant_snp,
+                'allele': allele,
+                'OR (CI = 95%)': f'{odds_ratio} ({l95}, {u95})',
+                'p value': p_value,
+                'chr': chrom,
+                'Delta_P_mean': delta_df['delta_P'].mean(),
+                'Delta_P_std': delta_df['delta_P'].std(),
+                'Delta_P_median': delta_df['delta_P'].median(),
+                'Delta_P_samples': delta_df['delta_P'].count(),
+            })
 
     if not rows:
         return pd.DataFrame(columns=TABLE_COLUMNS)
