@@ -207,6 +207,9 @@ def data_processing():
                 if not np.isfinite(p_full).all():
                     continue
 
+                scenario_outputs = {}
+                ancestry_passed = False
+
                 for scenario_name, scenario_conf in SCENARIOS.items():
                     exclude_candidates = scenario_conf['exclude_fn'](imp_ancestry, env_columns)
                     exclude_columns = {col for col in exclude_candidates if col in coefficients}
@@ -217,8 +220,14 @@ def data_processing():
                     delta = p_full - p_without
                     delta_abs = np.abs(delta)
 
-                    if np.max(delta_abs) < MIN_DELTA_THRESHOLD:
-                        continue
+                    max_delta_abs = np.max(delta_abs) if len(delta_abs) else 0.0
+
+                    if scenario_name == 'ancestry':
+                        if max_delta_abs < MIN_DELTA_THRESHOLD:
+                            ancestry_passed = False
+                            scenario_outputs = {}
+                            break
+                        ancestry_passed = True
 
                     scenario_df = dataset.copy()
                     scenario_df['P_with'] = p_full
@@ -229,6 +238,20 @@ def data_processing():
 
                     if not has_valid_numeric_values(scenario_df):
                         continue
+
+                    scenario_outputs[scenario_name] = {
+                        'dataframe': scenario_df,
+                        'delta': delta,
+                        'delta_abs': delta_abs,
+                    }
+
+                if not ancestry_passed or 'ancestry' not in scenario_outputs:
+                    continue
+
+                for scenario_name, scenario_data in scenario_outputs.items():
+                    scenario_df = scenario_data['dataframe']
+                    delta = scenario_data['delta']
+                    delta_abs = scenario_data['delta_abs']
 
                     out_path = os.path.join(scenario_result_dirs[scenario_name], f'{snp}.tsv')
                     scenario_df.to_csv(out_path, sep='\t', index=False)
