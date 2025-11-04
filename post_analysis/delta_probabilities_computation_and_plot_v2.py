@@ -3,121 +3,263 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.special import expit
 from matplotlib.patches import Patch
-import random
 import numpy as np
 
+PHENO_TABLE_PATH = os.path.expanduser(
+    "~/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx"
+)
+HIT_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
+DATASET_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/samples'
+MODELS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
+PLOTS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
+RESULTS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/results'
+PROBS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
+
+ANCESTRY_LIST = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
+COLORS = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
+COLOR_MAP = {ancestry: COLORS[i % len(COLORS)] for i, ancestry in enumerate(ANCESTRY_LIST)}
+
+# Filtri dichiarati nel paper
+MIN_SAMPLE_THRESHOLD = 100
+MIN_DELTA_THRESHOLD = 0.01
+
+
+def exclude_ancestry(imp_ancestry, env_columns):
+    return {imp_ancestry}
+
+
+def exclude_add(imp_ancestry, env_columns):
+    return {'ADD'}
+
+
+def exclude_environment(imp_ancestry, env_columns):
+    return set(env_columns)
+
+
+SCENARIOS = {
+    'ancestry': {
+        'exclude_fn': exclude_ancestry,
+        'plot_label': 'Local Ancestry',
+        'file_suffix': 'ancestry',
+    },
+    'add': {
+        'exclude_fn': exclude_add,
+        'plot_label': 'Genotype (ADD)',
+        'file_suffix': 'add',
+    },
+    'environment': {
+        'exclude_fn': exclude_environment,
+        'plot_label': 'Environmental Covariates',
+        'file_suffix': 'environment',
+    },
+}
+
+
+def standardize_covariates(dataset, imp_ancestry):
+    protected_cols = {'IID', imp_ancestry, 'ADD'}
+    if 'sex' in dataset.columns:
+        protected_cols.add('sex')
+
+    candidate_cols = [
+        col for col in dataset.columns
+        if col not in protected_cols and pd.api.types.is_numeric_dtype(dataset[col])
+    ]
+
+    if not candidate_cols:
+        return candidate_cols
+
+    means = dataset[candidate_cols].mean()
+    stds = dataset[candidate_cols].std(ddof=0)
+    stds.replace(to_replace=0, value=1, inplace=True)
+    dataset[candidate_cols] = (dataset[candidate_cols] - means) / stds
+    return candidate_cols
+
+
+def has_valid_numeric_values(dataframe):
+    numeric_df = dataframe.select_dtypes(include=[np.number])
+    if numeric_df.empty:
+        return True
+    return np.isfinite(numeric_df.values).all() and not numeric_df.isnull().values.any()
+
+
+def build_env_columns(dataset, imp_ancestry):
+    base_exclusions = {'IID', imp_ancestry, 'ADD'}
+    return [col for col in dataset.columns if col not in base_exclusions]
+
+
+def compute_linear_predictor(dataset, intercept, coefficients, allowed_columns):
+    z = np.full(len(dataset), intercept, dtype=float)
+    for column, beta in coefficients.items():
+        if column in allowed_columns:
+            z += dataset[column].astype(float).values * beta
+    return z
+
+
 def data_processing():
+    df_first_batch = pd.read_excel(PHENO_TABLE_PATH, sheet_name="first_batch")
+    boxplot_data_by_scenario = {name: [] for name in SCENARIOS}
 
-    # Carica la tabella dei fenotipi
-    df_first_batch = pd.read_excel("~/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
+    if not os.path.isdir(HIT_FOLDER):
+        raise FileNotFoundError(f"Hit folder not found: {HIT_FOLDER}")
 
-    # Cartelle
-    hit_folder_name = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
-    dataset_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/samples'
-    models_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
-    plots_folder_general = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
-    output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/results'
-    probs_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
-
-    ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
-    colors = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
-    color_map = {ancestry: colors[i % len(colors)] for i, ancestry in enumerate(ancestry_list)}
-
-    # Contenitore unificato
-    boxplot_data = []
-
-    hits_list = os.listdir(hit_folder_name)
+    hits_list = os.listdir(HIT_FOLDER)
 
     for hit in hits_list:
         print(hit)
         hit_parts = hit.split('_')
+        if len(hit_parts) < 3:
+            continue
+
         imp_ancestry = hit_parts[0]
         pheno = hit_parts[1]
         chrom = hit_parts[-1]
 
-        # Ottieni nome fenotipo leggibile
-        pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
-        pheno_name = '_'.join(pheno_name.iloc[0].split('_')[1:]) if not pheno_name.empty else 'Unknown'
+        pheno_entry = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
+        if not pheno_entry.empty:
+            pheno_name = '_'.join(pheno_entry.iloc[0].split('_')[1:]) or pheno_entry.iloc[0]
+        else:
+            pheno_name = 'Unknown'
+
         if pheno_name == 'TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
             pheno_name = 'TTE_acute_upper_respiratory_infections'
         pheno_name = pheno_name.replace('_', ' ')
-
-        # Etichetta fenotipo arricchita con ancestry e chrom
         label = f"{pheno_name} ({imp_ancestry}, {chrom})"
 
-        for ancestry in ancestry_list:
-            file = f'{hit_folder_name}/{hit}/{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid'
-            df = pd.read_csv(file, sep='\t')
+        for ancestry in ANCESTRY_LIST:
+            glm_path = os.path.join(
+                HIT_FOLDER,
+                hit,
+                f"{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid",
+            )
+            if not os.path.exists(glm_path):
+                continue
 
-            current_model_folder = f'{models_folder}/{hit}/{ancestry}'
-            current_dataset_folder = f'{dataset_folder}/{hit}/{ancestry}'
+            df = pd.read_csv(glm_path, sep='\t')
+            current_model_folder = os.path.join(MODELS_FOLDER, hit, ancestry)
+            current_dataset_folder = os.path.join(DATASET_FOLDER, hit, ancestry)
 
-            result_folder = os.path.join(output_folder, hit, ancestry)
-            os.makedirs(result_folder, exist_ok=True)
+            if not os.path.isdir(current_model_folder) or not os.path.isdir(current_dataset_folder):
+                continue
 
-            output_probs_folder = os.path.join(probs_folder, hit, ancestry)
-            os.makedirs(output_probs_folder, exist_ok=True)
-
-            snps_list = [f.replace('.csv', '') for f in os.listdir(current_model_folder) if f.endswith('.csv')]
-
-            if len(snps_list) == 0:
+            snps_list = [
+                f.replace('.csv', '')
+                for f in os.listdir(current_model_folder)
+                if f.endswith('.csv')
+            ]
+            if not snps_list:
                 continue
 
             filtered_df = df[(df['TEST'] == imp_ancestry) & (df['ID'].isin(snps_list))]
+            filtered_df = filtered_df.dropna(subset=['P'])
             if filtered_df.empty:
                 continue
 
             most_significant_SNP = filtered_df.loc[filtered_df['P'].idxmin()]['ID']
-            for snp in snps_list:
-                dataset = pd.read_csv(f'{current_dataset_folder}/{snp}.tsv', sep='\t')
-                dataset = dataset[dataset[imp_ancestry] == 1]
-                model = pd.read_csv(f'{current_model_folder}/{snp}.csv')
 
+            scenario_result_dirs = {}
+            scenario_prob_dirs = {}
+            for scenario_name in SCENARIOS:
+                result_dir = os.path.join(RESULTS_FOLDER, scenario_name, hit, ancestry)
+                prob_dir = os.path.join(PROBS_FOLDER, scenario_name, hit, ancestry)
+                os.makedirs(result_dir, exist_ok=True)
+                os.makedirs(prob_dir, exist_ok=True)
+                scenario_result_dirs[scenario_name] = result_dir
+                scenario_prob_dirs[scenario_name] = prob_dir
+
+            for snp in snps_list:
+                dataset_path = os.path.join(current_dataset_folder, f'{snp}.tsv')
+                model_path = os.path.join(current_model_folder, f'{snp}.csv')
+
+                if not os.path.exists(dataset_path) or not os.path.exists(model_path):
+                    continue
+
+                dataset = pd.read_csv(dataset_path, sep='\t')
+                dataset = dataset[dataset[imp_ancestry] == 1]
+                if len(dataset) < MIN_SAMPLE_THRESHOLD:
+                    continue
+
+                model = pd.read_csv(model_path)
                 if 'INTERCEPT' not in model.columns:
                     continue
 
-                no_standardize_covars = ['IID', 'sex', imp_ancestry, 'ADD']
-                columns_to_standardize = [col for col in dataset.columns if col not in no_standardize_covars]
-                dataset[columns_to_standardize] = (dataset[columns_to_standardize] - dataset[columns_to_standardize].mean()) / dataset[columns_to_standardize].std()
+                standardize_covariates(dataset, imp_ancestry)
 
-                intercept = model['INTERCEPT'].values[0]
-                dataset['z_with'] = intercept
-                dataset['z_without'] = intercept
-                for column in model.columns[3:]:
-                    if column in dataset.columns:
-                        if column == imp_ancestry:
-                            dataset['z_without'] += dataset[column] * model[column].values[0]
-                        dataset['z_with'] += dataset[column] * model[column].values[0]
+                env_columns = build_env_columns(dataset, imp_ancestry)
 
-                dataset['P_with'] = expit(dataset['z_with'])
-                dataset['P_without'] = expit(dataset['z_without'])
-                dataset['delta_P'] = dataset['P_with'] - dataset['P_without']
-                dataset['delta_P_abs'] = abs(dataset['delta_P'])
+                intercept = float(model['INTERCEPT'].values[0])
+                coefficient_columns = [
+                    col for col in model.columns
+                    if col not in {'ID', 'CHROM', 'INTERCEPT'}
+                    and col in dataset.columns
+                    and not pd.isnull(model[col].values[0])
+                ]
+                coefficients = {
+                    col: float(model[col].values[0])
+                    for col in coefficient_columns
+                }
 
-                dataset.to_csv(os.path.join(result_folder, f'{snp}.tsv'), sep='\t', index=False)
+                if not coefficients:
+                    continue
 
-                if snp == most_significant_SNP:
-                    boxplot_data.append({
-                        'label': label,
-                        'ancestry': 'AMR' if ancestry == 'NAT' else ancestry,
-                        'snp': snp,
-                        'delta': dataset['delta_P'].tolist(),
-                        'delta_abs': dataset['delta_P_abs'].tolist(),
-                        'color': color_map[ancestry]
-                    })
-                    dataset.to_csv(os.path.join(output_probs_folder, f'{snp}.tsv'), sep='\t', index=False)
+                z_full = compute_linear_predictor(dataset, intercept, coefficients, coefficients.keys())
+                p_full = expit(z_full)
 
-# Funzione per plottare i risultati filtrati
-def plot_filtered_boxplot(data_key, ylabel, title, filename):
-    filtered = [b for b in boxplot_data if len(b[data_key]) > 0]
-    if not filtered:
-        print("Nessun dato da plottare.")
+                if not np.isfinite(p_full).all():
+                    continue
+
+                for scenario_name, scenario_conf in SCENARIOS.items():
+                    exclude_candidates = scenario_conf['exclude_fn'](imp_ancestry, env_columns)
+                    exclude_columns = {col for col in exclude_candidates if col in coefficients}
+                    allowed_columns = set(coefficients.keys()) - exclude_columns
+
+                    z_without = compute_linear_predictor(dataset, intercept, coefficients, allowed_columns)
+                    p_without = expit(z_without)
+                    delta = p_full - p_without
+                    delta_abs = np.abs(delta)
+
+                    if np.max(delta_abs) < MIN_DELTA_THRESHOLD:
+                        continue
+
+                    scenario_df = dataset.copy()
+                    scenario_df['P_with'] = p_full
+                    scenario_df['P_without'] = p_without
+                    scenario_df['delta_P'] = delta
+                    scenario_df['delta_P_abs'] = delta_abs
+                    scenario_df['scenario'] = scenario_name
+
+                    if not has_valid_numeric_values(scenario_df):
+                        continue
+
+                    out_path = os.path.join(scenario_result_dirs[scenario_name], f'{snp}.tsv')
+                    scenario_df.to_csv(out_path, sep='\t', index=False)
+
+                    if snp == most_significant_SNP:
+                        boxplot_data_by_scenario[scenario_name].append({
+                            'label': label,
+                            'ancestry': 'AMR' if ancestry == 'NAT' else ancestry,
+                            'snp': snp,
+                            'delta': delta.tolist(),
+                            'delta_abs': delta_abs.tolist(),
+                            'color': COLOR_MAP.get(ancestry, 'gray'),
+                        })
+                        prob_path = os.path.join(scenario_prob_dirs[scenario_name], f'{snp}.tsv')
+                        scenario_df.to_csv(prob_path, sep='\t', index=False)
+
+    return boxplot_data_by_scenario
+
+
+def plot_filtered_boxplot(boxplot_data, data_key, ylabel, title, output_path):
+    if not boxplot_data:
+        print(f"Nessun dato da plottare per {title}.")
         return
 
-    # Ordina in base alla mediana dei dati
-    filtered.sort(key=lambda x: np.median(x[data_key]))
+    filtered = [b for b in boxplot_data if len(b[data_key]) > 0]
+    if not filtered:
+        print(f"Nessun dato valido per {title}.")
+        return
 
-    spacing = 2  # maggiore separazione
+    filtered.sort(key=lambda x: np.median(x[data_key]))
+    spacing = 2
     box_positions = [i * spacing for i in range(1, len(filtered) + 1)]
 
     fig, ax = plt.subplots(figsize=(max(14, len(filtered) * 0.75), 10))
@@ -126,7 +268,7 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
 
     for patch, b in zip(bp['boxes'], filtered):
         ancestry = b['ancestry']
-        patch.set_facecolor(color_map.get('NAT') if ancestry == 'AMR' else color_map.get(ancestry, 'gray'))
+        patch.set_facecolor(COLOR_MAP.get('NAT') if ancestry == 'AMR' else COLOR_MAP.get(ancestry, 'gray'))
 
     x_labels = [b['label'] for b in filtered]
     ax.set_xticks(box_positions)
@@ -136,99 +278,49 @@ def plot_filtered_boxplot(data_key, ylabel, title, filename):
     ax.set_title(title, fontsize=16)
     ax.set_ylim(-1 if ylabel == "Delta Probabilities" else 0, 1.1)
 
-    # Mostra SNP sopra il boxplot alternando l'altezza
     max_values = [max(b[data_key]) for b in filtered]
     for i, (pos, b, max_val) in enumerate(zip(box_positions, filtered, max_values)):
-        if i % 2 == 0:
-            y_pos = min(max_val + 0.25, 1.08)
-        else:
-            y_pos = min(max_val + 0.05, 1.08)
+        y_pos = min(max_val + (0.25 if i % 2 == 0 else 0.05), 1.08)
         ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
 
-    # 🔥 Legenda corretta: costruisci ancestry -> colore
     ancestry_set = sorted(set(b['ancestry'] for b in filtered))
     legend_elements = []
-
     for ancestry in ancestry_set:
-        color = color_map.get('NAT') if ancestry == 'AMR' else color_map.get(ancestry, 'gray')
+        color = COLOR_MAP.get('NAT') if ancestry == 'AMR' else COLOR_MAP.get(ancestry, 'gray')
         legend_elements.append(Patch(facecolor=color, label=ancestry))
 
-    ax.legend(handles=legend_elements, title="Global Ancestry", loc='center left', bbox_to_anchor=(1.01, 0.5), fontsize=11, title_fontsize=12)
+    ax.legend(
+        handles=legend_elements,
+        title="Global Ancestry",
+        loc='center left',
+        bbox_to_anchor=(1.01, 0.5),
+        fontsize=11,
+        title_fontsize=12,
+    )
 
     plt.tight_layout()
-    plt.savefig(os.path.join(plots_folder_general, filename), bbox_inches='tight')
+    plt.savefig(output_path, bbox_inches='tight')
     plt.close()
 
 
-
-
-# Plotta risultati
 if __name__ == "__main__":
-    # Cartelle
-    probs_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
-    plots_folder_general = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/plots'
+    boxplot_data_by_scenario = data_processing()
 
-    # Carica la tabella dei fenotipi
-    df_first_batch = pd.read_excel("~/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx", sheet_name="first_batch")
+    for scenario_name, boxplot_data in boxplot_data_by_scenario.items():
+        scenario_conf = SCENARIOS[scenario_name]
+        scenario_plot_folder = os.path.join(PLOTS_FOLDER, scenario_name)
+        os.makedirs(scenario_plot_folder, exist_ok=True)
 
-    # Colori per ancestry
-    ancestry_list = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
-    colors = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
-    color_map = {ancestry: colors[i % len(colors)] for i, ancestry in enumerate(ancestry_list)}
-    #color_map['AMR'] = color_map.pop('NAT')  # NAT viene mostrato come AMR
+        delta_title = f"Boxplot of Delta Probabilities by Ancestry for UKBB ({scenario_conf['plot_label']})"
+        delta_path = os.path.join(
+            scenario_plot_folder,
+            f"delta_probabilities_UKBB_{scenario_conf['file_suffix']}.pdf",
+        )
+        plot_filtered_boxplot(boxplot_data, 'delta', "Delta Probabilities", delta_title, delta_path)
 
-    # Ricostruzione del boxplot_data
-    boxplot_data = []
-
-    # (Opzionale) Se vuoi ricostruire mappatura SNP → rsID
-    snp_to_rsid = {}  # Se hai una mappa la carichi qui, altrimenti lascia così
-    # significant_snps = set(...)  # Se hai una lista di SNP significativi da filtrare, caricala qui. Se vuoi tenere tutto, rimuovi il controllo.
-
-    for hit in os.listdir(probs_folder):
-        hit_path = os.path.join(probs_folder, hit)
-        if not os.path.isdir(hit_path):
-            continue
-
-        hit_parts = hit.split('_')
-        imp_ancestry = hit_parts[0]
-        pheno = '_'.join(hit_parts[1:-1])
-        chrom = hit_parts[-1]
-
-        # Ottieni nome fenotipo leggibile
-        pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
-        pheno_name = '_'.join(pheno_name.iloc[0].split('_')[1:]) if not pheno_name.empty else 'Unknown'
-        if pheno_name == 'TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
-            pheno_name = 'TTE_acute_upper_respiratory_infections'
-        pheno_name = pheno_name.replace('_', ' ')
-
-        label = f"{pheno_name} ({imp_ancestry}, {chrom})"
-
-        for ancestry in os.listdir(hit_path):
-            ancestry_path = os.path.join(hit_path, ancestry)
-            if not os.path.isdir(ancestry_path):
-                continue
-
-            for file in os.listdir(ancestry_path):
-                if not file.endswith(".tsv"):
-                    continue
-
-                snp = file.replace(".tsv", "")
-                snp_path = os.path.join(ancestry_path, file)
-                df = pd.read_csv(snp_path, sep="\t")
-
-                delta = df['delta_P'].tolist()
-                delta_abs = df['delta_P_abs'].tolist()
-
-                boxplot_data.append({
-                    'label': label,
-                    'ancestry': 'AMR' if ancestry == 'NAT' else ancestry,
-                    'snp': snp_to_rsid.get(snp, snp),
-                    'delta': delta,
-                    'delta_abs': delta_abs,
-                    'color': color_map.get(ancestry, 'brown')
-                })
-
-    # Plotta i grafici
-    plot_filtered_boxplot('delta', "Delta Probabilities", "Boxplot of Delta Probabilities by Ancestry for UKBB", "delta_probabilities_UKBB.pdf")
-    plot_filtered_boxplot('delta_abs', "|Delta Probabilities|", "Boxplot of |Delta Probabilities| by Ancestry for UKBB", "abs_delta_probabilities_UKBB.pdf")
-
+        abs_delta_title = f"Boxplot of |Delta Probabilities| by Ancestry for UKBB ({scenario_conf['plot_label']})"
+        abs_delta_path = os.path.join(
+            scenario_plot_folder,
+            f"abs_delta_probabilities_UKBB_{scenario_conf['file_suffix']}.pdf",
+        )
+        plot_filtered_boxplot(boxplot_data, 'delta_abs', "|Delta Probabilities|", abs_delta_title, abs_delta_path)
