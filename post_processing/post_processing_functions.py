@@ -1,11 +1,14 @@
 import subprocess
 import os
+import glob
 import pandas as pd
+import polars as pl
 import matplotlib.pyplot as plt
 import numpy as np
 from io import StringIO
 from adjustText import adjust_text
 import requests
+from collections import defaultdict
 
 
 def positions_extraction(input_file, output_folder):
@@ -28,7 +31,21 @@ def positions_extraction(input_file, output_folder):
 
     return output_file
 
-def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file, general_output_file, plot_output_folder, general_output_folder):
+def result_analysis(
+    ancestry_list,
+    phe_folder,
+    general_file_ini,
+    window_pos_file,
+    general_output_file,
+    plot_output_folder,
+    general_output_folder,
+    dataset_name=None,
+    apply_fb_filter=False,
+    fb_template=None,
+    fb_root=None,
+    fb_threshold=0.9,
+    fb_chunksize=200000
+):
     
 
     significance_threshold = 0.05
@@ -62,20 +79,43 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         data = data[['#CHROM', 'POS', 'P']]
         data = data.rename(columns={'P':first_pheno})
 
-        # Calculate the maximum position for each chromosome
-        max_pos = data.groupby('#CHROM')['POS'].max().cumsum()
-
-        # Shift the max_pos Series so that the first value is 0
-        max_pos = max_pos.shift(fill_value=0)
-
-        # Calculate ABS_POS directly using the max_pos map
-        data['ABS_POS'] = data['POS'] + data['#CHROM'].map(max_pos)
-
         # Read the window positions file
         window_pos = pd.read_csv(window_pos_file, sep='\t')
 
         # Merge the data with the window positions
         data = pd.merge(data, window_pos, on=['#CHROM', 'POS'], how='left')
+
+        fb_summary = None
+        if apply_fb_filter:
+            filtered_data, fb_summary = filter_windows_by_confidence(
+                data,
+                ancestry,
+                dataset_name,
+                fb_template=fb_template,
+                fb_root=fb_root,
+                threshold=fb_threshold,
+                chunksize=fb_chunksize
+            )
+            if fb_summary.get('filtered'):
+                print(f"[FB-QC] {ancestry}: removed {fb_summary['n_windows_removed']} windows below confidence {fb_threshold}")
+                if fb_summary.get('missing_chromosomes'):
+                    missing = ', '.join(map(str, sorted(set(fb_summary['missing_chromosomes']))))
+                    print(f"[FB-QC] {ancestry}: missing FB files for chromosomes {missing}")
+            elif fb_summary.get('missing_chromosomes') and not fb_summary.get('processed_chromosomes'):
+                print(f"[FB-QC] {ancestry}: no FB files found, skipping confidence filter")
+            elif fb_summary.get('missing_chromosomes'):
+                missing = ', '.join(map(str, sorted(fb_summary['missing_chromosomes'])))
+                print(f"[FB-QC] {ancestry}: missing FB files for chromosomes {missing}")
+            data = filtered_data
+
+        if data.empty:
+            print(f"No windows available for ancestry {ancestry} after FB filtering; skipping.")
+            continue
+
+        # Recompute ABS_POS after potential filtering
+        max_pos = data.groupby('#CHROM')['POS'].max().cumsum()
+        max_pos = max_pos.shift(fill_value=0)
+        data['ABS_POS'] = data['POS'] + data['#CHROM'].map(max_pos)
 
         # Reorder the columns
         data = data[['#CHROM', 'POS', 'end_POS', 'ABS_POS', first_pheno]]
@@ -85,10 +125,12 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
 
         # Get the chromosome labels
         chrom_labels = sorted(data['#CHROM'].unique())
+        allowed_windows = data[['#CHROM', 'POS']].drop_duplicates()
 
         # compute bonferroni threshold
-        bonferroni_threshold = significance_threshold / (len(data) * len(pheno_list) * 7)
-        local_bonferroni_threshold = significance_threshold / len(data)
+        n_windows = len(data)
+        bonferroni_threshold = significance_threshold / (n_windows * len(pheno_list) * 7)
+        local_bonferroni_threshold = significance_threshold / n_windows
         
         # Filter and sort the data for the first phenotype
         first_filtered_data = data.loc[data[first_pheno] < bonferroni_threshold]
@@ -106,6 +148,8 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
             df = pd.read_table(current_file, sep="\t")
             df = df[['#CHROM', 'POS', 'P']]
             df = df.rename(columns={'P':pheno})
+
+            df = pd.merge(df, allowed_windows, on=['#CHROM', 'POS'], how='inner')
 
             # Calculate ABS_POS directly using the max_pos map
             df['ABS_POS'] = df['POS'] + df['#CHROM'].map(max_pos)
@@ -224,6 +268,134 @@ def result_analysis(ancestry_list, phe_folder, general_file_ini, window_pos_file
         return significant_file
     else:
         return None
+
+
+def _normalize_chrom(value):
+    value = str(value).strip()
+    if value.lower().startswith('chr'):
+        value = value[3:]
+    return value
+
+
+def _resolve_fb_path(fb_template, fb_root, dataset, ancestry, chrom):
+    context = {
+        'dataset': dataset or '',
+        'ancestry': ancestry or '',
+        'chrom': chrom
+    }
+    if fb_template:
+        try:
+            candidate = fb_template.format(**context)
+        except KeyError:
+            candidate = fb_template.format(chrom=chrom)
+        if os.path.exists(candidate):
+            return candidate
+        gz_candidate = f"{candidate}.gz"
+        if os.path.exists(gz_candidate):
+            return gz_candidate
+    if not fb_root:
+        return None
+    chrom_str = f"{chrom}"
+    base_paths = {fb_root}
+    if dataset:
+        base_paths.add(os.path.join(fb_root, dataset))
+    if ancestry:
+        base_paths.add(os.path.join(fb_root, ancestry))
+    if dataset and ancestry:
+        base_paths.add(os.path.join(fb_root, dataset, ancestry))
+        base_paths.add(os.path.join(fb_root, ancestry, dataset))
+    patterns = []
+    for base in base_paths:
+        patterns.extend([
+            os.path.join(base, f"chr{chrom_str}", "*.fb*"),
+            os.path.join(base, f"chr_{chrom_str}", "*.fb*"),
+            os.path.join(base, f"*chr{chrom_str}*.fb*"),
+        ])
+        if ancestry:
+            patterns.append(os.path.join(base, f"*{ancestry}*chr{chrom_str}*.fb*"))
+    for pattern in patterns:
+        matches = sorted(glob.glob(pattern))
+        if matches:
+            return matches[0]
+    return None
+
+
+def _read_fb_confident_positions(fb_file, threshold, chunksize=200000):
+    """Load FB probabilities with Polars, immediately convert to pandas for downstream logic."""
+    del chunksize  # retained for signature compatibility
+    confident = defaultdict(set)
+    try:
+        pl_df = pl.read_csv(fb_file, separator='\t', has_header=True)
+    except FileNotFoundError:
+        return confident
+    except pl.exceptions.NoDataError:
+        return confident
+
+    pdf = pl_df.to_pandas()
+    columns = pdf.columns
+    lower_map = {col.lower(): col for col in columns}
+    chrom_col = next((lower_map[candidate] for candidate in ['chromosome', '#chrom', 'chrom', 'chr'] if candidate in lower_map), None)
+    pos_col = next((lower_map[candidate] for candidate in ['position', 'pos'] if candidate in lower_map), None)
+    if chrom_col is None or pos_col is None:
+        return confident
+    meta_cols = {chrom_col, pos_col}
+    meta_cols.update({col for col in columns if col and col.lower().startswith('genetic')})
+    prob_cols = [col for col in columns if col not in meta_cols]
+    if not prob_cols:
+        return confident
+
+    pdf[prob_cols] = pdf[prob_cols].apply(pd.to_numeric, errors='coerce')
+    max_conf = pdf[prob_cols].max(axis=1)
+    keep_mask = max_conf >= threshold
+    if not keep_mask.any():
+        return confident
+
+    keep_df = pdf.loc[keep_mask, [chrom_col, pos_col]].copy()
+    keep_df[pos_col] = pd.to_numeric(keep_df[pos_col], errors='coerce')
+    keep_df = keep_df.dropna(subset=[pos_col])
+    for chrom, pos in keep_df.itertuples(index=False):
+        norm_chrom = _normalize_chrom(chrom)
+        if norm_chrom:
+            confident[norm_chrom].add(int(pos))
+    return confident
+
+
+def filter_windows_by_confidence(data_df, ancestry, dataset, fb_template=None, fb_root=None, threshold=0.9, chunksize=200000):
+    summary = {
+        'filtered': False,
+        'threshold': threshold,
+        'missing_chromosomes': [],
+        'processed_chromosomes': [],
+        'n_windows_before': len(data_df),
+        'n_windows_after': len(data_df),
+        'n_windows_removed': 0
+    }
+    if data_df.empty or (fb_template is None and fb_root is None):
+        return data_df, summary
+    keep_keys = set()
+    for chrom in sorted(data_df['#CHROM'].unique()):
+        fb_path = _resolve_fb_path(fb_template, fb_root, dataset, ancestry, chrom)
+        if not fb_path or not os.path.exists(fb_path):
+            summary['missing_chromosomes'].append(chrom)
+            continue
+        confident = _read_fb_confident_positions(fb_path, threshold, chunksize)
+        chrom_key = _normalize_chrom(chrom)
+        if chrom_key in confident:
+            keep_keys.update({f"{chrom_key}:{pos}" for pos in confident[chrom_key]})
+        summary['processed_chromosomes'].append(chrom)
+    if not keep_keys:
+        return data_df, summary
+    chrom_series = data_df['#CHROM'].apply(_normalize_chrom)
+    pos_series = pd.to_numeric(data_df['POS'], errors='coerce')
+    valid_idx = chrom_series.notna() & pos_series.notna()
+    composite = chrom_series[valid_idx].astype(str) + ':' + pos_series[valid_idx].astype(int).astype(str)
+    final_mask = pd.Series(False, index=data_df.index)
+    final_mask.loc[composite.index] = composite.isin(keep_keys)
+    filtered_df = data_df.loc[final_mask].reset_index(drop=True)
+    summary['filtered'] = True
+    summary['n_windows_after'] = len(filtered_df)
+    summary['n_windows_removed'] = summary['n_windows_before'] - summary['n_windows_after']
+    return filtered_df, summary
 
 
 def SNPs_extraction(input_file, output_dir):
