@@ -20,8 +20,8 @@ COLORS = ['blue', 'green', 'red', 'purple', 'orange', 'brown']
 COLOR_MAP = {ancestry: COLORS[i % len(COLORS)] for i, ancestry in enumerate(ANCESTRY_LIST)}
 
 # Filtri dichiarati nel paper
-MIN_SAMPLE_THRESHOLD = 100
-MIN_DELTA_THRESHOLD = 0.01
+MIN_SAMPLE_THRESHOLD = 0
+MIN_DELTA_THRESHOLD = 0.0
 
 
 def exclude_ancestry(imp_ancestry, env_columns):
@@ -95,6 +95,39 @@ def compute_linear_predictor(dataset, intercept, coefficients, allowed_columns):
     return z
 
 
+def list_cached_snps(result_dirs):
+    """Ritorna gli SNP già processati (per scenario) leggendo le cartelle di output."""
+    cached = {scenario: set() for scenario in result_dirs}
+    for scenario, dir_path in result_dirs.items():
+        if not os.path.isdir(dir_path):
+            continue
+        for file_name in os.listdir(dir_path):
+            if file_name.endswith('.tsv'):
+                cached[scenario].add(file_name.replace('.tsv', ''))
+    return cached
+
+
+def append_cached_boxplot_data(prob_dirs, boxplot_data_by_scenario, snp, ancestry, label):
+    """Se i file sono già presenti, ricarica delta e delta_abs per evitare di ricalcolare."""
+    for scenario_name, prob_dir in prob_dirs.items():
+        prob_path = os.path.join(prob_dir, f'{snp}.tsv')
+        if not os.path.exists(prob_path):
+            continue
+
+        df = pd.read_csv(prob_path, sep='\t')
+        if 'delta_P' not in df.columns or 'delta_P_abs' not in df.columns:
+            continue
+
+        boxplot_data_by_scenario[scenario_name].append({
+            'label': label,
+            'ancestry': 'AMR' if ancestry == 'NAT' else ancestry,
+            'snp': snp,
+            'delta': df['delta_P'].tolist(),
+            'delta_abs': df['delta_P_abs'].tolist(),
+            'color': COLOR_MAP.get(ancestry, 'gray'),
+        })
+
+
 def data_processing():
     df_first_batch = pd.read_excel(PHENO_TABLE_PATH, sheet_name="first_batch")
     boxplot_data_by_scenario = {name: [] for name in SCENARIOS}
@@ -166,11 +199,28 @@ def data_processing():
                 scenario_result_dirs[scenario_name] = result_dir
                 scenario_prob_dirs[scenario_name] = prob_dir
 
+            cached_snps = list_cached_snps(scenario_result_dirs)
+
             for snp in snps_list:
                 dataset_path = os.path.join(current_dataset_folder, f'{snp}.tsv')
                 model_path = os.path.join(current_model_folder, f'{snp}.csv')
 
                 if not os.path.exists(dataset_path) or not os.path.exists(model_path):
+                    continue
+
+                already_done = all(
+                    snp in cached_snps.get(scenario_name, set())
+                    for scenario_name in SCENARIOS
+                )
+                if already_done:
+                    if snp == most_significant_SNP:
+                        append_cached_boxplot_data(
+                            scenario_prob_dirs,
+                            boxplot_data_by_scenario,
+                            snp,
+                            ancestry,
+                            label,
+                        )
                     continue
 
                 dataset = pd.read_csv(dataset_path, sep='\t')
@@ -303,7 +353,7 @@ def plot_filtered_boxplot(boxplot_data, data_key, ylabel, title, output_path):
 
     max_values = [max(b[data_key]) for b in filtered]
     for i, (pos, b, max_val) in enumerate(zip(box_positions, filtered, max_values)):
-        y_pos = min(max_val + (0.25 if i % 2 == 0 else 0.05), 1.08)
+        y_pos = min(max_val + (0.30 if i % 2 == 0 else 0.05), 1.08)
         ax.text(pos, y_pos, b['snp'], ha='center', va='bottom', fontsize=11)
 
     ancestry_set = sorted(set(b['ancestry'] for b in filtered))
@@ -334,14 +384,14 @@ if __name__ == "__main__":
         scenario_plot_folder = os.path.join(PLOTS_FOLDER, scenario_name)
         os.makedirs(scenario_plot_folder, exist_ok=True)
 
-        delta_title = f"Boxplot of Delta Probabilities by Ancestry for UKBB ({scenario_conf['plot_label']})"
+        delta_title = f"Boxplot of Delta Probabilities by Ancestry for UKBB"
         delta_path = os.path.join(
             scenario_plot_folder,
             f"delta_probabilities_UKBB_{scenario_conf['file_suffix']}.pdf",
         )
         plot_filtered_boxplot(boxplot_data, 'delta', "Delta Probabilities", delta_title, delta_path)
 
-        abs_delta_title = f"Boxplot of |Delta Probabilities| by Ancestry for UKBB ({scenario_conf['plot_label']})"
+        abs_delta_title = f"Boxplot of |Delta Probabilities| by Ancestry for UKBB"
         abs_delta_path = os.path.join(
             scenario_plot_folder,
             f"abs_delta_probabilities_UKBB_{scenario_conf['file_suffix']}.pdf",

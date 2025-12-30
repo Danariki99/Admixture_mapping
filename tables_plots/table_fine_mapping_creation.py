@@ -6,6 +6,11 @@ MODELS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_fi
 PROBS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
 
 ANCESTRY_LIST = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
+SCENARIOS = {
+    'ancestry': 'Local Ancestry',
+    'add': 'Genotype (ADD)',
+    'environment': 'Environmental Covariates',
+}
 
 PHENO_TABLE = 'ukbb_v1.xlsx'
 PHENO_SHEET = 'first_batch'
@@ -22,9 +27,15 @@ TABLE_COLUMNS = [
     'OR (CI = 95%)',
     'p value',
     'chr',
-    'Delta_P_mean',
-    'Delta_P_std',
-    'Delta_P_median',
+    'Delta_P_mean_ancestry',
+    'Delta_P_median_ancestry',
+    'Delta_P_std_ancestry',
+    'Delta_P_mean_add',
+    'Delta_P_median_add',
+    'Delta_P_std_add',
+    'Delta_P_mean_environment',
+    'Delta_P_median_environment',
+    'Delta_P_std_environment',
     'Delta_P_samples',
 ]
 
@@ -101,18 +112,43 @@ def build_table():
             l95 = add_row['L95'].values[0]
             u95 = add_row['U95'].values[0]
 
-            prob_path = os.path.join(
+            scenario_summaries = {}
+            ancestry_path = os.path.join(
                 PROBS_FOLDER,
                 'ancestry',
                 hit,
                 ancestry,
                 f"{most_significant_snp}.tsv",
             )
-            if not os.path.exists(prob_path):
+            if not os.path.exists(ancestry_path):
                 continue
 
-            delta_df = pd.read_csv(prob_path, sep='\t')
-            if delta_df.empty or 'delta_P' not in delta_df.columns:
+            for scenario_key in SCENARIOS.keys():
+                prob_path = os.path.join(
+                    PROBS_FOLDER,
+                    scenario_key,
+                    hit,
+                    ancestry,
+                    f"{most_significant_snp}.tsv",
+                )
+                if not os.path.exists(prob_path):
+                    scenario_summaries[scenario_key] = None
+                    continue
+
+                delta_df = pd.read_csv(prob_path, sep='\t')
+                if delta_df.empty or 'delta_P' not in delta_df.columns:
+                    scenario_summaries[scenario_key] = None
+                    continue
+
+                scenario_summaries[scenario_key] = {
+                    'mean': delta_df['delta_P'].mean(),
+                    'median': delta_df['delta_P'].median(),
+                    'std': delta_df['delta_P'].std(),
+                    'samples': delta_df['delta_P'].count(),
+                }
+
+            ancestry_summary = scenario_summaries.get('ancestry')
+            if ancestry_summary is None:
                 continue
 
             rows.append({
@@ -127,10 +163,16 @@ def build_table():
                 'OR (CI = 95%)': f'{odds_ratio} ({l95}, {u95})',
                 'p value': p_value,
                 'chr': chrom,
-                'Delta_P_mean': delta_df['delta_P'].mean(),
-                'Delta_P_std': delta_df['delta_P'].std(),
-                'Delta_P_median': delta_df['delta_P'].median(),
-                'Delta_P_samples': delta_df['delta_P'].count(),
+                'Delta_P_mean_ancestry': ancestry_summary['mean'],
+                'Delta_P_median_ancestry': ancestry_summary['median'],
+                'Delta_P_std_ancestry': ancestry_summary['std'],
+                'Delta_P_mean_add': scenario_summaries.get('add', {}).get('mean') if scenario_summaries.get('add') else None,
+                'Delta_P_median_add': scenario_summaries.get('add', {}).get('median') if scenario_summaries.get('add') else None,
+                'Delta_P_std_add': scenario_summaries.get('add', {}).get('std') if scenario_summaries.get('add') else None,
+                'Delta_P_mean_environment': scenario_summaries.get('environment', {}).get('mean') if scenario_summaries.get('environment') else None,
+                'Delta_P_median_environment': scenario_summaries.get('environment', {}).get('median') if scenario_summaries.get('environment') else None,
+                'Delta_P_std_environment': scenario_summaries.get('environment', {}).get('std') if scenario_summaries.get('environment') else None,
+                'Delta_P_samples': ancestry_summary['samples'],
             })
 
     if not rows:

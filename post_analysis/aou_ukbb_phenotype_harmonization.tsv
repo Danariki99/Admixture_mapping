@@ -1,0 +1,26 @@
+ancestry	aou_pheno_label	ukbb_pheno	ukbb_id	aou_chrom	aou_start	aou_end	ukbb_file_exists	significant_match_found	ukbb_hit_chrom	ukbb_hit_pos	ukbb_hit_ref	ukbb_hit_alt	ukbb_hit_test	ukbb_hit_beta	ukbb_hit_or	ukbb_hit_p
+AFR	obesity_chr17	HC689_TTE_obesity	HC689	17	77484047	77663751	True	False								
+EAS	diabetes_chr6	FH1220_Diabetes_(FH)	FH1220	6	31327241	31341458	True	False								
+EAS	diabetes_chr6	HC221_Diabetes	HC221	6	31327241	31341458	True	False								
+EAS	diabetes_chr6	HC649_TTE_non-insulin-dependent_diabetes_mellitus	HC649	6	31327241	31341458	True	False								
+EAS	diabetes_chr6	HC652_TTE_unspecified_diabetes_mellitus	HC652	6	31327241	31341458	True	False								
+EUR	actinic_keratosis_chr5	HC1190_TTE_seborrhoeic_keratosis	HC1190	5	33988445	34275649	True	True	5.0	34043889.0	A	T	ADD		0.815313	0.0102207
+EUR	diabetes_chr14	FH1220_Diabetes_(FH)	FH1220	14	101754561	101907902	True	False								
+EUR	diabetes_chr14	HC221_Diabetes	HC221	14	101754561	101907902	True	False								
+EUR	diabetes_chr14	HC649_TTE_non-insulin-dependent_diabetes_mellitus	HC649	14	101754561	101907902	True	True	14.0	101890502.0	A	T	ADD		1.07931	0.0350429
+EUR	diabetes_chr14	HC652_TTE_unspecified_diabetes_mellitus	HC652	14	101754561	101907902	True	False								
+EUR	diabetes_chr6	FH1220_Diabetes_(FH)	FH1220	6	32217361	32264645	True	False								
+EUR	diabetes_chr6	HC221_Diabetes	HC221	6	32217361	32264645	True	False								
+EUR	diabetes_chr6	HC649_TTE_non-insulin-dependent_diabetes_mellitus	HC649	6	32217361	32264645	True	False								
+EUR	diabetes_chr6	HC652_TTE_unspecified_diabetes_mellitus	HC652	6	32217361	32264645	True	False								
+EUR	hypothyroidism_chr6	HC219_Hypothyroidism/myxoedema	HC219	6	31001177	31021547	True	False								
+EUR	hypothyroidism_chr6	HC643_TTE_other_hypothyroidism	HC643	6	31001177	31021547	True	False								
+EUR	obesity_chr11	HC689_TTE_obesity	HC689	11	8651131	8837745	True	False								
+SAS	bowel_chr3	FH1019_Bowel_cancer_(FH)	FH1019	3	104916249	105073444	True	False								
+SAS	bowel_chr3	HC1107_TTE_irritable_bowel_syndrome	HC1107	3	104916249	105073444	True	False								
+SAS	diabetes_chr16	FH1220_Diabetes_(FH)	FH1220	16	31129895	31334236	True	False								
+SAS	diabetes_chr16	HC221_Diabetes	HC221	16	31129895	31334236	True	False								
+SAS	diabetes_chr16	HC649_TTE_non-insulin-dependent_diabetes_mellitus	HC649	16	31129895	31334236	True	False								
+SAS	diabetes_chr16	HC652_TTE_unspecified_diabetes_mellitus	HC652	16	31129895	31334236	True	True	16.0	31193942.0	A	T	ADD		1.11339	0.0352179
+SAS	spondylosis_chr8	HC1244_TTE_spondylosis	HC1244	8	82999687	83271468	True	False								
+SAS	tobacco_chr2	HC726_TTE_mental_and_behavioural_disorders_due_to_use_of_tobacco	HC726	2	204556927	204810578	True	False								
