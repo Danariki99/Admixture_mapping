@@ -135,14 +135,7 @@ git clone https://github.com/AI-sandbox/gnomix
 
 ```
 
-### 5) install bcftools
-
-```bash
-    sudo apt install -y bcftools
-
-```
-
-### 6) Move to the source subfolder, and build the Singularity container with 
+### 5) Move to the source subfolder, and build the Singularity container with 
 ```bash
 cd Admixture_mapping
 sudo singularity build singularity.sif singularity.def
