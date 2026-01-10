@@ -33,16 +33,17 @@ From: python:3.8.20
         libssl-dev \
         && rm -rf /var/lib/apt/lists/*
     
+    
     pip install --upgrade pip
 
 
     pip install \
-        matplotlib==3.3.4 \
+        matplotlib==3.7.5 \
         numpy==1.20.3 \
         pandas==1.3.5 \
         PyYAML==5.1.2 \
         scikit-learn==1.0.1 \
-        scipy==1.5.3 \
+        scipy==1.10.1 \
         seaborn==0.11.2 \
         sklearn-crfsuite==0.3.6 \
         tqdm==4.62.3 \
@@ -53,8 +54,10 @@ From: python:3.8.20
         snputils==0.2.11 \
 
     pip install --no-deps \
-            scikit-allel==1.3.1 \
-    
+        scikit-allel==1.3.1 \
+        
+    pip uninstall -y dask distributed || true
+
     apt-get update && apt-get install -y --no-install-recommends \
         software-properties-common \
         dirmngr \
@@ -64,12 +67,22 @@ From: python:3.8.20
         libssl-dev \
         libxml2-dev
 
-    apt-get update && apt-get install -y r-base
+    gpg --keyserver keyserver.ubuntu.com --recv-keys B8F25A8A73EACF41
+    gpg --export B8F25A8A73EACF41 | gpg --dearmor -o /usr/share/keyrings/cran-archive-keyring.gpg
+
+    echo "deb [signed-by=/usr/share/keyrings/cran-archive-keyring.gpg] https://cloud.r-project.org/bin/linux/debian bookworm-cran40/" > /etc/apt/sources.list.d/cran.list
+
+    apt-get update && apt-get install -y --no-install-recommends r-base
+
 
     Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
-    Rscript -e 'BiocManager::install(version = "3.16")'
+    Rscript -e 'BiocManager::install(version = "3.21", ask = FALSE)'
     Rscript -e 'BiocManager::install("biomaRt")'
     Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages("dbplyr", repos = "https://cloud.r-project.org")'
+    
+    
+
 
 
 
@@ -82,3 +95,4 @@ From: python:3.8.20
     fi
 
     ./code_test.sh "$1" "$2"
+
