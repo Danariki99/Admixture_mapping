@@ -74,7 +74,7 @@ From: python:3.8.20
 
 
     Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
-    Rscript -e 'BiocManager::install(version = "3.21")'
+    Rscript -e 'BiocManager::install(version = "3.21", ask = FALSE)'
     Rscript -e 'BiocManager::install("biomaRt")'
     Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
     Rscript -e 'install.packages("dbplyr", repos = "https://cloud.r-project.org")'
@@ -93,3 +93,4 @@ From: python:3.8.20
     fi
 
     ./code_test.sh "$1" "$2"
+
