@@ -1,7 +1,7 @@
 # ADMIXTURE MAPPING PROJECT
 
 ## abstract
-In recent years, large-scale genome-wide association studies (GWAS) and sequencing projects have identified over 70,000 associations between genetic variants and human traits or diseases. However, the majority of these studies rely on participants from European ancestry dominated biobanks, limiting insights into the full spectrum of human genetic diversity and its impact on disease. Admixture mapping offers a complementary approach to GWAS by leveraging differences in disease prevalence across ancestral populations to identify risk loci for complex traits. Here, we present an extension of the snputils software suite to perform admixture mapping analysis at a large scale. We used this approach to analyze large-scale GWAS cohorts, namely the UK Biobank and the All of Us Research Program datasets, and studied associations between local ancestry and a total of 172 phenotypes. Our method not only replicates previously reported associations but also identifies novel loci with important implications for human disease. Additionally, we incorporate a fine-mapping strategy within the 31 identified regions, allowing us to genetically pinpoint the signal in 26 cases. Our findings highlight key genetic markers by considering local ancestry and quantifying their contribution to trait variability.
+In recent years, large-scale genome-wide association studies (GWAS) and sequencing projects have identified over 70,000 associations between genetic variants and human traits or diseases. However, the majority of these studies rely on individuals genetically similar to the reference panels European superpopulation, reflecting the composition of biobanks enriched for individuals with predominantly European-like genetic background, limiting insights into the full spectrum of human genetic diversity and its impact on disease.  Admixture mapping offers a complementary approach to GWAS by leveraging differences in haplotype frequencies across populations represented in the reference panels to identify risk loci for complex traits. Here, we perform admixture mapping analysis at a large scale  across the UK Biobank and the All of Us Research Program datasets, studying associations between local haplotype ancestry and a total of 172 phenotypes. Our method not only replicates previously reported associations but also identifies novel loci with important implications for human disease. Additionally, we applied a fine-mapping strategy within the 31 identified genomic regions by analyzing subsets of individuals stratified by their predominant ancestry components, which allowed the same region to yield distinct association signals across ancestry-defined subsamples. This approach enabled the localization of 55 association signals and highlights the importance of modeling ancestry structure to refine genetic associations and quantify their contribution to trait variability..
 
 ## Authors 
 Riccardo Smeriglio<sup>2</sup> Sonia Moreno-Grau<sup>1</sup>, Daniel Mas-Montserrat<sup>1,3</sup> Christophe Thomassin<sup>1,7</sup>, Guhan Ventakaraman<sup>1</sup>, Caterina Fuses<sup>4,6</sup>, Manuel A. Rivas<sup>1</sup>, Alessandro Savino<sup>2</sup>, Jordi Abante<sup>4,6</sup>, Stefano Di Carlo<sup>2</sup> , Alexander G. Ioannidis<sup>1,3,7</sup>.
@@ -72,20 +72,20 @@ git clone https://github.com/AI-sandbox/gnomix
 ### 6) install Rscript
 
 ```bash
-    sudo apt-get install -y r-base
+    sudo apt-get update && apt-get install -y --no-install-recommends r-base
 
-    sudo Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
-    sudo Rscript -e 'BiocManager::install(version = "3.21")'
-    sudo Rscript -e 'BiocManager::install("biomaRt")'
-    sudo Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
-    sudo 
+    Rscript -e 'install.packages("BiocManager", repos="https://cloud.r-project.org")'
+    Rscript -e 'BiocManager::install(version = "3.21", ask = FALSE)'
+    Rscript -e 'BiocManager::install("biomaRt")'
+    Rscript -e 'install.packages(c("data.table", "optparse"), repos="https://cloud.r-project.org")'
+    Rscript -e 'install.packages("dbplyr", repos = "https://cloud.r-project.org")'
 
 ```
 
 
 ### 7) Execute the pipeline:
 The pipeline includes all the steps performed after the execution of Gnomix for Local Ancestry Inference (LAI).
-Since the original input files (such as VCFs and reference panels) used in the study cannot be shared, we provide a minimal example .vcf.gz file to illustrate the full pipeline structure. you can find the data folder here: https://www.dropbox.com/scl/fi/4mv3ex5le8z7oq41eoz3y/data.zip?rlkey=gjly7lj2h2xuoyi8ix1lt04mo&st=j162172h&dl=0
+Since the original input files (such as VCFs and reference panels) used in the study cannot be shared, we provide a minimal example .vcf.gz file to illustrate the full pipeline structure. you can find the data folder here: https://drive.cloud.polito.it/index.php/s/mkaNL3pidDZXa7f
 
 To run the pipeline, use the following command:
 
@@ -168,10 +168,10 @@ singularity shell --bind /path/to/your/folder:/linked/path/in/singularity singul
 Now execute the whole code runnig this command:
 
 ```bash
-./code_test.sh /path/to/data/folder path/to/your/desired/output/folder
+./code_test.sh /linked/path/in/singularity/data/folder /linked/path/in/singularity/output/folder
 ```
 
-
+be careful, the data folder and the output folders need to be inside the folder that you link into singularity, otherwise the container will not be able to see them
 
 
 ## Reproducing the analysis running the Singularity container
@@ -181,9 +181,9 @@ To reproduce the analysis from this paper, you can also run the Singularity cont
 Move to the `source` folder and run the `singularity.sif` file
 ```bash
 cd Admixture_mapping
-singularity run singularity.sif /path/to/data/folder path/to/your/desired/output/folder
+singularity run -- bind --bind /path/to/your/folder:/linked/path/in/singularity singularity.sif /linked/path/in/singularity/data/folder /linked/path/in/singularity/output/folder
 ```
 
 ## Disclaimer
 
-Since both the UK Biobank (UKBB) and All of Us datasets cannot be publicly shared, the test pipeline has been adapted to run on a small synthetic dataset, which you can find at (https://www.dropbox.com/scl/fi/4mv3ex5le8z7oq41eoz3y/data.zip?rlkey=gjly7lj2h2xuoyi8ix1lt04mo&st=j162172h&dl=0). Although the images generated by the pipeline are similar to those presented in the paper, the results should not be considered significant. Additionally, some significance thresholds have been adjusted to ensure that the pipeline can run successfully on the example data.
+Since both the UK Biobank (UKBB) and All of Us datasets cannot be publicly shared, the test pipeline has been adapted to run on a small synthetic dataset, which you can find at (https://drive.cloud.polito.it/index.php/s/mkaNL3pidDZXa7f). Although the images generated by the pipeline are similar to those presented in the paper, the results should not be considered significant. Additionally, some significance thresholds have been adjusted to ensure that the pipeline can run successfully on the example data.
