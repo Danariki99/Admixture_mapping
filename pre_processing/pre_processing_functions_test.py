@@ -31,7 +31,7 @@ def vcf_creation(ancestry_map, msp_folder, output_folder):
 
         admix_map = AdmixtureMappingVCFWriter(lai_object, output_file, ancestry_map)
 
-        admix_map.write 
+        admix_map.write()
 
        
     return output_folder

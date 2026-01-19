@@ -230,6 +230,7 @@ def data_processing():
 
                 model = pd.read_csv(model_path)
                 if 'INTERCEPT' not in model.columns:
+                    print(f"Model file {model_path} does not contain INTERCEPT column.")
                     continue
 
                 standardize_covariates(dataset, imp_ancestry)

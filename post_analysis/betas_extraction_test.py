@@ -65,7 +65,7 @@ for hit in hits_list:
                     p_value = test_row['P'].values[0]  # Estrai il valore P
                     or_value = test_row['OR'].values[0]  # Estrai l'OR
 
-                    if p_value < 0.05:
+                    if p_value < 0.5:
                         try:
                             df_beta[test] = np.log(or_value)  # Prova a calcolare il logaritmo
                         except (ValueError, TypeError) as e:
@@ -82,6 +82,7 @@ for hit in hits_list:
                 if 'ADD' in df_beta.columns and imp_ancestry in df_beta.columns:
                     if df_beta.select_dtypes(include=[np.number]).applymap(np.isfinite).all().all():
                         df_beta.to_csv(f'{output_folder}/{id}.csv', index=False)
+                        print(f'Saved beta file for ID: {id} at {output_folder}/{id}.csv')
                     else:
                         print(f"⚠️  Skip saving {id} due to non-finite values in numeric columns.")
                 else:
