@@ -312,6 +312,8 @@ def plot_filtered_boxplot(boxplot_data, data_key, ylabel, title, output_path):
     if not boxplot_data:
         print(f"Nessun dato da plottare per {title}.")
         return
+    else:
+        print(f"Plottando {len(boxplot_data)} gruppi di dati per {title}.")
 
     filtered = [b for b in boxplot_data if len(b[data_key]) > 0]
     if not filtered:
@@ -360,6 +362,7 @@ def plot_filtered_boxplot(boxplot_data, data_key, ylabel, title, output_path):
 
     plt.tight_layout()
     plt.savefig(output_path, bbox_inches='tight')
+    print(f"Plot saved to {output_path}")
     plt.close()
 
 

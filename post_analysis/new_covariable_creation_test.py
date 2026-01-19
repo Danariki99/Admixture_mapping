@@ -30,6 +30,7 @@ if __name__ == '__main__':
 
     # The dataset variable is taken from the command line argument
     wind_files = os.listdir(wind_folder)
+    print(wind_files)
     for wind_filename in wind_files:
 
         ancestry = wind_filename.split('_')[0]
