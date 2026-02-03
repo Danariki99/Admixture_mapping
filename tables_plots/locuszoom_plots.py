@@ -4,6 +4,18 @@ import pandas as pd
 import numpy as np
 
 
+def load_pheno_table(path, sheet_name):
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Phenotype table not found: {path}")
+    return pd.read_excel(path, sheet_name=sheet_name)
+
+
+def get_pheno_name(df_pheno: pd.DataFrame, pheno_id: str) -> str:
+    pheno_row = df_pheno[df_pheno["ID"] == pheno_id]["ID2"]
+    if not pheno_row.empty:
+        return str(pheno_row.iloc[0])
+    return "Unknown"
+
 def plot_locuszoom(
     df_add: pd.DataFrame,
     snp: str,
@@ -128,6 +140,9 @@ if __name__ == "__main__":
  #define all the data
     HIT_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
     OUTPUT_FOLDER ='/private/groups/ioannidislab/smeriglio/out_cleaned_codes/locuszoom_plots'
+    PHENO_TABLE = 'ukbb_v1.xlsx'
+    PHENO_SHEET = 'first_batch'
+    df_first_batch = load_pheno_table(PHENO_TABLE, PHENO_SHEET)
     counter = 0
 
     snp_to_info = {
@@ -241,7 +256,7 @@ if __name__ == "__main__":
                  'phenotype': 'HC221'}]
 }
 
-
+    counter = 29
     for snp, info_list in snp_to_info.items():
         
         for info in info_list:
@@ -253,14 +268,21 @@ if __name__ == "__main__":
             # 2) Keep only ADD rows
             df_add = df[df["TEST"] == "ADD"].copy()
 
-            # 3) Output name
+            # 3) Output name (Supplementary Figure n + cleaned phenotype name)
+            pheno_name = get_pheno_name(df_first_batch, info["phenotype"])
+            if "/" in pheno_name:
+                pheno_name = pheno_name.replace("/", "_")
             out_png = os.path.join(
                 OUTPUT_FOLDER,
-                f'{info["ancestry_tested"]}_{info["phenotype"]}_{info["chromosome"]}_{snp}_locuszoom.png'
+                f'Supplementary Figure {counter}.png'
             )
+            if pheno_name == 'HC1007_TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
+                print('hereeeee')
+                pheno_name = 'HC1007_TTE_acute_upper_respiratory_infections'
 
             # 4) Title similar to your plot naming
-            title = f'{info["ancestry_tested"]} | {info["phenotype"]} | {info["chromosome"]} | {snp}'
+            title = f'{info["ancestry_tested"]} | {"_".join(pheno_name.split("_")[1:])} | {info["ancestry_of_population"]} population | {info["chromosome"]} | {snp}'
+            title = title.replace('NAT', 'AMR')
 
             # 5) Plot
             plot_locuszoom(
