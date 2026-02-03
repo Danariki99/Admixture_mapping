@@ -21,8 +21,9 @@ if __name__ == '__main__':
     p_file_template = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/ukbb/output_ancestry_*/#/output.#.glm.logistic.hybrid'
     hits_list = os.listdir(HIT_FOLDER)
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-
+    counter = 0
     for hit in hits_list:
+        counter +=1
         ancestry = hit.split('_')[0]
         pheno = hit.split('_')[1]
         pheno_row = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
@@ -30,6 +31,11 @@ if __name__ == '__main__':
             pheno_name = pheno_row.iloc[0]
         else:
             pheno_name = 'Unknown'
+
+        if pheno_name == 'HC1007_TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
+            print('hereeeee')
+            pheno_name = 'HC1007_TTE_acute_upper_respiratory_infections'
+        print(pheno_name)
         p_file = p_file_template.replace('*', ancestry).replace('#', pheno)
         if not os.path.exists(p_file):
             print(f"Missing file for {ancestry} {pheno}: {p_file}")
@@ -51,10 +57,10 @@ if __name__ == '__main__':
         plt.plot([expected.min(), expected.max()], [expected.min(), expected.max()], color='firebrick', linestyle='--', linewidth=1)
         plt.xlabel('Expected -log10(p)')
         plt.ylabel('Observed -log10(p)')
-        plt.title(f'{ancestry} {pheno_name}')
+        plt.title(f'{ancestry} {"_".join(pheno_name.split("_")[1:])}')
         plt.tight_layout()
         if '/' in pheno_name:
             pheno_name = pheno_name.replace('/', '_')
-        output_path = os.path.join(OUTPUT_FOLDER, f'{ancestry}_{pheno_name}_QQ_plot.png')
+        output_path = os.path.join(OUTPUT_FOLDER, f"Supplementary Figure {counter}.png")
         plt.savefig(output_path, dpi=300)
         plt.close()
