@@ -256,7 +256,7 @@ if __name__ == "__main__":
                  'phenotype': 'HC221'}]
 }
 
-    counter = 29
+    counter = 30
     for snp, info_list in snp_to_info.items():
         
         for info in info_list:
