@@ -181,7 +181,7 @@ To reproduce the analysis from this paper, you can also run the Singularity cont
 Move to the `source` folder and run the `singularity.sif` file
 ```bash
 cd Admixture_mapping
-singularity run -- bind --bind /path/to/your/folder:/linked/path/in/singularity singularity.sif /linked/path/in/singularity/data/folder /linked/path/in/singularity/output/folder
+singularity run -- bind /path/to/your/folder:/linked/path/in/singularity singularity.sif /linked/path/in/singularity/data/folder /linked/path/in/singularity/output/folder
 ```
 
 ## Disclaimer
