@@ -95,4 +95,3 @@ From: python:3.8.20
     fi
 
     ./code_test.sh "$1" "$2"
-

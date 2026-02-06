@@ -93,7 +93,7 @@ for wind_filename in list_of_files:
 
             # Create a temporary vcf file with only the SNPs in the window
             plink_command = [
-                "/private/home/rsmerigl/plink2",    
+                "../plink2",    
                 "--vcf", vcf_file,                  
                 "--chr", str(chrom),               
                 "--from-bp", str(start),            
