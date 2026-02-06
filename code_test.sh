@@ -19,15 +19,15 @@ echo "Using VCF folder: $vcf_folder"
 echo "Using GnoMix software"
 #python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --data_folder "$data_folder" --result_folder "$result_folder"
 
-#./LAI/files_moving.sh "$result_folder"
+./LAI/files_moving.sh "$result_folder"
 
 # Pass the dataset variable to the Python scripts
-#python pre_processing/pre_processing_test.py "$msp_folder" "$result_folder"
+python pre_processing/pre_processing_test.py "$msp_folder" "$result_folder"
 
 # Execute job_submission_BMI.sh and capture the path of the file containing job IDs
-#./association_execution/analysis_execution_test.sh  "$result_folder" "$data_folder"
+./association_execution/analysis_execution_test.sh  "$result_folder" "$data_folder"
 
-#python post_processing/post_processing_test.py "$result_folder" "$data_folder"
+python post_processing/post_processing_test.py "$result_folder" "$data_folder"
 
 python post_analysis/ancestry_counts_test.py "$msp_folder" "$result_folder"
 
