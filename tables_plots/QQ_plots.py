@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+from scipy.stats import chi2
 
 def load_pheno_table(path, sheet_name):
     if not os.path.exists(path):
@@ -22,6 +23,7 @@ if __name__ == '__main__':
     hits_list = os.listdir(HIT_FOLDER)
     os.makedirs(OUTPUT_FOLDER, exist_ok=True)
     counter = 0
+
     for hit in hits_list:
         counter +=1
         ancestry = hit.split('_')[0]
@@ -33,7 +35,6 @@ if __name__ == '__main__':
             pheno_name = 'Unknown'
 
         if pheno_name == 'HC1007_TTE_acute_upper_respiratory_infections_of_multiple_and_unspecified_sites':
-            print('hereeeee')
             pheno_name = 'HC1007_TTE_acute_upper_respiratory_infections'
         print(pheno_name)
         p_file = p_file_template.replace('*', ancestry).replace('#', pheno)
@@ -47,20 +48,28 @@ if __name__ == '__main__':
             print(f"No valid p-values for {ancestry} {pheno}")
             continue
 
-        p_values = np.sort(p_values)
+        # Avoid zeros that would break the lambda calculation
+        p_values = np.clip(np.sort(p_values.values), 1e-300, 1)
         n = len(p_values)
         expected = -np.log10((np.arange(1, n + 1)) / (n + 1))
         observed = -np.log10(p_values)
+
+        # Genomic inflation factor (lambda GC)
+        chi2_stats = chi2.isf(p_values, df=1)
+        lambda_gc = np.median(chi2_stats) / 0.454936423119572  # median of chi2(1)
+        print(f"λGC {ancestry} {pheno}: {lambda_gc:.3f} (n={n})")
 
         plt.figure(figsize=(6, 6))
         plt.scatter(expected, observed, s=10, color='steelblue', edgecolor='none')
         plt.plot([expected.min(), expected.max()], [expected.min(), expected.max()], color='firebrick', linestyle='--', linewidth=1)
         plt.xlabel('Expected -log10(p)')
         plt.ylabel('Observed -log10(p)')
-        plt.title(f'{ancestry} {"_".join(pheno_name.split("_")[1:])}')
+        plt.title(f'{ancestry} {"_".join(pheno_name.split("_")[1:])}\nλGC = {lambda_gc:.3f}')
         plt.tight_layout()
         if '/' in pheno_name:
             pheno_name = pheno_name.replace('/', '_')
         output_path = os.path.join(OUTPUT_FOLDER, f"Supplementary Figure {counter}.png")
         plt.savefig(output_path, dpi=300)
         plt.close()
+
+    # No file output for lambda; printed above per ancestry/pheno
