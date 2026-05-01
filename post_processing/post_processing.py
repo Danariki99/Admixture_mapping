@@ -38,7 +38,7 @@ if __name__ == '__main__':
     args = parse_args()
     dataset = args.dataset
 
-    ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "SAS", "WAS"]
+    ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "OCE", "SAS", "WAS"]
 
     # Use the dataset variable to construct file paths
     phe_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/{dataset}'
@@ -50,6 +50,11 @@ if __name__ == '__main__':
     general_output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/post_processing_files/{dataset}'
     FUMA_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/{dataset}'
     
+    # create output directories
+    os.makedirs(wind_output_folder, exist_ok=True)
+    os.makedirs(plot_output_folder, exist_ok=True)
+    os.makedirs(FUMA_folder, exist_ok=True)
+
     # extraction of the windows positions
     print("Extracting windows positions")
     window_pos_file = positions_extraction(window_input_file, wind_output_folder)
@@ -83,4 +88,9 @@ if __name__ == '__main__':
             # create FUMA ready files
             print("Creating FUMA ready files")
             output_folder_snps, output_folder_wind = FUMA_files_creation(SNPs_with_P_info, FUMA_folder)
-            
+
+    # combined Manhattan (4 rows x 2 cols, all ancestries)
+    print("Creating combined Manhattan plots")
+    create_combined_manhattan(ancestry_list, plot_output_folder, suffix='BY')
+    create_combined_manhattan(ancestry_list, plot_output_folder, suffix='raw')
+

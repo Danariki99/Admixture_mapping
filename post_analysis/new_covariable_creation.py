@@ -20,8 +20,10 @@ if __name__ == '__main__':
     output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files'
     wind_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
     tmp_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp'
+    os.makedirs(output_folder, exist_ok=True)
+    os.makedirs(tmp_folder, exist_ok=True)
     generic_msp_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/msp_files/ukbb/ukb_hap_chr*_v2_rfmix.msp.tsv'
-    old_covar_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar_filtered.phe'
+    old_covar_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar_filtered_proportions.phe'
 
     # Load old covariate file
     old_covar_df = pd.read_csv(old_covar_file, sep='\t')

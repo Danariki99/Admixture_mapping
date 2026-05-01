@@ -1,151 +1,130 @@
-# to add as part of the supplementary information, we should include a table (excel)
-# with mean age + sd in cases and controls per phenotypes, as well %women.
-# I can help if you need!
-
 import os
+import re
+import time
+import requests
 import pandas as pd
-import openpyxl
-import requests
-import numpy as np
 
-import requests
+DATASET      = 'ukbb'
+HIT_FOLDER   = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/{DATASET}/wind'
+GLM_TEMPLATE = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/{DATASET}/output_ancestry_{{ancestry}}/{{pheno}}/output.{{pheno}}.glm.logistic.hybrid'
+PHENO_TABLE  = '/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx'
+OUTPUT_FILE  = 'table_hits_wind.xlsx'
 
-def fetch_cytoband(chromosome, start, end, genome="hg19"):
-    url = "https://genome.ucsc.edu/cgi-bin/hgTables"
-    params = {
-        "db": genome,
-        "hgta_group": "allTracks",
-        "hgta_track": "cytoBand",
-        "hgta_table": "cytoBand",
-        "hgta_regionType": "range",
-        "position": f"{chromosome}:{start}-{end}",
-        "hgta_outputType": "primaryTable",
-        "boolshad.sendToGalaxy": "0",
-        "boolshad.sendToGreat": "0",
-        "hgta_doTopSubmit": "get output",
-    }
+TIMEOUT_MAP = {
+    'chr6:31346445-31377047':    '6p21.33',
+    'chr8:124070432-124092625':  '8q24.13',
+    'chr6:31905130-32007956':    '6p21.33',
+    'chr6:32207393-32288190':    '6p21.32',
+    'chr10:116036889-116139029': '10q25.3',
+    'chr6:31428169-31435326':    '6p21.33',
+    'chr9:85752837-85810910':    '9q21.32',
+    'chr17:1820750-1925859':     '17p13.3',
+}
 
-    try:
-        response = requests.post(url, data=params, timeout=30)
-        response.raise_for_status()  # Gestisce errori HTTP
-    except requests.exceptions.ReadTimeout:
-        print(f"Timeout: il server non ha risposto entro il tempo previsto.")
-        return "Timeout"
-    except requests.exceptions.RequestException as e:
-        print(f"Errore nella richiesta: {e}")
-        return "Errore"
-    
-    # Analizza la risposta
-    response_text = response.text.strip()
-    if not response_text:
-        return "Unknown"
-    
-    lines = response_text.split("\n")
-    fields = lines[1].split("\t")
-    return f"{fields[0].replace('chr', '')}{fields[3]}"
 
-# Paths to important files and directories
-phe_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/ukbb'
-covar_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/ukbb/ukb24983_GWAS_covar.phe'
-keep_file = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/ukbb/keep_file.txt'
-significant_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries/'
+def parse_lambda(log_path):
+    if not os.path.exists(log_path):
+        return None
+    with open(log_path) as f:
+        for line in f:
+            m = re.search(r'lambda \(based on median chisq\) = ([\d.]+?)\.?\s', line)
+            if m:
+                return float(m.group(1))
+    return None
 
-# Read the covariate file
-try:
-    covar = pd.read_csv(covar_file, sep='\t')
-except Exception as e:
-    raise FileNotFoundError(f"Error reading the covariate file: {e}")
 
-# Read the keep file
-try:
-    keep = pd.read_csv(keep_file, sep='\t')
-except Exception as e:
-    raise FileNotFoundError(f"Error reading the keep file: {e}")
+def fetch_cytoband(chromosome, start, end, genome='hg19', retries=3, retry_delay=5):
+    url = (f'https://api.genome.ucsc.edu/getData/track?genome={genome}'
+           f'&track=cytoBand&chrom={chromosome}&start={start}&end={end}')
+    for attempt in range(1, retries + 1):
+        try:
+            resp = requests.get(url, timeout=30)
+            resp.raise_for_status()
+            bands = resp.json().get('cytoBand', [])
+            if not bands:
+                return 'Unknown'
+            return f"{bands[0]['chrom'].replace('chr', '')}{bands[0]['name']}"
+        except requests.exceptions.ReadTimeout:
+            print(f'    Timeout attempt {attempt}/{retries}')
+        except Exception as e:
+            print(f'    Error attempt {attempt}/{retries}: {e}')
+        if attempt < retries:
+            time.sleep(retry_delay)
+    return 'Timeout'
 
-# Initialize an empty DataFrame to store results
-out1 = pd.DataFrame(columns=[
-    'Phenotype',
-    'CytoBand',
-    'ancestry tested',
-    'OR (CI = 95%)',
-    'p value',
-    'START',
-    'END',
-    'chr'
-])
-covar = covar.rename(columns={'IID': '#IID'})
 
-df_first_batch = pd.read_excel("ukbb_v1.xlsx", sheet_name="first_batch")
+excel_df = pd.read_excel(PHENO_TABLE, sheet_name='first_batch', usecols='B:C')
 
-# Iterate over the files in the result path
-succesfully_pheno_anc_list = os.listdir(significant_path)
+rows = []
+for hit_file in sorted(os.listdir(HIT_FOLDER)):
+    parts    = hit_file.replace('_wind.txt', '').split('_')
+    ancestry = parts[0]
+    pheno    = parts[1]
 
-for fold in succesfully_pheno_anc_list:
-    ancestry = fold.split('/')[-1].split('_')[0]
-    pheno = fold.split('/')[-1].split('_')[1]
-    chrom = fold.split('/')[-1].split('_')[2]
+    wind_df = pd.read_csv(os.path.join(HIT_FOLDER, hit_file), sep='\t')
 
-    pheno_name = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
+    glm_file = GLM_TEMPLATE.format(ancestry=ancestry, pheno=pheno)
+    if not os.path.exists(glm_file):
+        print(f'[SKIP] {ancestry} {pheno}: GLM file not found')
+        continue
 
-    result_path = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/ukbb/output_ancestry_{ancestry}/{pheno}/output.{pheno}.glm.logistic.hybrid'
+    glm = pd.read_csv(glm_file, sep='\t')
+    glm = glm[glm['P'] != '.'].copy()
+    glm['P']      = pd.to_numeric(glm['P'],      errors='coerce')
+    glm['#CHROM'] = pd.to_numeric(glm['#CHROM'], errors='coerce')
+    glm['POS']    = pd.to_numeric(glm['POS'],    errors='coerce')
+    glm = glm.dropna(subset=['P'])
 
-    chr = int(chrom.replace('chr', ''))
+    # filter GLM to only the significant windows from the wind file
+    merged = pd.merge(
+        glm, wind_df,
+        left_on=['#CHROM', 'POS'], right_on=['chr', 'start'],
+        how='inner'
+    )
 
-    df = pd.read_table(result_path, sep='\t')
+    if merged.empty:
+        print(f'[WARN] {ancestry} {pheno}: no overlap between GLM and wind file, using global min p')
+        best    = glm.loc[glm['P'].idxmin()]
+        chr_val = int(best['#CHROM'])
+        start   = int(best['POS'])
+        end     = int(wind_df['end'].iloc[0])
+    else:
+        best    = merged.loc[merged['P'].idxmin()]
+        chr_val = int(best['chr'])
+        start   = int(best['start'])
+        end     = int(best['end'])
 
-    filtered_df = df[df['#CHROM'] == chr]
-    index_min = filtered_df['P'].idxmin()
-    row_with_min_p = filtered_df.loc[index_min]
+    p    = best['P']
+    oddr = best['OR']
+    l95  = best['L95']
+    u95  = best['U95']
 
-    start = row_with_min_p['POS']
-    end = filtered_df.loc[index_min + 1]['POS']
+    log_file  = os.path.join(os.path.dirname(glm_file), 'output.log')
+    lambda_gc = parse_lambda(log_file)
 
-    print('fetching cytoband')
-    cytoband = fetch_cytoband(chrom, start, end)
+    print(f'  {ancestry} {pheno}: chr{chr_val}:{start}-{end}  fetching cytoband...')
+    cytoband = fetch_cytoband(f'chr{chr_val}', start, end)
     if cytoband == 'Timeout':
-        if f'chr{chr}:{start}-{end}' == 'chr6:31346445-31377047':
-            cytoband = '6p21.33'
-        elif f'chr{chr}:{start}-{end}' == 'chr8:124070432-124092625':
-            cytoband = '8q24.13'
-        elif f'chr{chr}:{start}-{end}' == 'chr6:31905130-32007956':
-            cytoband = '6p21.33'
-        elif f'chr{chr}:{start}-{end}' == 'chr6:32207393-32288190':
-            cytoband = '6p21.32'
-        elif f'chr{chr}:{start}-{end}' == 'chr10:116036889-116139029':
-            cytoband = '10q25.3'
-        elif f'chr{chr}:{start}-{end}' == 'chr6:31428169-31435326':
-            cytoband = '6p21.33'
-        elif f'chr{chr}:{start}-{end}' == 'chr9:85752837-85810910':
-            cytoband = '9q21.32'
-        elif f'chr{chr}:{start}-{end}' == 'chr17:1820750-1925859':
-            cytoband = '17p13.3'
+        cytoband = TIMEOUT_MAP.get(f'chr{chr_val}:{start}-{end}', f'chr{chr_val}:{start}-{end}')
 
-    p = row_with_min_p['P']
-    oddr = row_with_min_p['OR']
-    l95 = row_with_min_p['L95']
-    u95 = row_with_min_p['U95']
+    pheno_row  = excel_df.loc[excel_df['ID'] == pheno, 'ID2']
+    pheno_name = pheno_row.iloc[0] if not pheno_row.empty else pheno
 
-    out1 = pd.concat([
-        out1,
-        pd.DataFrame([{
-            'Phenotype': pheno_name.iloc[0] if not pheno_name.empty else 'Unknown',  # Nome del fenotipo
-            'CytoBand': cytoband,  
-            'ancestry tested': ancestry,  
-            'OR (CI = 95%)': f'{oddr} - ({l95}, {u95})', 
-            'p value': p,
-            'START': start,
-            'END': end,
-            'chr': chr
-        }])
+    rows.append({
+        'Phenotype':     pheno_name,
+        'CytoBand':      cytoband,
+        'Ancestry':      ancestry,
+        'OR (CI 95%)':   f'{oddr} ({l95}, {u95})',
+        'p value':       p,
+        'lambda_GC':     lambda_gc,
+        'chr':           chr_val,
+        'START':         start,
+        'END':           end,
+        'n_sig_windows': len(wind_df),
+    })
+    lambda_str = f'{lambda_gc:.3f}' if lambda_gc is not None else 'N/A'
+    print(f'    → {cytoband}  p={p:.2e}  λGC={lambda_str}  n_windows={len(wind_df)}')
 
-    ], ignore_index=True)
-
-out1.to_excel('table_hits_wind.xlsx', index=False)
-
-
-    
-    
-    
-
-
-    
+out = pd.DataFrame(rows)
+out.to_excel(OUTPUT_FILE, index=False)
+print(f'\nSaved {len(out)} rows to {OUTPUT_FILE}')

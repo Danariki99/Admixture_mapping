@@ -1,14 +1,27 @@
 import subprocess
 import os
 import glob
+import re
 import pandas as pd
 import polars as pl
 import matplotlib.pyplot as plt
 import numpy as np
 from io import StringIO
 from adjustText import adjust_text
+from statsmodels.stats.multitest import multipletests
 import requests
 from collections import defaultdict
+
+
+def parse_lambda(log_path):
+    if not os.path.exists(log_path):
+        return None
+    with open(log_path) as f:
+        for line in f:
+            m = re.search(r'lambda \(based on median chisq\) = ([\d.]+?)\.?\s', line)
+            if m:
+                return float(m.group(1))
+    return None
 
 
 def positions_extraction(input_file, output_folder):
@@ -46,228 +59,215 @@ def result_analysis(
     fb_threshold=0.9,
     fb_chunksize=200000
 ):
-    
-
     significance_threshold = 0.05
+    lambda_min, lambda_max = 0.9, 1.1
 
-    #read excel file for ukbb (modify for allofus)
     excel_df = pd.read_excel(
-        '/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx', 
+        '/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx',
         sheet_name='first_batch',
         usecols="B:C"
     )
 
     significant_df = pd.DataFrame(columns=['#CHROM', 'POS', 'end_POS', 'ABS_POS', 'P', 'Phenotype', 'Ancestry'])
 
-    #ancestry_list = ['OCE']
+    chromosome_colors = [
+        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b',
+        '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#aec7e8', '#ffbb78',
+        '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7',
+        '#dbdb8d', '#9edae5', '#ad494a', '#8c6d31'
+    ]
+
+    timeout_map = {
+        'chr6:31346445-31377047':   '6p21.33',
+        'chr8:124070432-124092625': '8q24.13',
+        'chr6:31905130-32007956':   '6p21.33',
+        'chr6:32207393-32288190':   '6p21.32',
+        'chr10:116036889-116139029':'10q25.3',
+        'chr6:31428169-31435326':   '6p21.33',
+        'chr9:85752837-85810910':   '9q21.32',
+        'chr17:1820750-1925859':    '17p13.3',
+    }
+
+    os.makedirs(plot_output_folder, exist_ok=True)
+    os.makedirs(general_output_folder, exist_ok=True)
+
+    window_pos = pd.read_csv(window_pos_file, sep='\t')
+
     for ancestry in ancestry_list:
         print(ancestry)
-        
-        # Define the paths
-        general_file = general_file_ini.replace('#', ancestry)
-        output_file = general_output_file.replace('#', ancestry)
 
-        # Get the list of phenotype files
+        general_file = general_file_ini.replace('#', ancestry)
+        output_file  = general_output_file.replace('#', ancestry)
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
         pheno_list = os.listdir(phe_folder)
 
-        # Process the first phenotype
-        first_pheno = pheno_list[0].replace('.phe', '')
-        first_file = general_file.replace('*', first_pheno)
+        significant_dict = {}  # pheno -> sig DataFrame (only phenos with hits)
+        valid_phenos = []
+        data_all = None
 
-        # Load the data for the first phenotype
-        data = pd.read_table(first_file, sep="\t")
-        data = data[['#CHROM', 'POS', 'P']]
-        data = data.rename(columns={'P':first_pheno})
-
-        # Read the window positions file
-        window_pos = pd.read_csv(window_pos_file, sep='\t')
-
-        # Merge the data with the window positions
-        data = pd.merge(data, window_pos, on=['#CHROM', 'POS'], how='left')
-
-        fb_summary = None
-        if apply_fb_filter:
-            filtered_data, fb_summary = filter_windows_by_confidence(
-                data,
-                ancestry,
-                dataset_name,
-                fb_template=fb_template,
-                fb_root=fb_root,
-                threshold=fb_threshold,
-                chunksize=fb_chunksize
-            )
-            if fb_summary.get('filtered'):
-                print(f"[FB-QC] {ancestry}: removed {fb_summary['n_windows_removed']} windows below confidence {fb_threshold}")
-                if fb_summary.get('missing_chromosomes'):
-                    missing = ', '.join(map(str, sorted(set(fb_summary['missing_chromosomes']))))
-                    print(f"[FB-QC] {ancestry}: missing FB files for chromosomes {missing}")
-            elif fb_summary.get('missing_chromosomes') and not fb_summary.get('processed_chromosomes'):
-                print(f"[FB-QC] {ancestry}: no FB files found, skipping confidence filter")
-            elif fb_summary.get('missing_chromosomes'):
-                missing = ', '.join(map(str, sorted(fb_summary['missing_chromosomes'])))
-                print(f"[FB-QC] {ancestry}: missing FB files for chromosomes {missing}")
-            data = filtered_data
-
-        if data.empty:
-            print(f"No windows available for ancestry {ancestry} after FB filtering; skipping.")
-            continue
-
-        # Recompute ABS_POS after potential filtering
-        max_pos = data.groupby('#CHROM')['POS'].max().cumsum()
-        max_pos = max_pos.shift(fill_value=0)
-        data['ABS_POS'] = data['POS'] + data['#CHROM'].map(max_pos)
-
-        # Reorder the columns
-        data = data[['#CHROM', 'POS', 'end_POS', 'ABS_POS', first_pheno]]
-
-        # Calculate the mean absolute position for each chromosome
-        chrom_positions = data.groupby('#CHROM')['ABS_POS'].mean().tolist()
-
-        # Get the chromosome labels
-        chrom_labels = sorted(data['#CHROM'].unique())
-        allowed_windows = data[['#CHROM', 'POS']].drop_duplicates()
-
-        # compute bonferroni threshold
-        n_windows = len(data)
-        bonferroni_threshold = significance_threshold / (n_windows * len(pheno_list) * 7)
-        local_bonferroni_threshold = significance_threshold / n_windows
-        
-        # Filter and sort the data for the first phenotype
-        first_filtered_data = data.loc[data[first_pheno] < bonferroni_threshold]
-        sorted_data = first_filtered_data.sort_values(by=first_pheno)
-
-        # Store the significant data
-        significant_list = [sorted_data]
-
-        # Process the remaining phenotypes
-        for phe_file in pheno_list[1:]:
+        # ─────────────────────────────────────────────
+        # LOOP OVER ALL PHENOTYPES (INDEPENDENT)
+        # ─────────────────────────────────────────────
+        for phe_file in pheno_list:
             pheno = phe_file.replace('.phe', '')
             current_file = general_file.replace('*', pheno)
 
-            # Load the data for the current phenotype
+            if not os.path.exists(current_file):
+                print(f"[{ancestry}] Missing file: {pheno}")
+                continue
+
+            lam = parse_lambda(os.path.join(os.path.dirname(current_file), 'output.log'))
+
+            if lam is None:
+                print(f"[{ancestry}] Skipping {pheno}: λGC=None")
+                continue
+
+            if not (lambda_min <= lam <= lambda_max):
+                print(f"[{ancestry}] Skipping {pheno}: λGC={lam}")
+                continue
+
+            print(f"[{ancestry}] Processing {pheno}: λGC={lam}")
+
             df = pd.read_table(current_file, sep="\t")
             df = df[['#CHROM', 'POS', 'P']]
-            df = df.rename(columns={'P':pheno})
+            df = df[df['P'] != '.'].copy()
+            df['P'] = pd.to_numeric(df['P'], errors='coerce')
+            df = df.dropna(subset=['P'])
+            df = df.rename(columns={'P': pheno})
 
-            df = pd.merge(df, allowed_windows, on=['#CHROM', 'POS'], how='inner')
+            # ✔ ONLY GLOBAL WINDOWS (NO FIRST_PHENO BIAS)
+            df = pd.merge(df, window_pos, on=['#CHROM', 'POS'], how='inner')
 
-            # Calculate ABS_POS directly using the max_pos map
+            # ABS position
+            if data_all is None:
+                max_pos = df.groupby('#CHROM')['POS'].max().cumsum().shift(fill_value=0)
+
             df['ABS_POS'] = df['POS'] + df['#CHROM'].map(max_pos)
 
-            # Filter and sort the data for the current phenotype
-            filtered_data = df.loc[df[pheno] < bonferroni_threshold]
-            filtered_data = pd.merge(filtered_data, window_pos, on=['#CHROM', 'POS'], how='left')
-            sorted_data = filtered_data.sort_values(by=pheno)
+            # BY correction
+            _, by_p, _, _ = multipletests(df[pheno].values, alpha=0.05, method='fdr_by')
+            df[f'{pheno}_BY'] = by_p
 
-            # Store the significant data
-            significant_list.append(sorted_data)
+            sig = df[df[f'{pheno}_BY'] < significance_threshold].copy()
 
-            # Merge the data for the current phenotype into the main dataframe
-            data = pd.merge(data, df, on=['#CHROM', 'POS', 'ABS_POS'])
-        #print(data)
+            if not sig.empty:
+                sig = sig.copy()
+                sig['Phenotype'] = pheno
+                sig['Ancestry'] = ancestry
+                significant_dict[pheno] = sig
 
-        # save the data as a csv file
-        data.to_csv(output_file, index=False, sep = '\t')
+            valid_phenos.append(pheno)
 
-        # Define the colors for each chromosome
-        chromosome_colors = [
-            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', 
-            '#e377c2', '#7f7f7f', '#bcbd22', '#17becf', '#aec7e8', '#ffbb78', 
-            '#98df8a', '#ff9896', '#c5b0d5', '#c49c94', '#f7b6d2', '#c7c7c7', 
-            '#dbdb8d', '#9edae5', '#ad494a', '#8c6d31'
-        ]
+            # merge into global table
+            keep_cols = ['#CHROM', 'POS', 'ABS_POS', pheno, f'{pheno}_BY']
+            if data_all is None:
+                data_all = df[keep_cols]
+            else:
+                data_all = pd.merge(
+                    data_all,
+                    df[keep_cols],
+                    on=['#CHROM', 'POS', 'ABS_POS'],
+                    how='outer'
+                )
 
-        # Create the plot
-        plt.figure(figsize=(12, 6))
+        if data_all is None:
+            print(f"[{ancestry}] No valid phenotypes")
+            continue
 
-        # Iterate over the first two phenotypes
-        texts = []
-        for i, phe_file in enumerate(pheno_list):
-            pheno = phe_file.replace('.phe', '')
+        # ─────────────────────────────
+        # SAVE RAW DATA
+        # ─────────────────────────────
+        cols_raw = [c for c in data_all.columns if not c.endswith('_BY')]
+        data_to_save = data_all[cols_raw].copy()
+        if 'end_POS' not in data_to_save.columns:
+            data_to_save = pd.merge(data_to_save, window_pos[['#CHROM', 'POS', 'end_POS']],
+                                    on=['#CHROM', 'POS'], how='left')
+        data_to_save.to_csv(output_file, index=False, sep='\t')
 
-            # Plot Manhattan points for each chromosome
-            for chrom, chrom_data in data.groupby('#CHROM'):
-                plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data[pheno]), color=chromosome_colors[chrom-1], label=pheno, s = 7)
+        # ─────────────────────────────
+        # MANHATTAN PLOTS (BY + raw)
+        # ─────────────────────────────
+        chrom_positions = data_all.groupby('#CHROM')['ABS_POS'].mean().tolist()
+        chrom_labels    = sorted(data_all['#CHROM'].unique())
+        n_windows       = len(data_all)
+        bonf_thresh     = significance_threshold / n_windows
+        plot_ancestry   = 'AMR' if ancestry == 'NAT' else ancestry
 
-            # Annotate significant points
-            significant_data = significant_list[i]
-            if not significant_data.empty:
-                max_row = significant_data.loc[significant_data[pheno].idxmin()]
-                if ancestry == 'SAS':
-                    value = 0.2
-                else:
-                    value = 0.6
+        # empirical BY-equivalent threshold (max raw p that passed BY)
+        empirical_thresh = None
+        for pheno, sig_df in significant_dict.items():
+            t = sig_df[pheno].max()
+            if empirical_thresh is None or t > empirical_thresh:
+                empirical_thresh = t
 
+        for plot_mode in ('BY', 'raw'):
+            plt.figure(figsize=(12, 6))
+            texts = []
+
+            for pheno in valid_phenos:
+                y_col = f'{pheno}_BY' if plot_mode == 'BY' else pheno
+                for chrom, chrom_data in data_all.groupby('#CHROM'):
+                    plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data[y_col]),
+                                color=chromosome_colors[chrom - 1], s=7)
+
+                sig_df = significant_dict.get(pheno, pd.DataFrame())
+                if sig_df.empty:
+                    continue
+
+                max_row  = sig_df.loc[sig_df[pheno].idxmin()]
+                value    = 0.2 if ancestry == 'SAS' else 0.6
                 offset_x = np.random.uniform(-1e9, 1e9)
                 offset_y = np.random.uniform(-value, value)
-                name = fetch_cytoband(f"chr{int(max_row['#CHROM'])}", int(max_row["POS"]), int(max_row["end_POS"]))
 
-                # manually select the non working genes
+                end_pos = int(max_row['end_POS']) if 'end_POS' in max_row.index else int(max_row['POS'])
+                name    = fetch_cytoband(f"chr{int(max_row['#CHROM'])}", int(max_row['POS']), end_pos)
                 if name == 'Timeout':
-                    if f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31346445-31377047':
-                        name = '6p21.33'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr8:124070432-124092625':
-                        name = '8q24.13'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31905130-32007956':
-                        name = '6p21.33'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:32207393-32288190':
-                        name = '6p21.32'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr10:116036889-116139029':
-                        name = '10q25.3'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr6:31428169-31435326':
-                        name = '6p21.33'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr9:85752837-85810910':
-                        name = '9q21.32'
-                    elif f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}' == 'chr17:1820750-1925859':
-                        name = '17p13.3'
-                if name != 'Timeout':
-                    annotation_text = (
-                        f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
-                        f'{name}'
-                    )
-                else:
-                    annotation_text = (
-                        f'{excel_df.loc[excel_df["ID"] == pheno, "ID2"].iloc[0].replace("_", " ")}\n'
-                        f'chr{int(max_row["#CHROM"])}:{int(max_row["POS"])}-{int(max_row["end_POS"])}'
-                    )
+                    coord = f"chr{int(max_row['#CHROM'])}:{int(max_row['POS'])}-{end_pos}"
+                    name  = timeout_map.get(coord, coord)
 
-                text = plt.annotate(
-                    annotation_text,
-                    (max_row['ABS_POS'] + offset_x, -np.log10(max_row[pheno]) + offset_y)
-                )
+                pheno_label     = excel_df.loc[excel_df['ID'] == pheno, 'ID2'].iloc[0].replace('_', ' ')
+                annotation_text = f'{pheno_label}\n{name}'
+                y_val = max_row[y_col]
+                text  = plt.annotate(annotation_text,
+                                     (max_row['ABS_POS'] + offset_x, -np.log10(y_val) + offset_y))
                 texts.append(text)
-                
 
-                # Rename the phenotype column to 'P'
-                significant_data = significant_data.rename(columns={pheno: 'P'})
+                if plot_mode == 'BY':
+                    sig_df = sig_df.copy()
+                    sig_df['Phenotype'] = pheno
+                    sig_df['Ancestry']  = ancestry
+                    significant_df = pd.concat([significant_df, sig_df])
 
-                # Add the phenotype and ancestry columns
-                significant_data['Phenotype'] = pheno
-                significant_data['Ancestry'] = ancestry
+            adjust_text(texts)
 
-                # Append the data to the main DataFrame
-                significant_df = significant_df.dropna()
-                significant_df = pd.concat([significant_df, significant_data])
+            if plot_mode == 'BY':
+                plt.axhline(y=-np.log10(significance_threshold), color='r', linestyle='--',
+                            label='BY threshold (FDR 0.05)')
+                plt.ylabel('-log10(BY corrected p)')
+            else:
+                plt.axhline(y=-np.log10(bonf_thresh), color='b', linestyle='--',
+                            label=f'Bonferroni (0.05/{n_windows})')
+                if empirical_thresh is not None:
+                    plt.axhline(y=-np.log10(empirical_thresh), color='r', linestyle='--',
+                                label='Empirical BY equivalent')
+                plt.ylabel('-log10(raw p)')
 
-        adjust_text(texts)
-        line1 = plt.axhline(y=-np.log10(bonferroni_threshold), color='r', linestyle='--', label='Bonferroni threshold')
-        line2 = plt.axhline(y=-np.log10(local_bonferroni_threshold), color='b', linestyle='--', label='Local Bonferroni threshold')
+            plt.xticks(chrom_positions, chrom_labels)
+            plt.xlabel('Chromosome')
+            plt.title(f'Manhattan Plot {plot_ancestry} — {plot_mode}')
+            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2)
+            plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{plot_ancestry}_{plot_mode}.png'),
+                        bbox_inches='tight')
+            plt.close()
 
-        # Set x-axis ticks to the chromosome positions and labels
-        plt.xticks(chrom_positions, chrom_labels)
-        plt.xlabel('Chromosome')
-        plt.ylabel('-log10(p)')
-        if ancestry == 'NAT':
-            ancestry = 'AMR'
-        plt.title('Manhattan Plot ' + ancestry)
-        plt.legend(handles=[line1, line2], loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2)
-        plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{ancestry}.png'), bbox_inches='tight')
     significant_file = os.path.join(general_output_folder, 'significant_positions.tsv')
+
     if not significant_df.empty:
         significant_df.to_csv(significant_file, sep='\t', index=False)
         return significant_file
-    else:
-        return None
+
+    return None
 
 
 def _normalize_chrom(value):
@@ -485,38 +485,49 @@ def FUMA_files_creation(snps_filename, output_folder):
             
     return output_folder_snps, output_folder_wind
 
-def fetch_cytoband(chromosome, start, end, genome="hg19"):
-    url = "https://genome.ucsc.edu/cgi-bin/hgTables"
-    params = {
-        "db": genome,
-        "hgta_group": "allTracks",
-        "hgta_track": "cytoBand",
-        "hgta_table": "cytoBand",
-        "hgta_regionType": "range",
-        "position": f"{chromosome}:{start}-{end}",
-        "hgta_outputType": "primaryTable",
-        "boolshad.sendToGalaxy": "0",
-        "boolshad.sendToGreat": "0",
-        "hgta_doTopSubmit": "get output",
-    }
+def create_combined_manhattan(ancestry_list, plot_output_folder, suffix='BY'):
+    ncols = 2
+    nrows = (len(ancestry_list) + 1) // 2
+    fig, axes = plt.subplots(nrows, ncols, figsize=(24, 6 * nrows))
+    for i, anc in enumerate(ancestry_list):
+        row, col = i // ncols, i % ncols
+        img_anc  = 'AMR' if anc == 'NAT' else anc
+        img_path = os.path.join(plot_output_folder, f'manhattan_plot_{img_anc}_{suffix}.png')
+        ax = axes[row, col]
+        if os.path.exists(img_path):
+            ax.imshow(plt.imread(img_path))
+        ax.axis('off')
+    for j in range(len(ancestry_list), nrows * ncols):
+        axes[j // ncols, j % ncols].set_visible(False)
+    plt.tight_layout()
+    plt.savefig(os.path.join(plot_output_folder, f'manhattan_combined_{suffix}.png'), dpi=150, bbox_inches='tight')
+    plt.close()
 
-    try:
-        response = requests.post(url, data=params, timeout=60)
-        response.raise_for_status()  # Gestisce errori HTTP
-    except requests.exceptions.ReadTimeout:
-        print(f"Timeout: il server non ha risposto entro il tempo previsto.")
-        return "Timeout"
-    except requests.exceptions.RequestException as e:
-        print(f"Errore nella richiesta: {e}")
-        return "Errore"
-    
-    # Analizza la risposta
-    response_text = response.text.strip()
-    if not response_text:
-        return "Unknown"
-    
-    lines = response_text.split("\n")
-    fields = lines[1].split("\t")
-    return f"{fields[0].replace('chr', '')}{fields[3]}"
+
+def fetch_cytoband(chromosome, start, end, genome="hg19", retries=3, retry_delay=5):
+    import time
+    url = f"https://api.genome.ucsc.edu/getData/track?genome={genome}&track=cytoBand&chrom={chromosome}&start={start}&end={end}"
+
+    for attempt in range(1, retries + 1):
+        try:
+            response = requests.get(url, timeout=30)
+            response.raise_for_status()
+            data = response.json()
+            bands = data.get("cytoBand", [])
+            if not bands:
+                return "Unknown"
+            chrom = bands[0]["chrom"].replace("chr", "")
+            name  = bands[0]["name"]
+            return f"{chrom}{name}"
+        except requests.exceptions.ReadTimeout:
+            print(f"Timeout on attempt {attempt}/{retries} for {chromosome}:{start}-{end}")
+        except requests.exceptions.RequestException as e:
+            print(f"Request error on attempt {attempt}/{retries}: {e}")
+        except (KeyError, IndexError, ValueError) as e:
+            print(f"Parse error on attempt {attempt}/{retries}: {e}")
+        if attempt < retries:
+            time.sleep(retry_delay)
+
+    return "Timeout"
 
     

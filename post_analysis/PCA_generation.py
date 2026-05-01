@@ -6,6 +6,8 @@ keep_path = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_k
 
 output_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/PCA_files/PCA_res'
 
+os.makedirs(output_folder, exist_ok=True)
+
 keep_files = os.listdir(keep_path)
 
 for keep_filname in keep_files:

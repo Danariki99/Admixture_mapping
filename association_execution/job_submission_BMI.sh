@@ -15,7 +15,7 @@ sbatch_dir="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_file
 sbatch_base="job"
 
 # Ancestry array
-ancestry=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS")
+ancestry=("AFR" "AHG" "EAS" "EUR" "NAT" "SAS" "WAS" "OCE")
 
 # Get list of files in pheno folder
 pheno_folder="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/${dataset}"
@@ -25,8 +25,8 @@ pheno_files=($(ls $pheno_folder))
 mkdir -p $sbatch_dir
 
 # Variables for the command
-covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/${dataset}/ukb24983_GWAS_covar_filtered.phe"
-keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/keep_file/${dataset}/keep_file.txt"
+covar_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/covar_file/${dataset}/ukb24983_GWAS_covar_filtered_proportions.phe"
+keep_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/kcutoff_177/kcutoff_177.king.cutoff.in.id"
 
 # File to save submitted job IDs
 job_ids_file="/private/groups/ioannidislab/smeriglio/out_cleaned_codes/tmp/submitted_job_ids.txt"
@@ -51,7 +51,7 @@ do
         mkdir -p $output_dir
         output_file="$output_dir/output"
 
-        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $current_pheno_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-14"
+        command_to_run="/private/home/rsmerigl/plink2 --vcf $vcf_file --pheno $current_pheno_file --glm firth-fallback hide-covar --ci 0.95 --adjust --covar $covar_file --covar-variance-standardize --keep $keep_file --out $output_file --covar-col-nums 2-7,9-12"
 
         sbatch_file="$sbatch_dir/${anc}_${pheno_base}_$job_counter.sh"
         echo "#!/bin/bash" > $sbatch_file
