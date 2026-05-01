@@ -12,10 +12,11 @@ from xgboost import XGBClassifier
 import shap
 
 # Paths
-base_xgboost = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/XGBoost_test_snps'
-phe_folder   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/ukbb'
-wind_folder  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
-covar_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_new'
+base_xgboost  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/XGBoost_test_snps'
+base_output   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/XGBoost_output'
+phe_folder    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/ukbb'
+wind_folder   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
+covar_folder  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_new'
 
 # Hit to analyze
 wind_filename = 'EAS_HC1158_wind.txt'
@@ -52,7 +53,9 @@ XGB_PARAMS = dict(
 
 for chr_val in wind_df['chr'].unique():
     wind_chr     = wind_df[wind_df['chr'] == chr_val]
-    input_folder = os.path.join(base_xgboost, f'{ancestry}_{pheno}_chr{chr_val}')
+    input_folder  = os.path.join(base_xgboost, f'{ancestry}_{pheno}_chr{chr_val}')
+    output_folder = os.path.join(base_output,  f'{ancestry}_{pheno}_chr{chr_val}')
+    os.makedirs(output_folder, exist_ok=True)
 
     for _, row in wind_chr.iterrows():
         window_start = int(row['start'])
@@ -149,7 +152,7 @@ for chr_val in wind_df['chr'].unique():
         )
         plt.tight_layout()
         cm_path = os.path.join(
-            input_folder,
+            output_folder,
             f'{ancestry}_{pheno}_chr{chr_val}_{window_start}_{window_end}_confusion_matrix.png'
         )
         plt.savefig(cm_path, dpi=150, bbox_inches='tight')
@@ -169,7 +172,7 @@ for chr_val in wind_df['chr'].unique():
         shap.summary_plot(shap_vals, X, feature_names=feature_cols,
                           show=False, max_display=max_display)
         shap_path = os.path.join(
-            input_folder,
+            output_folder,
             f'{ancestry}_{pheno}_chr{chr_val}_{window_start}_{window_end}_shap.png'
         )
         plt.savefig(shap_path, dpi=150, bbox_inches='tight')
