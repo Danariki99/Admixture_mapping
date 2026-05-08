@@ -1,0 +1,25 @@
+# Output and log files
+*.out
+*.err
+*.log
+*.sif
+
+# Data files — never commit individual-level or derived data
+*.xlsx
+*.tsv
+*.csv
+*.txt
+!requirements.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# R workspace
+.RData
+.Rhistory
+
+# Results and data directories
+/results
+/data
