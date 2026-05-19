@@ -1,9 +1,9 @@
 """
 Prepares SuSiE inputs for the ±6-window extended analysis (UKBB in-sample LD).
-Z-scores are loaded from both fine_mapping_new/ (sig windows) and
-fine_mapping_new_6wind/ (extension windows), then combined and deduplicated.
-LD is loaded from SuSiE_ld_6wind/. SNP alignment is by rsID (no liftover needed,
-both UKBB VCF and fine-mapping are on hg19).
+Fix 2: monomorphic/NaN SNPs are removed (not patched).
+Fix 3: strand-ambiguous SNPs (A/T, C/G) are removed; REF/ALT saved in output.
+Z-scores are loaded from both fine_mapping_new/ and fine_mapping_new_6wind/,
+then combined and deduplicated by best p-value.
 """
 
 import os
@@ -18,8 +18,11 @@ output_folder          = '/private/groups/ioannidislab/smeriglio/out_cleaned_cod
 os.makedirs(output_folder, exist_ok=True)
 
 
+def is_strand_ambiguous(ref, alt):
+    return frozenset({ref.upper(), alt.upper()}) in (frozenset({'A', 'T'}), frozenset({'C', 'G'}))
+
+
 def load_zscores(hit_label):
-    """Load z-scores from both fine-mapping folders, deduplicated by best p-value."""
     rows = []
     for folder in [fine_mapping_folder, fine_mapping_6w_folder]:
         hit_path = os.path.join(folder, hit_label)
@@ -41,7 +44,7 @@ def load_zscores(hit_label):
             for col in ['Z_STAT', 'P']:
                 add[col] = pd.to_numeric(add[col], errors='coerce')
             add = add.dropna(subset=['Z_STAT', 'P'])
-            rows.append(add[['CHROM', 'POS', 'ID', 'Z_STAT', 'P', 'OBS_CT']])
+            rows.append(add[['CHROM', 'POS', 'ID', 'REF', 'ALT', 'Z_STAT', 'P', 'OBS_CT']])
 
     if not rows:
         return None
@@ -53,7 +56,7 @@ def load_zscores(hit_label):
                 .sort_values(['CHROM', 'POS'])
                 .reset_index(drop=True))
     all_snps = all_snps.rename(columns={'Z_STAT': 'Z', 'OBS_CT': 'N'})
-    return all_snps[['CHROM', 'POS', 'ID', 'Z', 'N']]
+    return all_snps[['CHROM', 'POS', 'ID', 'REF', 'ALT', 'Z', 'N']]
 
 
 def load_ld_plink(vcor1_file, vars_file):
@@ -86,29 +89,50 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
     ld_snp_ids, R = load_ld_plink(vcor1_file, vars_file)
     print(f"  LD matrix: {R.shape[0]} SNPs")
 
-    # Align by rsID (both on hg19, no liftover needed)
-    z_id_set  = set(zscores['ID'])
-    ld_id_set = set(ld_snp_ids)
-    shared    = z_id_set & ld_id_set
-
+    # Align by ID (same UKBB VCF for both GWAS and LD)
+    shared      = set(zscores['ID']) & set(ld_snp_ids)
     if len(shared) == 0:
         print(f"  No shared SNPs, skipping")
         continue
 
     zscores_aln = zscores[zscores['ID'].isin(shared)].reset_index(drop=True)
-
-    id_to_idx = {sid: i for i, sid in enumerate(ld_snp_ids)}
-    col_idx   = [id_to_idx[sid] for sid in zscores_aln['ID']]
-    R_aln     = R[np.ix_(col_idx, col_idx)]
-
+    id_to_idx   = {sid: i for i, sid in enumerate(ld_snp_ids)}
+    col_idx     = [id_to_idx[sid] for sid in zscores_aln['ID']]
+    R_aln       = R[np.ix_(col_idx, col_idx)]
     print(f"  Shared SNPs: {len(zscores_aln)}")
 
-    R_aln = (R_aln + R_aln.T) / 2
-    n_mono = int(np.isnan(R_aln).all(axis=1).sum())
+    # Fix 3: remove strand-ambiguous SNPs (A/T or C/G — orientation unresolvable)
+    sa_mask = zscores_aln.apply(lambda r: is_strand_ambiguous(r['REF'], r['ALT']), axis=1).values
+    n_ambig = int(sa_mask.sum())
+    if n_ambig > 0:
+        print(f"  Strand-ambiguous SNPs removed: {n_ambig}")
+        keep        = ~sa_mask
+        zscores_aln = zscores_aln[keep].reset_index(drop=True)
+        R_aln       = R_aln[np.ix_(keep, keep)]
+
+    # Fix 2: symmetrize, then remove monomorphic and partial-NaN SNPs
+    R_aln        = (R_aln + R_aln.T) / 2
+    diag         = np.diag(R_aln)
+    mono_mask    = np.isnan(diag)
+    partial_mask = (~mono_mask) & np.isnan(R_aln).any(axis=1)
+    n_mono       = int(mono_mask.sum())
+    n_partial    = int(partial_mask.sum())
     if n_mono > 0:
-        print(f"  Monomorphic SNPs (NaN → 0): {n_mono}")
-    np.nan_to_num(R_aln, nan=0.0, copy=False)
+        print(f"  Removed monomorphic SNPs (all-NaN in LD): {n_mono}")
+    if n_partial > 0:
+        print(f"  Removed SNPs with partial NaN in LD: {n_partial}")
+    remove_mask = mono_mask | partial_mask
+    if remove_mask.any():
+        keep        = ~remove_mask
+        zscores_aln = zscores_aln[keep].reset_index(drop=True)
+        R_aln       = R_aln[np.ix_(keep, keep)]
+
+    if len(zscores_aln) == 0:
+        print(f"  No SNPs remaining after filtering, skipping")
+        continue
+
     np.fill_diagonal(R_aln, 1.0)
+    print(f"  Final SNPs: {len(zscores_aln)}")
 
     hit_out = os.path.join(output_folder, hit_label)
     os.makedirs(hit_out, exist_ok=True)

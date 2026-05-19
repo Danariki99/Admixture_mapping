@@ -85,30 +85,19 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
     ld_snp_ids, R = load_ld_plink(vcor1_file, vars_file)
     print(f"  LD matrix: {R.shape[0]} SNPs")
 
-    bed_file = os.path.join(susie_ld_folder, hit_label, 'positions_hg38.bed')
-    if not os.path.exists(bed_file):
-        print(f"  BED liftover file not found, skipping")
-        continue
-
-    bed = pd.read_csv(bed_file, sep='\t', header=None,
-                      names=['chr38', 'start38', 'end38', 'hg19_key'])
-    bed['hg38_key'] = bed['chr38'].astype(str) + ':' + bed['end38'].astype(str)
-    hg19_to_hg38 = dict(zip(bed['hg19_key'], bed['hg38_key']))
-
-    zscores['_hg19_key'] = zscores['CHROM'].astype(str) + ':' + zscores['POS'].astype(str)
-    zscores['_hg38_key'] = zscores['_hg19_key'].map(hg19_to_hg38)
-
-    ld_key_set  = set(ld_snp_ids)
-    shared_keys = set(zscores['_hg38_key'].dropna()) & ld_key_set
+    # Align by CHROM:POS — both z-scores and LD SNP IDs are in hg19
+    zscores['_key'] = zscores['CHROM'].astype(str) + ':' + zscores['POS'].astype(str)
+    ld_key_set      = set(ld_snp_ids)
+    shared_keys     = set(zscores['_key']) & ld_key_set
 
     if len(shared_keys) == 0:
         print(f"  No shared SNPs, skipping")
         continue
 
-    zscores_aln = zscores[zscores['_hg38_key'].isin(shared_keys)].reset_index(drop=True)
+    zscores_aln = zscores[zscores['_key'].isin(shared_keys)].reset_index(drop=True)
 
     id_to_idx = {sid: i for i, sid in enumerate(ld_snp_ids)}
-    col_idx   = [id_to_idx[k] for k in zscores_aln['_hg38_key']]
+    col_idx   = [id_to_idx[k] for k in zscores_aln['_key']]
     R_aln     = R[np.ix_(col_idx, col_idx)]
 
     print(f"  Shared SNPs: {len(zscores_aln)}")

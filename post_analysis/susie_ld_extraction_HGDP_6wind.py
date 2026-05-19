@@ -1,44 +1,35 @@
 import os
 import subprocess
-import tempfile
 import pandas as pd
 from collections import defaultdict
 
-hgdp_vcf_pattern      = '/private/home/cwshanks/directory/data/hgdp_1kgp/hgdp1kgp_chr{chr}.filtered.SNV_INDEL.phased.shapeit5.vcf.gz'
-hgdp_meta             = '/private/home/cwshanks/directory/data/hgdp_1kgp/final_sample_populations_extended.tsv'
-fine_mapping_folder   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new'
+# 1380-sample reference panel (hg19, ADMIXTURE ≥95% pure individuals)
+hgdp_bfile             = '/private/groups/ioannidislab/galangal_dirs/ref_1kg_hgdp_sgdp/beagle_1kg_hgdp_sgdp_ref_panel_hg19_pure'
+rfmix_map              = '/private/home/rsmerigl/codes/cleaned_codes/usefull_panel_data/rfmix_sample_map.tsv'
+fine_mapping_folder    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new'
 fine_mapping_6w_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new_6wind'
-covar_folder_6wind    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_new_6wind'
-base_output           = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_ld_HGDP_6wind'
-sbatch_dir            = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_files/ukbb/SuSiE_ld_HGDP_6wind'
-chain_file            = '/private/groups/ioannidislab/cwshanks/reference_genomes/hg19ToHg38.over.chain.gz'
-
-ANCESTRY_MAP = {
-    'AFR': 'AFR', 'EAS': 'EAS', 'SAS': 'CSA', 'WAS': 'MID',
-    'AHG': 'CSA', 'NAT': 'AMR', 'OCE': 'OCE', 'EUR': 'EUR',
-}
+covar_folder_6wind     = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/wind_covar_files_new_6wind'
+base_output            = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_ld_HGDP_6wind'
+sbatch_dir             = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_files/ukbb/SuSiE_ld_HGDP_6wind'
 
 os.makedirs(sbatch_dir, exist_ok=True)
 os.makedirs(base_output, exist_ok=True)
 
-# Build per-ancestry keep files from HGDP metadata
-meta = pd.read_csv(hgdp_meta, sep='\t')
+# Build per-ancestry keep files from the 1380-sample panel map
+meta = pd.read_csv(rfmix_map, sep='\t').rename(columns={'#Sample': 'sample_id'})
 keep_files = {}
-for your_anc, hgdp_region in ANCESTRY_MAP.items():
-    samples = meta[meta['genetic_region'] == hgdp_region]['sample_id'].astype(str)
-    if len(samples) == 0:
-        continue
-    keep_path = os.path.join(base_output, f'keep_{your_anc}_HGDP.txt')
+for anc, grp in meta.groupby('Panel'):
+    keep_path = os.path.join(base_output, f'keep_{anc}_HGDP.txt')
     with open(keep_path, 'w') as f:
         f.write('#IID\n')
-        for sid in sorted(samples):
+        for sid in sorted(grp['sample_id'].astype(str)):
             f.write(f'{sid}\n')
-    keep_files[your_anc] = keep_path
-    print(f"Keep file: {your_anc} ({hgdp_region}) — {len(samples)} samples")
+    keep_files[anc] = keep_path
+    print(f"Keep file: {anc} — {len(grp)} samples")
 
 
 def load_zscores_positions(hit_label):
-    """Load z-score positions from both fine-mapping folders (orig + 6wind extension)."""
+    """Load z-score positions (hg19) from both fine-mapping folders."""
     rows = []
     for folder in [fine_mapping_folder, fine_mapping_6w_folder]:
         hit_path = os.path.join(folder, hit_label)
@@ -57,40 +48,6 @@ def load_zscores_positions(hit_label):
     if not rows:
         return pd.DataFrame(columns=['CHROM', 'POS'])
     return pd.concat(rows).drop_duplicates().reset_index(drop=True)
-
-
-def liftover_positions(pos_df, output_folder):
-    bed_in  = os.path.join(output_folder, 'positions_hg19.bed')
-    bed_out = os.path.join(output_folder, 'positions_hg38.bed')
-
-    with open(bed_in, 'w') as f:
-        for _, row in pos_df.iterrows():
-            chrom = str(row['CHROM'])
-            pos   = int(row['POS'])
-            f.write(f"{chrom}\t{pos-1}\t{pos}\t{chrom}:{pos}\n")
-
-    result = subprocess.run(
-        ['CrossMap', 'bed', chain_file, bed_in, bed_out],
-        capture_output=True, text=True
-    )
-    if result.returncode != 0:
-        print(f"  CrossMap error: {result.stderr[:200]}")
-        return []
-
-    hg38_ids = []
-    if os.path.exists(bed_out):
-        with open(bed_out) as f:
-            for line in f:
-                parts = line.strip().split('\t')
-                if len(parts) >= 3:
-                    hg38_ids.append(f"{parts[0]}:{int(parts[2])}")
-
-    extract_path = os.path.join(output_folder, 'extract_positions.txt')
-    with open(extract_path, 'w') as f:
-        for snp_id in hg38_ids:
-            f.write(f"{snp_id}\n")
-
-    return hg38_ids
 
 
 # Group covar files by hit label to get the extended region boundaries
@@ -124,7 +81,7 @@ for hit_label, info in sorted(hit_regions.items()):
     region_end   = max(info['ends'])
 
     if ancestry not in keep_files:
-        print(f"No HGDP keep file for ancestry {ancestry}, skipping")
+        print(f"No keep file for ancestry {ancestry}, skipping")
         continue
 
     output_folder = os.path.join(base_output, hit_label)
@@ -136,51 +93,25 @@ for hit_label, info in sorted(hit_regions.items()):
         print(f"Already done, skipping: {out_prefix}.phased.vcor1")
         continue
 
-    vcf_file = hgdp_vcf_pattern.format(chr=chr_val)
-    if not os.path.exists(vcf_file):
-        print(f"VCF not found for chr{chr_val}: {vcf_file}")
-        continue
-
     pos_df = load_zscores_positions(hit_label)
     if pos_df.empty:
         print(f"No z-score positions for {hit_label}, skipping")
         continue
 
-    print(f"{hit_label}: lifting {len(pos_df)} positions hg19→hg38 (region {region_start}-{region_end})...")
-    hg38_ids = liftover_positions(pos_df, output_folder)
-
-    if not hg38_ids:
-        print(f"  No positions lifted, skipping")
-        continue
-
-    print(f"  {len(hg38_ids)}/{len(pos_df)} positions lifted successfully")
-
-    # Liftover region boundaries
-    region_bed = os.path.join(output_folder, 'region_hg38.bed')
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.bed', delete=False) as tmp:
-        tmp.write(f"{chr_val}\t{region_start-1}\t{region_end}\tregion\n")
-        tmp_path = tmp.name
-
-    r = subprocess.run(['CrossMap', 'bed', chain_file, tmp_path, region_bed],
-                       capture_output=True, text=True)
-    os.unlink(tmp_path)
-
-    region_start38, region_end38 = region_start, region_end
-    if os.path.exists(region_bed):
-        with open(region_bed) as f:
-            line = f.readline().strip().split('\t')
-            if len(line) >= 3:
-                region_start38 = int(line[1]) + 1
-                region_end38   = int(line[2])
-
+    # Write extract file with hg19 CHR:POS IDs — no liftover needed
     extract_path = os.path.join(output_folder, 'extract_positions.txt')
+    with open(extract_path, 'w') as f:
+        for _, row in pos_df.iterrows():
+            f.write(f"{row['CHROM']}:{int(row['POS'])}\n")
+
+    print(f"{hit_label}: {len(pos_df)} positions, region hg19 {region_start}-{region_end}")
 
     plink_cmd = (
         f'/private/home/rsmerigl/plink2 '
-        f'--vcf {vcf_file} '
+        f'--bfile {hgdp_bfile} '
         f'--chr {chr_val} '
-        f'--from-bp {region_start38} '
-        f'--to-bp {region_end38} '
+        f'--from-bp {region_start} '
+        f'--to-bp {region_end} '
         f'--keep {keep_files[ancestry]} '
         f'--set-all-var-ids @:# '
         f'--extract {extract_path} '
@@ -207,4 +138,4 @@ for hit_label, info in sorted(hit_regions.items()):
 
     result = subprocess.run(['sbatch', sbatch_file], capture_output=True, text=True)
     job_id = result.stdout.strip().split()[-1]
-    print(f"Submitted job {job_id}: {hit_label} (hg38 {region_start38}-{region_end38})")
+    print(f"Submitted job {job_id}: {hit_label} (hg19 {region_start}-{region_end})")

@@ -2,8 +2,10 @@ library(susieR)
 
 input_folder  <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_inputs_HGDP'
 output_folder <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_results_HGDP'
+plots_folder  <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_plots_HGDP'
 
 dir.create(output_folder, recursive=TRUE, showWarnings=FALSE)
+dir.create(plots_folder,  recursive=TRUE, showWarnings=FALSE)
 
 hits <- sort(list.dirs(input_folder, full.names=FALSE, recursive=FALSE))
 
@@ -112,6 +114,16 @@ for (hit in hits) {
         top_pip = if (n_cs > 0) top_row$PIP else NA,
         stringsAsFactors = FALSE
     )
+
+    png(file.path(plots_folder, paste0(hit, '_pip.png')), width=1400, height=500)
+    susie_plot(result, y='PIP',
+               main=sprintf('%s  |  CS: %d', hit, n_cs))
+    dev.off()
+
+    png(file.path(plots_folder, paste0(hit, '_z.png')), width=1400, height=500)
+    susie_plot(result, y='z',
+               main=sprintf('%s  |  z-scores', hit))
+    dev.off()
 
     cat(sprintf("  Saved → %s/\n", hit_out))
 }

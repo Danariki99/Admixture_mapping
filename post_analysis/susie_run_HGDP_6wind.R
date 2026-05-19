@@ -8,8 +8,10 @@ cat(sprintf("n_window = %d\n", n_window))
 input_folder_orig <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_inputs_HGDP'
 input_folder_ext  <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_inputs_HGDP_6wind'
 output_folder     <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_results_HGDP_6wind'
+plots_folder      <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_plots_HGDP_6wind'
 
 dir.create(output_folder, recursive=TRUE, showWarnings=FALSE)
+dir.create(plots_folder,  recursive=TRUE, showWarnings=FALSE)
 
 
 run_susie <- function(z_file, ld_file) {
@@ -44,6 +46,17 @@ run_susie <- function(z_file, ld_file) {
             NULL
         }
     )
+    if (is.null(result)) {
+        cat("  Retrying with check_prior=FALSE...\n")
+        result <- tryCatch(
+            susie_rss(z=z, R=R, n=n, L=10, verbose=FALSE,
+                      estimate_residual_variance=FALSE, check_prior=FALSE),
+            error = function(e) {
+                cat(sprintf("  SuSiE error (retry): %s\n", e$message))
+                NULL
+            }
+        )
+    }
     if (is.null(result)) return(NULL)
     list(result=result, zscores=zscores, p=p, n=n)
 }
@@ -144,6 +157,16 @@ for (hit in hits) {
         top_pip = if (n_cs > 0) top_row$PIP else NA,
         stringsAsFactors = FALSE
     )
+
+    png(file.path(plots_folder, paste0(hit, '_pip.png')), width=1400, height=500)
+    susie_plot(result, y='PIP',
+               main=sprintf('%s  |  CS: %d  [%s]', hit, n_cs, source_used))
+    dev.off()
+
+    png(file.path(plots_folder, paste0(hit, '_z.png')), width=1400, height=500)
+    susie_plot(zscores$Z, y='z',
+               main=sprintf('%s  |  z-scores  [%s]', hit, source_used))
+    dev.off()
 
     cat(sprintf("  Saved → %s/\n", hit_out))
 }

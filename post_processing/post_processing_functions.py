@@ -1,5 +1,6 @@
 import subprocess
 import os
+import time
 import glob
 import re
 import pandas as pd
@@ -146,10 +147,29 @@ def result_analysis(
             df['ABS_POS'] = df['POS'] + df['#CHROM'].map(max_pos)
 
             # BY correction
-            _, by_p, _, _ = multipletests(df[pheno].values, alpha=0.05, method='fdr_by')
+            _, by_p, _, _ = multipletests(df[pheno].values, alpha=0.20, method='fdr_by')
             df[f'{pheno}_BY'] = by_p
 
-            sig = df[df[f'{pheno}_BY'] < significance_threshold].copy()
+            # FP=1 criterion: find largest k such that k × p_(k) ≤ 1
+            # Additionally require FDR (q-value at threshold) ≤ 0.2
+            FDR_THRESHOLD = 0.2
+            by_sorted = np.sort(df[f'{pheno}_BY'].dropna().values)
+            k_max = 0
+            for k in range(1, len(by_sorted) + 1):
+                if by_sorted[k - 1] * k <= 1:
+                    k_max = k
+                else:
+                    break
+            if k_max > 0 and by_sorted[k_max - 1] < 1.0:
+                fp1_threshold = by_sorted[k_max - 1]
+                if fp1_threshold > FDR_THRESHOLD:
+                    print(f"  [{ancestry}] {pheno}: FDR={fp1_threshold:.4f} > {FDR_THRESHOLD} — skipping")
+                    sig = pd.DataFrame(columns=df.columns)
+                else:
+                    sig = df[df[f'{pheno}_BY'] <= fp1_threshold].copy()
+                    print(f"  [{ancestry}] {pheno}: {len(sig)} significant windows (BY threshold={fp1_threshold:.4f}, FP attesi={len(sig)*fp1_threshold:.2f})")
+            else:
+                sig = pd.DataFrame(columns=df.columns)
 
             if not sig.empty:
                 sig = sig.copy()
@@ -242,15 +262,10 @@ def result_analysis(
             adjust_text(texts)
 
             if plot_mode == 'BY':
-                plt.axhline(y=-np.log10(significance_threshold), color='r', linestyle='--',
-                            label='BY threshold (FDR 0.05)')
                 plt.ylabel('-log10(BY corrected p)')
             else:
                 plt.axhline(y=-np.log10(bonf_thresh), color='b', linestyle='--',
                             label=f'Bonferroni (0.05/{n_windows})')
-                if empirical_thresh is not None:
-                    plt.axhline(y=-np.log10(empirical_thresh), color='r', linestyle='--',
-                                label='Empirical BY equivalent')
                 plt.ylabel('-log10(raw p)')
 
             plt.xticks(chrom_positions, chrom_labels)
@@ -264,9 +279,49 @@ def result_analysis(
     significant_file = os.path.join(general_output_folder, 'significant_positions.tsv')
 
     if not significant_df.empty:
+        # Require a contiguous run of ≥5 windows per hit (Ancestry × Phenotype)
+        # (guaranteed by FDR≤0.2 + FP≤1 on count, this checks they are actually adjacent)
+        def _max_contiguous_run(group):
+            s = group.sort_values(['#CHROM', 'POS']).reset_index(drop=True)
+            max_run = cur = 1
+            for i in range(1, len(s)):
+                if s.loc[i, '#CHROM'] == s.loc[i-1, '#CHROM'] and s.loc[i, 'POS'] == s.loc[i-1, 'end_POS']:
+                    cur += 1
+                    max_run = max(max_run, cur)
+                else:
+                    cur = 1
+            return max_run
+
+        valid_hits = []
+        for (anc, phe), group in significant_df.groupby(['Ancestry', 'Phenotype']):
+            run = _max_contiguous_run(group)
+            if run < 5:
+                print(f"  [{anc}] {phe}: skipped (max contiguous run = {run} < 5)")
+            else:
+                valid_hits.append({'Ancestry': anc, 'Phenotype': phe})
+
+        if not valid_hits:
+            print("\nNo hits with ≥5 contiguous windows after filtering.")
+            return None
+
+        significant_df = significant_df.merge(pd.DataFrame(valid_hits), on=['Ancestry', 'Phenotype'])
+
         significant_df.to_csv(significant_file, sep='\t', index=False)
+
+        print(f"\n{'='*40}")
+        print("Significant hits summary:")
+        summary = (significant_df
+                   .groupby(['Ancestry', 'Phenotype'])
+                   .size()
+                   .reset_index(name='n_windows')
+                   .sort_values(['Ancestry', 'Phenotype']))
+        for _, row in summary.iterrows():
+            print(f"  {row['Ancestry']}  {row['Phenotype']}  {row['n_windows']} windows")
+        print(f"{'='*40}\n")
+
         return significant_file
 
+    print("\nNo significant hits found.")
     return None
 
 
@@ -398,17 +453,30 @@ def filter_windows_by_confidence(data_df, ancestry, dataset, fb_template=None, f
     return filtered_df, summary
 
 
-def SNPs_extraction(input_file, output_dir):
-    # Call the R script using subprocess
-    current_dir = os.getcwd()
-    
-    result = subprocess.run(['Rscript', os.path.join(current_dir, 'SNPs_gene_extraction.R'), '-i', input_file, '-o', output_dir], capture_output=True, text=True)
-
-    # Split the stdout into lines and get the last line (the output file path)
-    output_lines = result.stdout.strip().split('\n')
-    output_file_path = output_lines[-1] if output_lines else ""
-
-    return output_file_path
+def SNPs_extraction(input_file, output_dir, max_retries=5, retry_delay=120):
+    r_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'SNPs_gene_extraction.R')
+    for attempt in range(1, max_retries + 1):
+        if attempt > 1:
+            print(f"  SNPs_extraction retry {attempt}/{max_retries} in {retry_delay}s...")
+            time.sleep(retry_delay)
+        result = subprocess.run(
+            ['Rscript', r_script, '-i', input_file, '-o', output_dir],
+            capture_output=True, text=True
+        )
+        output_lines = result.stdout.strip().split('\n')
+        output_file_path = output_lines[-1] if output_lines and output_lines[-1] else ""
+        if result.returncode == 0 and output_file_path and os.path.exists(output_file_path):
+            return output_file_path
+        print(f"  SNPs_extraction attempt {attempt} failed (code {result.returncode}):")
+        print("  --- stderr ---")
+        for line in result.stderr.strip().split('\n')[-30:]:
+            print(f"    {line}")
+        print("  --- stdout ---")
+        for line in result.stdout.strip().split('\n')[-10:]:
+            print(f"    {line}")
+    raise RuntimeError(
+        f"SNPs_extraction failed after {max_retries} attempts — Ensembl unavailable. Rerun when the server is up."
+    )
 
 
 # Create a function to find the closest SNP to the middle of a given window

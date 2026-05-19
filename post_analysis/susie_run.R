@@ -2,12 +2,15 @@ library(susieR)
 
 input_folder  <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_inputs'
 output_folder <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_results'
+plots_folder  <- '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_plots'
 
 dir.create(output_folder, recursive=TRUE, showWarnings=FALSE)
+dir.create(plots_folder,  recursive=TRUE, showWarnings=FALSE)
 
 hits <- sort(list.dirs(input_folder, full.names=FALSE, recursive=FALSE))
 
-all_results <- list()
+all_results  <- list()
+to_inspect   <- list()
 
 for (hit in hits) {
     cat(sprintf("\n%s\n", hit))
@@ -20,7 +23,6 @@ for (hit in hits) {
         next
     }
 
-    # Load z-scores
     zscores <- read.table(z_file, header=TRUE, sep='\t', stringsAsFactors=FALSE)
     z <- zscores$Z
     n <- as.integer(median(zscores$N))
@@ -28,34 +30,31 @@ for (hit in hits) {
 
     cat(sprintf("  SNPs: %d  N: %d\n", p, n))
 
-    # Load LD matrix
     cat("  Loading LD matrix...\n")
     R <- as.matrix(read.table(gzfile(ld_file), header=FALSE))
-    R <- (R + t(R)) / 2  # enforce symmetry (rounding from text format)
+    R <- (R + t(R)) / 2
 
     if (nrow(R) != p) {
         cat(sprintf("  Dimension mismatch: LD %dx%d vs z %d, skipping\n", nrow(R), ncol(R), p))
         next
     }
-
     if (n < p) {
-        cat(sprintf("  WARNING: N=%d < p=%d — LD rank-deficient (WAS hit), results may be unreliable\n", n, p))
+        cat(sprintf("  WARNING: N=%d < p=%d — LD rank-deficient\n", n, p))
     }
 
-    # Run SuSiE
     cat("  Running SuSiE...\n")
     result <- tryCatch(
         susie_rss(z=z, R=R, n=n, L=10, verbose=FALSE,
                   estimate_residual_variance=FALSE),
         error = function(e) {
             cat(sprintf("  SuSiE error: %s\n", e$message))
+            to_inspect[[hit]] <<- e$message
             NULL
         }
     )
 
     if (is.null(result)) next
 
-    # PIPs
     pip_df <- data.frame(
         ID    = zscores$ID,
         CHROM = zscores$CHROM,
@@ -64,10 +63,9 @@ for (hit in hits) {
         PIP   = result$pip,
         stringsAsFactors = FALSE
     )
-    pip_df <- pip_df[order(-pip_df$PIP), ]
+    pip_df      <- pip_df[order(-pip_df$PIP), ]
     pip_nonaffx <- pip_df[!startsWith(pip_df$ID, 'Affx'), ]
 
-    # Credible sets
     cs_list <- result$sets$cs
     cs_df   <- data.frame()
     n_cs    <- 0
@@ -94,7 +92,6 @@ for (hit in hits) {
         cat("  No credible sets found\n")
     }
 
-    # Save
     hit_out <- file.path(output_folder, hit)
     dir.create(hit_out, recursive=TRUE, showWarnings=FALSE)
 
@@ -107,6 +104,38 @@ for (hit in hits) {
                     file=file.path(hit_out, paste0(hit, '_credible_sets.tsv')),
                     sep='\t', row.names=FALSE, quote=FALSE)
     }
+
+    # PIP and z-score plots
+    png(file.path(plots_folder, paste0(hit, '_pip.png')), width=1400, height=500)
+    susie_plot(result, y='PIP', main=sprintf('%s  |  CS: %d', hit, n_cs))
+    dev.off()
+
+    png(file.path(plots_folder, paste0(hit, '_z.png')), width=1400, height=500)
+    plot(seq_along(z), z, type='h', col='steelblue',
+         xlab='SNP index', ylab='z-score',
+         main=sprintf('%s  |  z-scores', hit))
+    abline(h=0, col='grey60')
+    dev.off()
+
+    # Fix 5: kriging_rss diagnostics
+    diag_dir <- file.path(hit_out, 'diagnostics')
+    dir.create(diag_dir, recursive=TRUE, showWarnings=FALSE)
+    tryCatch({
+        kfit <- kriging_rss(z=z, R=R, n=n)
+        saveRDS(kfit, file=file.path(diag_dir, paste0(hit, '_kriging.rds')))
+        if (!is.null(kfit$plot)) {
+            ggplot2::ggsave(file.path(diag_dir, paste0(hit, '_kriging.png')),
+                            kfit$plot, width=10, height=6)
+        }
+        if (!is.null(kfit$conditional_dist) && nrow(kfit$conditional_dist) > 0) {
+            write.table(kfit$conditional_dist,
+                        file=file.path(diag_dir, paste0(hit, '_kriging.tsv')),
+                        sep='\t', row.names=FALSE, quote=FALSE)
+        }
+        cat("  Kriging: done (RDS saved)\n")
+    }, error=function(e) {
+        cat(sprintf("  Kriging error: %s\n", e$message))
+    })
 
     top_row <- if (nrow(pip_nonaffx) > 0) pip_nonaffx[1, ] else pip_df[1, ]
     all_results[[hit]] <- data.frame(
@@ -122,13 +151,16 @@ for (hit in hits) {
     cat(sprintf("  Saved → %s/\n", hit_out))
 }
 
-# Summary
 cat(sprintf("\n%s\n", strrep("=", 60)))
 if (length(all_results) > 0) {
-    summary_df <- do.call(rbind, all_results)
+    summary_df   <- do.call(rbind, all_results)
     summary_file <- file.path(output_folder, 'susie_summary.tsv')
     write.table(summary_df, file=summary_file, sep='\t', row.names=FALSE, quote=FALSE)
     cat(sprintf("Summary saved → %s\n", summary_file))
     print(summary_df)
+}
+if (length(to_inspect) > 0) {
+    cat(sprintf("\nHits to inspect manually (%d):\n", length(to_inspect)))
+    for (h in names(to_inspect)) cat(sprintf("  %s: %s\n", h, to_inspect[[h]]))
 }
 cat("Done.\n")

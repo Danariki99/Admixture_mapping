@@ -3,6 +3,8 @@ import re
 import time
 import requests
 import pandas as pd
+import numpy as np
+from statsmodels.stats.multitest import multipletests
 
 DATASET      = 'ukbb'
 HIT_FOLDER   = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/{DATASET}/wind'
@@ -75,6 +77,20 @@ for hit_file in sorted(os.listdir(HIT_FOLDER)):
     glm['POS']    = pd.to_numeric(glm['POS'],    errors='coerce')
     glm = glm.dropna(subset=['P'])
 
+    # Compute BY correction and FP=1 threshold (same logic as post_processing)
+    _, by_p, _, _ = multipletests(glm['P'].values, alpha=0.20, method='fdr_by')
+    by_sorted = np.sort(by_p)
+    k_max = 0
+    for k in range(1, len(by_sorted) + 1):
+        if by_sorted[k - 1] * k <= 1:
+            k_max = k
+        else:
+            break
+    fdr_threshold = by_sorted[k_max - 1] if (k_max > 0 and by_sorted[k_max - 1] < 1.0) else None
+    glm['BY'] = by_p
+    sig_by = glm.loc[glm['BY'] <= fdr_threshold, 'BY'] if fdr_threshold is not None else pd.Series(dtype=float)
+    fdr_min = sig_by.min() if not sig_by.empty else None
+
     # filter GLM to only the significant windows from the wind file
     merged = pd.merge(
         glm, wind_df,
@@ -116,6 +132,8 @@ for hit_file in sorted(os.listdir(HIT_FOLDER)):
         'Ancestry':      ancestry,
         'OR (CI 95%)':   f'{oddr} ({l95}, {u95})',
         'p value':       p,
+        'FDR_min':       fdr_min,
+        'FDR_max':       fdr_threshold,
         'lambda_GC':     lambda_gc,
         'chr':           chr_val,
         'START':         start,

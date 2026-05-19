@@ -2,21 +2,13 @@ import os
 import subprocess
 import pandas as pd
 
-# Paths
-vcf_file     = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/vcf_file/ukbb.vcf.gz'
-king_keep    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/kcutoff_177/kcutoff_177.king.cutoff.in.id'
-anc_keep_dir = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files/ukbb/keep_files_processed'
-wind_folder  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
-base_output  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_ld'
-sbatch_dir   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_files/ukbb/SuSiE_ld'
+vcf_file    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/vcf_file/ukbb.vcf.gz'
+king_keep   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/kcutoff_177/kcutoff_177.king.cutoff.in.id'
+wind_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
+base_output = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/SuSiE_ld'
+sbatch_dir  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/sbatch_files/ukbb/SuSiE_ld'
 
 os.makedirs(sbatch_dir, exist_ok=True)
-
-# Load KING keep IDs once
-king_ids = set(
-    pd.read_csv(king_keep, sep=r'\s+', header=0)
-    .iloc[:, 0].astype(str)
-)
 
 for wind_filename in sorted(os.listdir(wind_folder)):
     if not wind_filename.endswith('_wind.txt'):
@@ -24,19 +16,6 @@ for wind_filename in sorted(os.listdir(wind_folder)):
 
     ancestry = wind_filename.split('_')[0]
     pheno    = wind_filename.split('_')[1]
-
-    anc_keep_file = os.path.join(anc_keep_dir, f'{ancestry}_keep.txt')
-    if not os.path.exists(anc_keep_file):
-        print(f"Keep file not found for {ancestry}, skipping")
-        continue
-
-    anc_ids = set(
-        pd.read_csv(anc_keep_file, sep=r'\s+', header=0)
-        .iloc[:, 0].astype(str)
-    )
-
-    # Intersection: ancestry ≥50% AND passes KING relatedness cutoff
-    shared_ids = anc_ids & king_ids
 
     wind_file = os.path.join(wind_folder, wind_filename)
     wind_df   = pd.read_csv(wind_file, sep='\t')
@@ -56,14 +35,7 @@ for wind_filename in sorted(os.listdir(wind_folder)):
             print(f"Already done, skipping: {out_prefix}.phased.vcor1")
             continue
 
-        # Write intersection keep file into output folder
-        keep_path = os.path.join(output_folder, 'keep_intersected.txt')
-        with open(keep_path, 'w') as f:
-            f.write('#IID\n')
-            for iid in sorted(shared_ids):
-                f.write(f'{iid}\n')
-
-        print(f"{hit_label}: {len(shared_ids)} samples ({ancestry} ∩ KING)")
+        print(f"{hit_label}: region {region_start}-{region_end}")
 
         plink_cmd = (
             f'/private/home/rsmerigl/plink2 '
@@ -71,7 +43,7 @@ for wind_filename in sorted(os.listdir(wind_folder)):
             f'--chr {chr_val} '
             f'--from-bp {region_start} '
             f'--to-bp {region_end} '
-            f'--keep {keep_path} '
+            f'--keep {king_keep} '
             f'--r-phased square '
             f'--out {out_prefix}'
         )
