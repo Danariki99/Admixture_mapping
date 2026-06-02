@@ -77,7 +77,7 @@ for hit_file in sorted(os.listdir(HIT_FOLDER)):
     glm['POS']    = pd.to_numeric(glm['POS'],    errors='coerce')
     glm = glm.dropna(subset=['P'])
 
-    # Compute BY correction and FP=1 threshold (same logic as post_processing)
+    # Compute BY correction and FP=1 threshold genome-wide (same logic as post_processing)
     _, by_p, _, _ = multipletests(glm['P'].values, alpha=0.20, method='fdr_by')
     by_sorted = np.sort(by_p)
     k_max = 0
@@ -91,57 +91,59 @@ for hit_file in sorted(os.listdir(HIT_FOLDER)):
     sig_by = glm.loc[glm['BY'] <= fdr_threshold, 'BY'] if fdr_threshold is not None else pd.Series(dtype=float)
     fdr_min = sig_by.min() if not sig_by.empty else None
 
-    # filter GLM to only the significant windows from the wind file
-    merged = pd.merge(
-        glm, wind_df,
-        left_on=['#CHROM', 'POS'], right_on=['chr', 'start'],
-        how='inner'
-    )
-
-    if merged.empty:
-        print(f'[WARN] {ancestry} {pheno}: no overlap between GLM and wind file, using global min p')
-        best    = glm.loc[glm['P'].idxmin()]
-        chr_val = int(best['#CHROM'])
-        start   = int(best['POS'])
-        end     = int(wind_df['end'].iloc[0])
-    else:
-        best    = merged.loc[merged['P'].idxmin()]
-        chr_val = int(best['chr'])
-        start   = int(best['start'])
-        end     = int(best['end'])
-
-    p    = best['P']
-    oddr = best['OR']
-    l95  = best['L95']
-    u95  = best['U95']
-
     log_file  = os.path.join(os.path.dirname(glm_file), 'output.log')
     lambda_gc = parse_lambda(log_file)
-
-    print(f'  {ancestry} {pheno}: chr{chr_val}:{start}-{end}  fetching cytoband...')
-    cytoband = fetch_cytoband(f'chr{chr_val}', start, end)
-    if cytoband == 'Timeout':
-        cytoband = TIMEOUT_MAP.get(f'chr{chr_val}:{start}-{end}', f'chr{chr_val}:{start}-{end}')
 
     pheno_row  = excel_df.loc[excel_df['ID'] == pheno, 'ID2']
     pheno_name = pheno_row.iloc[0] if not pheno_row.empty else pheno
 
-    rows.append({
-        'Phenotype':     pheno_name,
-        'CytoBand':      cytoband,
-        'Ancestry':      ancestry,
-        'OR (CI 95%)':   f'{oddr} ({l95}, {u95})',
-        'p value':       p,
-        'FDR_min':       fdr_min,
-        'FDR_max':       fdr_threshold,
-        'lambda_GC':     lambda_gc,
-        'chr':           chr_val,
-        'START':         start,
-        'END':           end,
-        'n_sig_windows': len(wind_df),
-    })
-    lambda_str = f'{lambda_gc:.3f}' if lambda_gc is not None else 'N/A'
-    print(f'    → {cytoband}  p={p:.2e}  λGC={lambda_str}  n_windows={len(wind_df)}')
+    # One row per chromosome (handles hits with significant windows on multiple chromosomes)
+    for chrom, wind_chr_df in wind_df.groupby('chr'):
+        merged = pd.merge(
+            glm, wind_chr_df,
+            left_on=['#CHROM', 'POS'], right_on=['chr', 'start'],
+            how='inner'
+        )
+
+        if merged.empty:
+            print(f'[WARN] {ancestry} {pheno} chr{chrom}: no overlap between GLM and wind file, using global min p on chr')
+            glm_chr = glm[glm['#CHROM'] == chrom]
+            best    = glm_chr.loc[glm_chr['P'].idxmin()]
+            chr_val = int(best['#CHROM'])
+            start   = int(wind_chr_df['start'].min())
+            end     = int(wind_chr_df['end'].max())
+        else:
+            best    = merged.loc[merged['P'].idxmin()]
+            chr_val = int(merged['chr'].iloc[0])
+            start   = int(merged['start'].min())
+            end     = int(merged['end'].max())
+
+        p    = best['P']
+        oddr = best['OR']
+        l95  = best['L95']
+        u95  = best['U95']
+
+        print(f'  {ancestry} {pheno}: chr{chr_val}:{start}-{end}  fetching cytoband...')
+        cytoband = fetch_cytoband(f'chr{chr_val}', start, end)
+        if cytoband == 'Timeout':
+            cytoband = TIMEOUT_MAP.get(f'chr{chr_val}:{start}-{end}', f'chr{chr_val}:{start}-{end}')
+
+        rows.append({
+            'Phenotype':     pheno_name,
+            'CytoBand':      cytoband,
+            'Ancestry':      ancestry,
+            'OR (CI 95%)':   f'{oddr} ({l95}, {u95})',
+            'p value':       p,
+            'FDR_min':       fdr_min,
+            'FDR_max':       fdr_threshold,
+            'lambda_GC':     lambda_gc,
+            'chr':           chr_val,
+            'START':         start,
+            'END':           end,
+            'n_sig_windows': len(wind_chr_df),
+        })
+        lambda_str = f'{lambda_gc:.3f}' if lambda_gc is not None else 'N/A'
+        print(f'    → {cytoband}  p={p:.2e}  λGC={lambda_str}  n_windows={len(wind_chr_df)}')
 
 out = pd.DataFrame(rows)
 out.to_excel(OUTPUT_FILE, index=False)

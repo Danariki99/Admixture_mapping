@@ -1,190 +1,119 @@
 import os
 import pandas as pd
+from statsmodels.stats.multitest import multipletests
 
-HIT_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_ancestries_PCA_verbose'
-MODELS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/models'
-PROBS_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/probabilities_pipeline/probs'
-
-ANCESTRY_LIST = ['AFR', 'EAS', 'EUR', 'SAS', 'WAS', 'NAT']
-SCENARIOS = {
-    'ancestry': 'Local Ancestry',
-    'add': 'Genotype (ADD)',
-    'environment': 'Environmental Covariates',
-}
-
-PHENO_TABLE = 'ukbb_v1.xlsx'
-PHENO_SHEET = 'first_batch'
-
-TABLE_COLUMNS = [
-    'Phenotype',
-    'ancestry tested',
-    'ancestry of the population',
-    'Start Position of the reduced significant region',
-    'End Position of the reduced significant region',
-    'Number of significant SNPs',
-    'ID',
-    'allele',
-    'OR (CI = 95%)',
-    'p value',
-    'chr',
-    'Delta_P_mean_ancestry',
-    'Delta_P_median_ancestry',
-    'Delta_P_std_ancestry',
-    'Delta_P_mean_add',
-    'Delta_P_median_add',
-    'Delta_P_std_add',
-    'Delta_P_mean_environment',
-    'Delta_P_median_environment',
-    'Delta_P_std_environment',
-    'Delta_P_samples',
-]
+CANDIDATES_TSV = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_all_candidates.tsv'
+SUMMARY_TSV    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_summary.tsv'
+PHENO_TABLE    = os.path.join(os.path.dirname(__file__), 'ukbb_v1.xlsx')
+PHENO_SHEET    = 'first_batch'
+OUT_XLSX       = os.path.join(os.path.dirname(__file__), 'table_fine_mapping.xlsx')
 
 
-def load_pheno_table(path, sheet_name):
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Phenotype table not found: {path}")
-    return pd.read_excel(path, sheet_name=sheet_name)
+def load_pheno_map(path, sheet):
+    df = pd.read_excel(path, sheet_name=sheet)
+    return dict(zip(df['ID'], df['ID2']))
 
 
 def build_table():
-    df_first_batch = load_pheno_table(PHENO_TABLE, PHENO_SHEET)
-    rows = []
+    df = pd.read_csv(CANDIDATES_TSV, sep='\t')
+    summary = pd.read_csv(SUMMARY_TSV, sep='\t')
 
-    if not os.path.isdir(HIT_FOLDER):
-        raise FileNotFoundError(f"Hit folder not found: {HIT_FOLDER}")
+    # Phenotype name map
+    pheno_map = load_pheno_map(PHENO_TABLE, PHENO_SHEET) if os.path.exists(PHENO_TABLE) else {}
 
-    hits_list = os.listdir(HIT_FOLDER)
+    # Parse ancestry, phenotype ID, chromosome from hit name (e.g. AFR_HC219_chr6)
+    def parse_hit(hit):
+        parts = hit.split('_')
+        ancestry = parts[0]
+        chrom    = parts[-1]
+        pheno_id = '_'.join(parts[1:-1])
+        return ancestry, pheno_id, chrom
 
-    for hit in hits_list:
-        print(hit)
-        hit_parts = hit.split('_')
-        if len(hit_parts) < 3:
-            continue
+    df[['ancestry', 'pheno_id', 'hit_chr']] = df['hit'].apply(
+        lambda h: pd.Series(parse_hit(h))
+    )
+    df['phenotype'] = df['pheno_id'].map(pheno_map).fillna(df['pheno_id'])
 
-        imp_ancestry = hit_parts[0]
-        pheno = hit_parts[1]
-        chrom = hit_parts[-1]
+    # Bonferroni correction across all candidates
+    _, _, _, p_bonf = multipletests(df['P'].values, alpha=0.05, method='bonferroni')
+    df['P_bonferroni'] = p_bonf
 
-        pheno_row = df_first_batch[df_first_batch['ID'] == pheno]['ID2']
-        if not pheno_row.empty:
-            pheno_name = pheno_row.iloc[0]
-        else:
-            pheno_name = 'Unknown'
+    # OR with 95% CI as formatted strings
+    df['OR (95% CI)']     = df.apply(lambda r: f"{r['OR']:.3f} ({r['L95']:.3f}–{r['U95']:.3f})", axis=1)
+    df['LAI_OR (95% CI)'] = df.apply(lambda r: f"{r['LAI_OR']:.3f} ({r['LAI_L95']:.3f}–{r['LAI_U95']:.3f})"
+                                     if pd.notna(r.get('LAI_OR')) else '', axis=1)
 
-        glm_base_path = os.path.join(HIT_FOLDER, hit)
-        model_base_path = os.path.join(MODELS_FOLDER, hit)
+    # Concordance flag: ADD and LAI OR on same side of 1
+    df['ADD_LAI_concordant'] = df.apply(
+        lambda r: 'yes' if pd.notna(r.get('LAI_OR')) and ((r['OR'] > 1) == (r['LAI_OR'] > 1)) else 'no',
+        axis=1
+    )
 
-        for ancestry in ANCESTRY_LIST:
-            glm_path = os.path.join(glm_base_path, f"{hit}_output.{ancestry}.{pheno}.glm.logistic.hybrid")
-            if not os.path.exists(glm_path):
-                continue
+    # Final column order — no hit-level constants (OBS_CT, n_snps, n_candidates)
+    out = df[[
+        'hit',
+        'phenotype',
+        'ancestry',
+        'hit_chr',
+        'ID',
+        'CHROM',
+        'POS',
+        'REF',
+        'ALT',
+        'A1',
+        'OR (95% CI)',
+        'OR',
+        'beta',
+        'LOG_OR_SE',
+        'P',
+        'P_BY',
+        'P_bonferroni',
+        'LAI_OR (95% CI)',
+        'LAI_OR',
+        'LAI_P',
+        'LAI_P_BY',
+        'ADD_LAI_concordant',
+        'window_start',
+        'window_end',
+    ]].copy()
 
-            glm_df = pd.read_csv(glm_path, sep='\t')
+    out = out.rename(columns={
+        'hit':               'Hit',
+        'phenotype':         'Phenotype',
+        'ancestry':          'Ancestry',
+        'hit_chr':           'Chr',
+        'ID':                'SNP ID',
+        'CHROM':             'CHROM',
+        'POS':               'POS (hg19)',
+        'REF':               'REF',
+        'ALT':               'ALT',
+        'A1':                'Effect allele (A1)',
+        'OR (95% CI)':       'ADD OR (95% CI)',
+        'OR':                'ADD OR',
+        'beta':              'ADD Beta',
+        'LOG_OR_SE':         'ADD SE',
+        'P':                 'ADD P (raw)',
+        'P_BY':              'ADD P (BY-FDR)',
+        'P_bonferroni':      'ADD P (Bonferroni)',
+        'LAI_OR (95% CI)':   'LAI OR (95% CI)',
+        'LAI_OR':            'LAI OR',
+        'LAI_P':             'LAI P (raw)',
+        'LAI_P_BY':          'LAI P (BY-FDR)',
+        'ADD_LAI_concordant':'ADD/LAI concordant',
+        'window_start':      'Window start',
+        'window_end':        'Window end',
+    })
 
-            model_folder = os.path.join(model_base_path, ancestry)
-            if not os.path.isdir(model_folder):
-                continue
-
-            snps_list = [
-                filename.replace('.csv', '')
-                for filename in os.listdir(model_folder)
-                if filename.endswith('.csv')
-            ]
-            if not snps_list:
-                continue
-
-            filtered_df = glm_df[(glm_df['TEST'] == imp_ancestry) & (glm_df['ID'].isin(snps_list))]
-            filtered_df = filtered_df.dropna(subset=['P'])
-            if filtered_df.empty:
-                continue
-
-            start_pos = filtered_df['POS'].min()
-            end_pos = filtered_df['POS'].max()
-            most_significant_snp = filtered_df.loc[filtered_df['P'].idxmin()]['ID']
-
-            add_row = glm_df[(glm_df['ID'] == most_significant_snp) & (glm_df['TEST'] == 'ADD')]
-            if add_row.empty:
-                continue
-
-            p_value = add_row['P'].values[0]
-            odds_ratio = add_row['OR'].values[0]
-            allele = add_row['A1'].values[0]
-            l95 = add_row['L95'].values[0]
-            u95 = add_row['U95'].values[0]
-
-            scenario_summaries = {}
-            ancestry_path = os.path.join(
-                PROBS_FOLDER,
-                'ancestry',
-                hit,
-                ancestry,
-                f"{most_significant_snp}.tsv",
-            )
-            if not os.path.exists(ancestry_path):
-                continue
-
-            for scenario_key in SCENARIOS.keys():
-                prob_path = os.path.join(
-                    PROBS_FOLDER,
-                    scenario_key,
-                    hit,
-                    ancestry,
-                    f"{most_significant_snp}.tsv",
-                )
-                if not os.path.exists(prob_path):
-                    scenario_summaries[scenario_key] = None
-                    continue
-
-                delta_df = pd.read_csv(prob_path, sep='\t')
-                if delta_df.empty or 'delta_P' not in delta_df.columns:
-                    scenario_summaries[scenario_key] = None
-                    continue
-
-                scenario_summaries[scenario_key] = {
-                    'mean': delta_df['delta_P'].mean(),
-                    'median': delta_df['delta_P'].median(),
-                    'std': delta_df['delta_P'].std(),
-                    'samples': delta_df['delta_P'].count(),
-                }
-
-            ancestry_summary = scenario_summaries.get('ancestry')
-            if ancestry_summary is None:
-                continue
-
-            rows.append({
-                'Phenotype': pheno_name,
-                'ancestry tested': imp_ancestry,
-                'ancestry of the population': ancestry,
-                'Start Position of the reduced significant region': start_pos,
-                'End Position of the reduced significant region': end_pos,
-                'Number of significant SNPs': len(snps_list),
-                'ID': most_significant_snp,
-                'allele': allele,
-                'OR (CI = 95%)': f'{odds_ratio} ({l95}, {u95})',
-                'p value': p_value,
-                'chr': chrom,
-                'Delta_P_mean_ancestry': ancestry_summary['mean'],
-                'Delta_P_median_ancestry': ancestry_summary['median'],
-                'Delta_P_std_ancestry': ancestry_summary['std'],
-                'Delta_P_mean_add': scenario_summaries.get('add', {}).get('mean') if scenario_summaries.get('add') else None,
-                'Delta_P_median_add': scenario_summaries.get('add', {}).get('median') if scenario_summaries.get('add') else None,
-                'Delta_P_std_add': scenario_summaries.get('add', {}).get('std') if scenario_summaries.get('add') else None,
-                'Delta_P_mean_environment': scenario_summaries.get('environment', {}).get('mean') if scenario_summaries.get('environment') else None,
-                'Delta_P_median_environment': scenario_summaries.get('environment', {}).get('median') if scenario_summaries.get('environment') else None,
-                'Delta_P_std_environment': scenario_summaries.get('environment', {}).get('std') if scenario_summaries.get('environment') else None,
-                'Delta_P_samples': ancestry_summary['samples'],
-            })
-
-    if not rows:
-        return pd.DataFrame(columns=TABLE_COLUMNS)
-
-    return pd.DataFrame(rows, columns=TABLE_COLUMNS)
+    out = out.sort_values(['Hit', 'ADD P (raw)'])
+    return out
 
 
 def main():
+    print('Building fine-mapping table...')
     out_df = build_table()
-    out_df.to_excel('table_fine_mapping.xlsx', index=False)
+    out_df.to_excel(OUT_XLSX, index=False)
+    print(f'  {len(out_df)} SNPs → {OUT_XLSX}')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

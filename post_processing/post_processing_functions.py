@@ -147,28 +147,24 @@ def result_analysis(
             df['ABS_POS'] = df['POS'] + df['#CHROM'].map(max_pos)
 
             # BY correction
-            _, by_p, _, _ = multipletests(df[pheno].values, alpha=0.20, method='fdr_by')
+            reject, by_p, _, _ = multipletests(df[pheno].values, alpha=0.20, method='fdr_by')
             df[f'{pheno}_BY'] = by_p
 
-            # FP=1 criterion: find largest k such that k × p_(k) ≤ 1
-            # Additionally require FDR (q-value at threshold) ≤ 0.2
-            FDR_THRESHOLD = 0.2
-            by_sorted = np.sort(df[f'{pheno}_BY'].dropna().values)
+            # FP=1 criterion on BY-significant items only (p_BY <= 0.20)
+            # Filtering by reject first ensures threshold <= 0.20 by construction
+            by_p_sig = np.sort(by_p[reject])
             k_max = 0
-            for k in range(1, len(by_sorted) + 1):
-                if by_sorted[k - 1] * k <= 1:
+            for k in range(1, len(by_p_sig) + 1):
+                if by_p_sig[k - 1] * k <= 1:
                     k_max = k
                 else:
                     break
-            if k_max > 0 and by_sorted[k_max - 1] < 1.0:
-                fp1_threshold = by_sorted[k_max - 1]
-                if fp1_threshold > FDR_THRESHOLD:
-                    print(f"  [{ancestry}] {pheno}: FDR={fp1_threshold:.4f} > {FDR_THRESHOLD} — skipping")
-                    sig = pd.DataFrame(columns=df.columns)
-                else:
-                    sig = df[df[f'{pheno}_BY'] <= fp1_threshold].copy()
-                    print(f"  [{ancestry}] {pheno}: {len(sig)} significant windows (BY threshold={fp1_threshold:.4f}, FP attesi={len(sig)*fp1_threshold:.2f})")
+            if k_max > 0:
+                fp1_threshold = by_p_sig[k_max - 1]
+                sig = df[df[f'{pheno}_BY'] <= fp1_threshold].copy()
+                print(f"  [{ancestry}] {pheno}: {len(sig)} significant windows (BY threshold={fp1_threshold:.4f}, FP attesi={len(sig)*fp1_threshold:.2f})")
             else:
+                fp1_threshold = None
                 sig = pd.DataFrame(columns=df.columns)
 
             if not sig.empty:

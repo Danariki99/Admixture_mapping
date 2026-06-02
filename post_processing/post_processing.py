@@ -40,11 +40,12 @@ if __name__ == '__main__':
 
     ancestry_list = ["AFR", "AHG", "EAS", "EUR", "NAT", "OCE", "SAS", "WAS"]
 
-    # Use the dataset variable to construct file paths
-    phe_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/{dataset}'
-    general_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/{dataset}/output_ancestry_#/*/output.*.glm.logistic.hybrid'
+    # Input paths always use the base dataset (ukbb) — output paths use dataset argument
+    base_dataset = 'ukbb'
+    phe_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/phe_files/{base_dataset}'
+    general_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/{base_dataset}/output_ancestry_#/*/output.*.glm.logistic.hybrid'
     output_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/post_processing_files/{dataset}/P_info_#.tsv'
-    window_input_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/{dataset}/ancestry_AFR.vcf'
+    window_input_file = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files/{base_dataset}/ancestry_AFR.vcf'
     wind_output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/post_processing_files/{dataset}'
     plot_output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/plots/{dataset}'
     general_output_folder = f'/private/groups/ioannidislab/smeriglio/out_cleaned_codes/post_processing_files/{dataset}'

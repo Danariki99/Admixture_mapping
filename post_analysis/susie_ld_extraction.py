@@ -67,3 +67,4 @@ for wind_filename in sorted(os.listdir(wind_folder)):
         result = subprocess.run(['sbatch', sbatch_file], capture_output=True, text=True)
         job_id = result.stdout.strip().split()[-1]
         print(f"Submitted job {job_id}: {hit_label} ({region_start}-{region_end})")
+z

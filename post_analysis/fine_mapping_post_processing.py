@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 from statsmodels.stats.multitest import multipletests
+from pyliftover import LiftOver
 
 if len(sys.argv) != 2 or not sys.argv[1].isdigit() or not (0 <= int(sys.argv[1]) <= 6):
     print("Usage: python fine_mapping_post_processing.py <n_extensions (0-6)>")
@@ -11,25 +12,27 @@ if len(sys.argv) != 2 or not sys.argv[1].isdigit() or not (0 <= int(sys.argv[1])
 
 N_EXT = int(sys.argv[1])
 
-fine_mapping_folder      = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new'
+fine_mapping_folder       = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new'
 fine_mapping_6wind_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new_6wind'
-wind_folder              = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/FUMA/ukbb/wind'
-output_file              = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new/fine_mapping_results.tsv'
+output_folder             = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results'
+output_file               = os.path.join(output_folder, 'fine_mapping_summary.tsv')
+snp_list_file             = os.path.join(output_folder, 'fine_mapping_all_candidates.tsv')
+
+os.makedirs(output_folder, exist_ok=True)
+
+
+ALPHA = 0.05
+
 
 
 def load_hit_data(hit_path, allowed_windows=None):
-    """
-    Read all .glm.logistic.hybrid files in hit_path.
-    If allowed_windows is a set of (start, end) tuples, only load those windows.
-    Returns (all_add, all_lai) DataFrames, or (None, None) on failure.
-    """
     add_rows, lai_rows = [], []
 
     for filename in sorted(os.listdir(hit_path)):
         if not filename.endswith('.glm.logistic.hybrid'):
             continue
 
-        base = filename.split('.')[0]
+        base       = filename.split('.')[0]
         file_parts = base.split('_')
         window_start = int(file_parts[-2])
         window_end   = int(file_parts[-1])
@@ -40,11 +43,11 @@ def load_hit_data(hit_path, allowed_windows=None):
         filepath = os.path.join(hit_path, filename)
         try:
             df = pd.read_csv(filepath, sep='\t')
-            df.columns = ['CHROM','POS','ID','REF','ALT','PROV_REF','A1','OMITTED',
-                          'A1_FREQ','FIRTH','TEST','OBS_CT','OR','LOG_OR_SE',
-                          'L95','U95','Z_STAT','P','ERRCODE']
+            df.columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'PROV_REF', 'A1', 'OMITTED',
+                          'A1_FREQ', 'FIRTH', 'TEST', 'OBS_CT', 'OR', 'LOG_OR_SE',
+                          'L95', 'U95', 'Z_STAT', 'P', 'ERRCODE']
         except Exception as e:
-            print(f"  Error reading {filename}: {e}")
+            print(f'  Error reading {filename}: {e}')
             continue
 
         for col in ['P', 'OR', 'LOG_OR_SE', 'L95', 'U95']:
@@ -64,163 +67,220 @@ def load_hit_data(hit_path, allowed_windows=None):
 
 def run_analysis(all_add, all_lai, label):
     """
-    Apply BY correction, merge ADD+LAI, compute stats.
-    Returns (merged df with P_BY columns, stats dict).
+    BY on ADD and LAI p-values; fixed threshold ALPHA for significance.
+    Candidates: ADD_P_BY <= ALPHA AND LAI_P_BY > ALPHA.
     """
-    _, add_by, _, _ = multipletests(all_add['P'].values, method='fdr_by')
+    _, add_by, _, _ = multipletests(all_add['P'].values, alpha=ALPHA, method='fdr_by')
     all_add = all_add.copy()
     all_add['P_BY'] = add_by
 
-    _, lai_by, _, _ = multipletests(all_lai['P'].values, method='fdr_by')
+    _, lai_by, _, _ = multipletests(all_lai['P'].values, alpha=ALPHA, method='fdr_by')
     all_lai = all_lai.copy()
     all_lai['P_BY'] = lai_by
 
-    lai_cols = all_lai[['POS','ID','window_start','P','P_BY']].rename(
-        columns={'P': 'LAI_P', 'P_BY': 'LAI_P_BY'}
+    lai_cols = all_lai[['POS', 'ID', 'window_start', 'P', 'P_BY', 'OR', 'L95', 'U95']].rename(
+        columns={'P': 'LAI_P', 'P_BY': 'LAI_P_BY', 'OR': 'LAI_OR', 'L95': 'LAI_L95', 'U95': 'LAI_U95'}
     )
-    merged = pd.merge(all_add, lai_cols, on=['POS','ID','window_start'], how='inner')
+    merged = pd.merge(all_add, lai_cols, on=['POS', 'ID', 'window_start'], how='inner')
+
+    merged['ADD_sig'] = merged['P_BY'] <= ALPHA
+    merged['LAI_sig'] = merged['LAI_P_BY'] <= ALPHA
+
+    candidates = merged[merged['ADD_sig'] & ~merged['LAI_sig']].copy()
 
     stats = {
-        'n_snps':     len(merged),
-        'n_add_sig':  (merged['P_BY'] < 0.05).sum(),
-        'n_lai_sig':  (merged['LAI_P_BY'] < 0.05).sum(),
-        'n_both':     ((merged['P_BY'] < 0.05) & (merged['LAI_P_BY'] < 0.05)).sum(),
-        'n_none':     ((merged['P_BY'] >= 0.05) & (merged['LAI_P_BY'] >= 0.05)).sum(),
-        'n_causal':   ((merged['P_BY'] < 0.05) & (merged['LAI_P_BY'] >= 0.05)).sum(),
-        'label':      label,
+        'label':           label,
+        'n_snps':          len(merged),
+        'alpha':           ALPHA,
+        'n_add_sig':       int(merged['ADD_sig'].sum()),
+        'n_add_not_sig':   int((~merged['ADD_sig']).sum()),
+        'n_lai_sig':       int(merged['LAI_sig'].sum()),
+        'n_lai_not_sig':   int((~merged['LAI_sig']).sum()),
+        'n_candidates':    len(candidates),
     }
-    return merged, stats
+    return merged, candidates, stats
 
 
 def print_stats(hit_dir, stats):
-    print(f"\n{hit_dir} [{stats['label']}] — {stats['n_snps']} total SNPs:")
-    print(f"  ADD significant (P_BY<0.05):           {stats['n_add_sig']}")
-    print(f"  LAI significant (P_BY<0.05):           {stats['n_lai_sig']}")
-    print(f"  Both significant:                      {stats['n_both']}")
-    print(f"  Neither significant:                   {stats['n_none']}")
-    print(f"  SNP sig + LAI not sig (candidates):    {stats['n_causal']}")
+    print(f"  [{stats['label']}]  SNPs: {stats['n_snps']}  (BY threshold: {stats['alpha']})")
+    print(f"  ADD sig: {stats['n_add_sig']}  |  ADD not sig: {stats['n_add_not_sig']}")
+    print(f"  LAI sig: {stats['n_lai_sig']}  |  LAI not sig: {stats['n_lai_not_sig']}")
+    print(f"  Candidates (ADD sig + LAI not sig): {stats['n_candidates']}")
 
 
-results = []
+all_candidates = []
+summary_rows   = []
 
 for hit_dir in sorted(os.listdir(fine_mapping_folder)):
     hit_path = os.path.join(fine_mapping_folder, hit_dir)
     if not os.path.isdir(hit_path):
         continue
 
-    parts = hit_dir.split('_')
+    parts        = hit_dir.split('_')
     hit_ancestry = parts[0]
     pheno        = parts[1]
     chr_num      = parts[2].replace('chr', '')
 
-    # --- Step 1: analysis on significant windows only ---
+    print(f'\n{hit_dir}')
+
+    # Step 1: significant windows only
     all_add, all_lai = load_hit_data(hit_path)
     if all_add is None:
-        print(f"Skipping {hit_dir}: no data found")
+        print('  Skipping: no data found')
         continue
 
-    merged, stats = run_analysis(all_add, all_lai, label='sig windows only')
+    merged, candidates, stats = run_analysis(all_add, all_lai, label='sig windows only')
     print_stats(hit_dir, stats)
 
-    candidates = merged[(merged['P_BY'] < 0.05) & (merged['LAI_P_BY'] >= 0.05)].copy()
-
-    # --- Step 2: if no candidates, extend ±N_EXT windows ---
-    if len(candidates) == 0 and N_EXT == 0:
-        print(f"  -> No causal candidates found")
-        continue
-
-    if len(candidates) == 0:
-        print(f"  -> No candidates in sig windows. Trying ±{N_EXT} extension windows...")
+    # Step 2: extend ±N_EXT if no candidates
+    if len(candidates) == 0 and N_EXT > 0:
+        print(f'  No candidates in sig windows — trying ±{N_EXT} extension windows...')
 
         hit_6wind_path = os.path.join(fine_mapping_6wind_folder, hit_dir)
         if not os.path.isdir(hit_6wind_path):
-            print(f"  -> Extension folder not found: {hit_6wind_path}")
-            continue
+            print(f'  Extension folder not found: {hit_6wind_path}')
+        else:
+            ext_windows_sorted = []
+            for fn in sorted(os.listdir(hit_6wind_path)):
+                if not fn.endswith('.glm.logistic.hybrid'):
+                    continue
+                fp = fn.split('.')[0].split('_')
+                ext_windows_sorted.append((int(fp[-2]), int(fp[-1])))
+            ext_windows_sorted.sort()
 
-        # Get sorted list of extension windows (only those in 6wind, not in sig)
-        ext_windows_sorted = []
-        for fn in sorted(os.listdir(hit_6wind_path)):
-            if not fn.endswith('.glm.logistic.hybrid'):
-                continue
-            fp = fn.split('.')[0].split('_')
-            ext_windows_sorted.append((int(fp[-2]), int(fp[-1])))
-        ext_windows_sorted.sort()
+            sig_windows = set()
+            for fn in os.listdir(hit_path):
+                if not fn.endswith('.glm.logistic.hybrid'):
+                    continue
+                fp = fn.split('.')[0].split('_')
+                sig_windows.add((int(fp[-2]), int(fp[-1])))
 
-        # Sig window boundaries
-        sig_windows = set()
-        for fn in os.listdir(hit_path):
-            if not fn.endswith('.glm.logistic.hybrid'):
-                continue
-            fp = fn.split('.')[0].split('_')
-            sig_windows.add((int(fp[-2]), int(fp[-1])))
+            min_sig = min(w[0] for w in sig_windows)
+            max_sig = max(w[1] for w in sig_windows)
 
-        min_sig = min(w[0] for w in sig_windows)
-        max_sig = max(w[1] for w in sig_windows)
+            upstream     = [w for w in ext_windows_sorted if w[1] <= min_sig][-N_EXT:] if N_EXT > 0 else []
+            downstream   = [w for w in ext_windows_sorted if w[0] >= max_sig][:N_EXT]  if N_EXT > 0 else []
+            selected_ext = set(upstream) | set(downstream)
 
-        # Take N_EXT upstream and N_EXT downstream from extension windows
-        upstream   = [w for w in ext_windows_sorted if w[1] <= min_sig][-N_EXT:] if N_EXT > 0 else []
-        downstream = [w for w in ext_windows_sorted if w[0] >= max_sig][:N_EXT]  if N_EXT > 0 else []
-        selected_ext = set(upstream) | set(downstream)
+            print(f'  Using {len(upstream)} upstream + {len(sig_windows)} sig + {len(downstream)} downstream windows')
 
-        print(f"  -> Using {len(upstream)} upstream + {len(sig_windows)} sig + {len(downstream)} downstream windows")
-
-        # Load extension windows from 6wind folder, sig windows from sig folder
-        all_add_ext, all_lai_ext = load_hit_data(hit_6wind_path, allowed_windows=selected_ext)
-        if all_add_ext is None:
-            all_add_ext = pd.DataFrame()
-            all_lai_ext = pd.DataFrame()
-
-        # Combine sig results (already loaded) with extension results
-        all_add_ext = pd.concat([all_add, all_add_ext], ignore_index=True)
-        all_lai_ext = pd.concat([all_lai, all_lai_ext], ignore_index=True)
-
-        merged, stats = run_analysis(all_add_ext, all_lai_ext, label=f'sig ± {N_EXT} windows')
-        print_stats(hit_dir, stats)
-
-        candidates = merged[(merged['P_BY'] < 0.05) & (merged['LAI_P_BY'] >= 0.05)].copy()
+            all_add_ext, all_lai_ext = load_hit_data(hit_6wind_path, allowed_windows=selected_ext)
+            if all_add_ext is not None:
+                all_add_ext = pd.concat([all_add, all_add_ext], ignore_index=True)
+                all_lai_ext = pd.concat([all_lai, all_lai_ext], ignore_index=True)
+                merged, candidates, stats = run_analysis(
+                    all_add_ext, all_lai_ext, label=f'sig ± {N_EXT} windows'
+                )
+                print_stats(hit_dir, stats)
 
     if len(candidates) == 0:
-        print(f"  -> No causal candidates found")
+        print('  -> No candidates found')
+        summary_rows.append({
+            'hit':           hit_dir,
+            'ancestry':      hit_ancestry,
+            'pheno':         pheno,
+            'chr':           chr_num,
+            'analysis':      stats['label'],
+            'alpha':         ALPHA,
+            'n_snps':        stats['n_snps'],
+            'n_add_sig':     stats['n_add_sig'],
+            'n_add_not_sig': stats['n_add_not_sig'],
+            'n_lai_sig':     stats['n_lai_sig'],
+            'n_lai_not_sig': stats['n_lai_not_sig'],
+            'n_candidates':  0,
+        })
         continue
 
-    # Rank by |beta|
+    # Annotate and save per-hit candidate list
+    candidates = candidates.copy()
     candidates['beta'] = np.log(candidates['OR'])
-    candidates = candidates.sort_values('beta', key=lambda x: x.abs(), ascending=False)
+    candidates['hit']  = hit_dir
+    candidates = candidates.sort_values('P_BY')
 
-    top = candidates.iloc[0]
-    print(f"  -> Top SNP: {top['ID']} chr{top['CHROM']}:{top['POS']} "
-          f"OR={top['OR']:.3f} beta={np.log(top['OR']):.3f} "
-          f"P_BY={top['P_BY']:.4g} LAI_P_BY={top['LAI_P_BY']:.4g}")
+    hit_out = os.path.join(output_folder, hit_dir)
+    os.makedirs(hit_out, exist_ok=True)
+    cand_file = os.path.join(hit_out, f'{hit_dir}_candidates.tsv')
+    out_cols = ['hit', 'ID', 'CHROM', 'POS', 'REF', 'ALT', 'A1',
+                'OR', 'beta', 'LOG_OR_SE', 'L95', 'U95',
+                'P', 'P_BY', 'LAI_P', 'LAI_P_BY', 'LAI_OR', 'LAI_L95', 'LAI_U95',
+                'window_start', 'window_end', 'OBS_CT']
+    candidates[out_cols].to_csv(cand_file, sep='\t', index=False)
 
-    results.append({
-        'hit':           hit_dir,
-        'ancestry':      hit_ancestry,
-        'pheno':         pheno,
-        'chr':           chr_num,
-        'analysis':      stats['label'],
-        'window_start':  top['window_start'],
-        'window_end':    top['window_end'],
-        'SNP_ID':        top['ID'],
-        'POS':           top['POS'],
-        'REF':           top['REF'],
-        'ALT':           top['ALT'],
-        'A1':            top['A1'],
-        'OR':            round(top['OR'], 4),
-        'beta':          round(top['beta'], 4),
-        'SE':            round(top['LOG_OR_SE'], 4),
-        'OR_L95':        round(top['L95'], 4),
-        'OR_U95':        round(top['U95'], 4),
-        'P_ADD':         top['P'],
-        'P_ADD_BY':      round(top['P_BY'], 6),
-        'LAI_P':         top['LAI_P'],
-        'LAI_P_BY':      round(top['LAI_P_BY'], 4),
-        'OBS_CT':        int(top['OBS_CT']),
+    all_candidates.append(candidates[out_cols])
+
+    top = candidates.loc[candidates['beta'].abs().idxmax()]
+    print(f'  -> {len(candidates)} candidates | top effect: {top["ID"]} chr{top["CHROM"]}:{top["POS"]} '
+          f'OR={top["OR"]:.3f} beta={top["beta"]:.3f} P_BY={top["P_BY"]:.4g} LAI_P_BY={top["LAI_P_BY"]:.4g}')
+    print(f'  Saved -> {cand_file}')
+
+    summary_rows.append({
+        'hit':              hit_dir,
+        'ancestry':         hit_ancestry,
+        'pheno':            pheno,
+        'chr':              chr_num,
+        'analysis':         stats['label'],
+        'alpha':            ALPHA,
+        'n_snps':           stats['n_snps'],
+        'n_add_sig':        stats['n_add_sig'],
+        'n_add_not_sig':    stats['n_add_not_sig'],
+        'n_lai_sig':        stats['n_lai_sig'],
+        'n_lai_not_sig':    stats['n_lai_not_sig'],
+        'n_candidates':     len(candidates),
+        'top_snp':          top['ID'],
+        'top_pos':          top['POS'],
+        'top_OR':           round(top['OR'], 4),
+        'top_beta':         round(top['beta'], 4),
+        'top_P_BY':         round(top['P_BY'], 6),
+        'top_LAI_P_BY':     round(top['LAI_P_BY'], 6),
     })
 
-print(f"\n{'='*50}")
-if results:
-    results_df = pd.DataFrame(results)
-    results_df.to_csv(output_file, sep='\t', index=False)
-    print(f"Saved {len(results_df)} hits to {output_file}")
+print(f'\n{"="*60}')
+
+if summary_rows:
+    pd.DataFrame(summary_rows).to_csv(output_file, sep='\t', index=False)
+    print(f'Summary saved -> {output_file}')
+
+if all_candidates:
+    global_df = pd.concat(all_candidates, ignore_index=True)
+    global_df.to_csv(snp_list_file, sep='\t', index=False)
+    print(f'Global SNP list ({len(global_df)} candidates) -> {snp_list_file}')
 else:
-    print("No causal candidates found.")
+    print('No candidates found across all hits.')
+
+# ── Liftover hg19 → hg38 and write VCF for Borzoi ────────────────────────────
+BORZOI_VCF = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/borzoi_results/candidates_hg38_borzoi.vcf'
+
+if all_candidates:
+    print(f'\nLifting over candidates hg19 → hg38 for Borzoi...')
+    lo = LiftOver('hg19', 'hg38')
+
+    # Unique SNPs only (same SNP can appear in multiple hits)
+    unique_snps = global_df.drop_duplicates(subset='ID').copy()
+
+    def liftover_pos(chrom, pos):
+        result = lo.convert_coordinate(f'chr{chrom}', pos - 1)  # pyliftover is 0-based
+        if result and len(result) > 0:
+            chrom_hg38 = result[0][0].replace('chr', '')
+            pos_hg38   = result[0][1] + 1  # back to 1-based
+            return chrom_hg38, pos_hg38
+        return None, None
+
+    unique_snps[['CHROM_hg38', 'POS_hg38']] = unique_snps.apply(
+        lambda r: pd.Series(liftover_pos(r['CHROM'], r['POS'])), axis=1
+    )
+
+    n_failed = unique_snps['POS_hg38'].isna().sum()
+    if n_failed > 0:
+        print(f'  WARNING: {n_failed} SNPs failed liftover and will be skipped')
+
+    vcf_snps = unique_snps.dropna(subset=['CHROM_hg38', 'POS_hg38']).copy()
+    vcf_snps['CHROM_hg38'] = vcf_snps['CHROM_hg38'].apply(lambda x: str(int(float(x))))
+    vcf_snps['POS_hg38']   = vcf_snps['POS_hg38'].astype(int)
+
+    with open(BORZOI_VCF, 'w') as f:
+        f.write('##fileformat=VCFv4.2\n')
+        for _, row in vcf_snps.iterrows():
+            f.write(f"chr{row['CHROM_hg38']}\t{row['POS_hg38']}\t{row['ID']}\t{row['REF']}\t{row['ALT']}\t.\t.\n")
+
+    print(f'  {len(vcf_snps)} SNPs → {BORZOI_VCF}')
+    print(f'  Run: diff {BORZOI_VCF} /private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/borzoi_results/candidates_hg38.vcf')
