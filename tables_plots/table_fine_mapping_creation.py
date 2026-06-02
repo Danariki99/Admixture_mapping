@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-from statsmodels.stats.multitest import multipletests
 
 CANDIDATES_TSV = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_all_candidates.tsv'
 SUMMARY_TSV    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_summary.tsv'
@@ -34,13 +33,9 @@ def build_table():
     )
     df['phenotype'] = df['pheno_id'].map(pheno_map).fillna(df['pheno_id'])
 
-    # Bonferroni correction across all candidates
-    _, _, _, p_bonf = multipletests(df['P'].values, alpha=0.05, method='bonferroni')
-    df['P_bonferroni'] = p_bonf
-
-    # OR with 95% CI as formatted strings
-    df['OR (95% CI)']     = df.apply(lambda r: f"{r['OR']:.3f} ({r['L95']:.3f}–{r['U95']:.3f})", axis=1)
-    df['LAI_OR (95% CI)'] = df.apply(lambda r: f"{r['LAI_OR']:.3f} ({r['LAI_L95']:.3f}–{r['LAI_U95']:.3f})"
+    # OR with 95% CI as formatted strings (2 decimal places)
+    df['OR (95% CI)']     = df.apply(lambda r: f"{r['OR']:.2f} ({r['L95']:.2f}–{r['U95']:.2f})", axis=1)
+    df['LAI_OR (95% CI)'] = df.apply(lambda r: f"{r['LAI_OR']:.2f} ({r['LAI_L95']:.2f}–{r['LAI_U95']:.2f})"
                                      if pd.notna(r.get('LAI_OR')) else '', axis=1)
 
     # Concordance flag: ADD and LAI OR on same side of 1
@@ -49,9 +44,8 @@ def build_table():
         axis=1
     )
 
-    # Final column order — no hit-level constants (OBS_CT, n_snps, n_candidates)
+    # Final column order
     out = df[[
-        'hit',
         'phenotype',
         'ancestry',
         'hit_chr',
@@ -62,14 +56,9 @@ def build_table():
         'ALT',
         'A1',
         'OR (95% CI)',
-        'OR',
-        'beta',
-        'LOG_OR_SE',
         'P',
         'P_BY',
-        'P_bonferroni',
         'LAI_OR (95% CI)',
-        'LAI_OR',
         'LAI_P',
         'LAI_P_BY',
         'ADD_LAI_concordant',
@@ -78,7 +67,6 @@ def build_table():
     ]].copy()
 
     out = out.rename(columns={
-        'hit':               'Hit',
         'phenotype':         'Phenotype',
         'ancestry':          'Ancestry',
         'hit_chr':           'Chr',
@@ -89,14 +77,9 @@ def build_table():
         'ALT':               'ALT',
         'A1':                'Effect allele (A1)',
         'OR (95% CI)':       'ADD OR (95% CI)',
-        'OR':                'ADD OR',
-        'beta':              'ADD Beta',
-        'LOG_OR_SE':         'ADD SE',
         'P':                 'ADD P (raw)',
         'P_BY':              'ADD P (BY-FDR)',
-        'P_bonferroni':      'ADD P (Bonferroni)',
         'LAI_OR (95% CI)':   'LAI OR (95% CI)',
-        'LAI_OR':            'LAI OR',
         'LAI_P':             'LAI P (raw)',
         'LAI_P_BY':          'LAI P (BY-FDR)',
         'ADD_LAI_concordant':'ADD/LAI concordant',
@@ -104,7 +87,7 @@ def build_table():
         'window_end':        'Window end',
     })
 
-    out = out.sort_values(['Hit', 'ADD P (raw)'])
+    out = out.sort_values(['Phenotype', 'Ancestry', 'Chr', 'ADD P (raw)'])
     return out
 
 
