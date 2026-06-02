@@ -2,6 +2,7 @@ import os
 import pandas as pd
 
 CANDIDATES_TSV = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_all_candidates.tsv'
+ANNOTATED_TSV  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_candidates_annotated.tsv'
 SUMMARY_TSV    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_summary.tsv'
 PHENO_TABLE    = os.path.join(os.path.dirname(__file__), 'ukbb_v1.xlsx')
 PHENO_SHEET    = 'first_batch'
@@ -16,6 +17,15 @@ def load_pheno_map(path, sheet):
 def build_table():
     df = pd.read_csv(CANDIDATES_TSV, sep='\t')
     summary = pd.read_csv(SUMMARY_TSV, sep='\t')
+
+    # Merge VEP annotation (unique per SNP ID)
+    if os.path.exists(ANNOTATED_TSV):
+        ann = pd.read_csv(ANNOTATED_TSV, sep='\t')[['ID', 'category', 'gene_symbol']].drop_duplicates('ID')
+        ann['gene_symbol'] = ann['gene_symbol'].fillna('None')
+        df = df.merge(ann, on='ID', how='left')
+    else:
+        df['category']    = 'N/A'
+        df['gene_symbol'] = 'N/A'
 
     # Phenotype name map
     pheno_map = load_pheno_map(PHENO_TABLE, PHENO_SHEET) if os.path.exists(PHENO_TABLE) else {}
@@ -32,6 +42,7 @@ def build_table():
         lambda h: pd.Series(parse_hit(h))
     )
     df['phenotype'] = df['pheno_id'].map(pheno_map).fillna(df['pheno_id'])
+    df['phenotype'] = df['phenotype'].apply(lambda s: ' '.join(s.split('_')[1:]) if '_' in s else s)
 
     # OR with 95% CI as formatted strings (2 decimal places)
     df['OR (95% CI)']     = df.apply(lambda r: f"{r['OR']:.2f} ({r['L95']:.2f}–{r['U95']:.2f})", axis=1)
@@ -55,6 +66,8 @@ def build_table():
         'REF',
         'ALT',
         'A1',
+        'gene_symbol',
+        'category',
         'OR (95% CI)',
         'P',
         'P_BY',
@@ -76,6 +89,8 @@ def build_table():
         'REF':               'REF',
         'ALT':               'ALT',
         'A1':                'Effect allele (A1)',
+        'gene_symbol':       'Gene',
+        'category':          'Variant type',
         'OR (95% CI)':       'ADD OR (95% CI)',
         'P':                 'ADD P (raw)',
         'P_BY':              'ADD P (BY-FDR)',

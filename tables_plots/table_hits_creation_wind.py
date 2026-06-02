@@ -96,6 +96,7 @@ for hit_file in sorted(os.listdir(HIT_FOLDER)):
 
     pheno_row  = excel_df.loc[excel_df['ID'] == pheno, 'ID2']
     pheno_name = pheno_row.iloc[0] if not pheno_row.empty else pheno
+    pheno_name = ' '.join(pheno_name.split('_')[1:]) if '_' in pheno_name else pheno_name
 
     # One row per chromosome (handles hits with significant windows on multiple chromosomes)
     for chrom, wind_chr_df in wind_df.groupby('chr'):
