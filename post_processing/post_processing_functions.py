@@ -4,7 +4,6 @@ import time
 import glob
 import re
 import pandas as pd
-import polars as pl
 import matplotlib.pyplot as plt
 import numpy as np
 from io import StringIO
@@ -12,6 +11,7 @@ from adjustText import adjust_text
 from statsmodels.stats.multitest import multipletests
 import requests
 from collections import defaultdict
+from snputils.visualization.manhattan_plot import manhattan_plot as su_manhattan
 
 
 def parse_lambda(log_path):
@@ -204,33 +204,47 @@ def result_analysis(
         # ─────────────────────────────
         # MANHATTAN PLOTS (BY + raw)
         # ─────────────────────────────
-        chrom_positions = data_all.groupby('#CHROM')['ABS_POS'].mean().tolist()
-        chrom_labels    = sorted(data_all['#CHROM'].unique())
-        n_windows       = len(data_all)
-        bonf_thresh     = significance_threshold / n_windows
-        plot_ancestry   = 'AMR' if ancestry == 'NAT' else ancestry
+        plot_ancestry = 'AMR' if ancestry == 'NAT' else ancestry
 
-        # empirical BY-equivalent threshold (max raw p that passed BY)
-        empirical_thresh = None
+        # max raw/BY p among accepted windows across all phenotypes — used as significance line
+        max_fp1_raw = None
+        max_fp1_by  = None
         for pheno, sig_df in significant_dict.items():
-            t = sig_df[pheno].max()
-            if empirical_thresh is None or t > empirical_thresh:
-                empirical_thresh = t
+            t_raw = sig_df[pheno].max()
+            t_by  = sig_df[f'{pheno}_BY'].max()
+            if max_fp1_raw is None or t_raw > max_fp1_raw:
+                max_fp1_raw = t_raw
+            if max_fp1_by is None or t_by > max_fp1_by:
+                max_fp1_by = t_by
 
         for plot_mode in ('BY', 'raw'):
-            plt.figure(figsize=(12, 6))
+            p_cols  = [f'{p}_BY' if plot_mode == 'BY' else p for p in valid_phenos]
+            plot_df = data_all[['#CHROM', 'POS']].copy()
+            plot_df['P'] = data_all[p_cols].min(axis=1, skipna=True)
+            plot_df = plot_df.dropna(subset=['P']).copy()
+
+            thresh = max_fp1_by if plot_mode == 'BY' else max_fp1_raw
+
+            # snputils divides significance_threshold by len(df) internally,
+            # so multiply back to place the line exactly at -log10(thresh)
+            su_manhattan(
+                plot_df,
+                significance_threshold=thresh * len(plot_df) if thresh is not None else 1.0,
+                line_color='r' if thresh is not None else 'none',
+                figsize=(12, 6),
+                title=f'Manhattan Plot {plot_ancestry} — {plot_mode}',
+                save=False,
+            )
+
+            ax = plt.gca()
             texts = []
 
             for pheno in valid_phenos:
-                y_col = f'{pheno}_BY' if plot_mode == 'BY' else pheno
-                for chrom, chrom_data in data_all.groupby('#CHROM'):
-                    plt.scatter(chrom_data['ABS_POS'], -np.log10(chrom_data[y_col]),
-                                color=chromosome_colors[chrom - 1], s=7)
-
                 sig_df = significant_dict.get(pheno, pd.DataFrame())
                 if sig_df.empty:
                     continue
 
+                y_col    = f'{pheno}_BY' if plot_mode == 'BY' else pheno
                 max_row  = sig_df.loc[sig_df[pheno].idxmin()]
                 value    = 0.2 if ancestry == 'SAS' else 0.6
                 offset_x = np.random.uniform(-1e9, 1e9)
@@ -245,29 +259,23 @@ def result_analysis(
                 pheno_label     = excel_df.loc[excel_df['ID'] == pheno, 'ID2'].iloc[0].replace('_', ' ')
                 annotation_text = f'{pheno_label}\n{name}'
                 y_val = max_row[y_col]
-                text  = plt.annotate(annotation_text,
-                                     (max_row['ABS_POS'] + offset_x, -np.log10(y_val) + offset_y))
+                text  = ax.annotate(annotation_text,
+                                    (max_row['ABS_POS'] + offset_x, -np.log10(y_val) + offset_y))
                 texts.append(text)
 
                 if plot_mode == 'BY':
-                    sig_df = sig_df.copy()
-                    sig_df['Phenotype'] = pheno
-                    sig_df['Ancestry']  = ancestry
-                    significant_df = pd.concat([significant_df, sig_df])
+                    sig_df_copy = sig_df.copy()
+                    sig_df_copy['Phenotype'] = pheno
+                    sig_df_copy['Ancestry']  = ancestry
+                    significant_df = pd.concat([significant_df, sig_df_copy])
 
-            adjust_text(texts)
+            adjust_text(texts, ax=ax)
 
             if plot_mode == 'BY':
-                plt.ylabel('-log10(BY corrected p)')
+                ax.set_ylabel('-log10(BY corrected p)')
             else:
-                plt.axhline(y=-np.log10(bonf_thresh), color='b', linestyle='--',
-                            label=f'Bonferroni (0.05/{n_windows})')
-                plt.ylabel('-log10(raw p)')
+                ax.set_ylabel('-log10(raw p)')
 
-            plt.xticks(chrom_positions, chrom_labels)
-            plt.xlabel('Chromosome')
-            plt.title(f'Manhattan Plot {plot_ancestry} — {plot_mode}')
-            plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1), ncol=2)
             plt.savefig(os.path.join(plot_output_folder, f'manhattan_plot_{plot_ancestry}_{plot_mode}.png'),
                         bbox_inches='tight')
             plt.close()
@@ -376,13 +384,11 @@ def _read_fb_confident_positions(fb_file, threshold, chunksize=200000):
     del chunksize  # retained for signature compatibility
     confident = defaultdict(set)
     try:
-        pl_df = pl.read_csv(fb_file, separator='\t', has_header=True)
+        pdf = pd.read_csv(fb_file, sep='\t')
     except FileNotFoundError:
         return confident
-    except pl.exceptions.NoDataError:
+    except pd.errors.EmptyDataError:
         return confident
-
-    pdf = pl_df.to_pandas()
     columns = pdf.columns
     lower_map = {col.lower(): col for col in columns}
     chrom_col = next((lower_map[candidate] for candidate in ['chromosome', '#chrom', 'chrom', 'chr'] if candidate in lower_map), None)
@@ -566,6 +572,166 @@ def create_combined_manhattan(ancestry_list, plot_output_folder, suffix='BY'):
     plt.tight_layout()
     plt.savefig(os.path.join(plot_output_folder, f'manhattan_combined_{suffix}.png'), dpi=150, bbox_inches='tight')
     plt.close()
+
+
+def create_panel_manhattan(ancestry_list, general_output_folder, plot_output_folder, suffix='BY'):
+    MM_TO_INCH  = 1 / 25.4
+    N_ROWS, N_COLS = 2, 4
+    FONT_DEFAULT = 6
+    FONT_TICKS   = 5
+    FONT_TITLE   = 7
+    LW_AXES      = 0.5
+    LW_THRESH    = 0.5
+    CHR_COLORS   = ['#333333', '#aaaaaa']
+
+    with plt.rc_context({'pdf.fonttype': 42, 'ps.fonttype': 42}):
+        fig, axes = plt.subplots(
+            N_ROWS, N_COLS,
+            figsize=(183 * MM_TO_INCH, 78 * MM_TO_INCH),
+            gridspec_kw={'hspace': 0.35, 'wspace': 0.25},
+        )
+
+        for i, ancestry in enumerate(ancestry_list):
+            row, col = i // N_COLS, i % N_COLS
+            ax = axes[row, col]
+            plot_anc = 'AMR' if ancestry == 'NAT' else ancestry
+
+            data_file = os.path.join(general_output_folder, f'P_info_{ancestry}.tsv')
+            if not os.path.exists(data_file):
+                ax.set_visible(False)
+                continue
+
+            data = pd.read_csv(data_file, sep='\t')
+            meta_cols = {'#CHROM', 'POS', 'ABS_POS', 'end_POS'}
+            pheno_cols = [c for c in data.columns if c not in meta_cols]
+            if not pheno_cols:
+                ax.set_visible(False)
+                continue
+
+            # Recompute BY per phenotype + FP1 significance mask (per window)
+            by_cols  = {}
+            sig_cols = {}
+            for pheno in pheno_cols:
+                valid_idx = data[pheno].notna()
+                vals = data.loc[valid_idx, pheno].values
+                if len(vals) == 0:
+                    continue
+                reject, by_p, _, _ = multipletests(vals, alpha=0.20, method='fdr_by')
+                by_series = pd.Series(np.nan, index=data.index)
+                by_series.loc[valid_idx] = by_p
+                by_cols[pheno] = by_series
+
+                sig_series = pd.Series(False, index=data.index)
+                by_p_sig = np.sort(by_p[reject])
+                k_max = 0
+                for k in range(1, len(by_p_sig) + 1):
+                    if by_p_sig[k - 1] * k <= 1:
+                        k_max = k
+                    else:
+                        break
+                if k_max > 0:
+                    fp1_threshold = by_p_sig[k_max - 1]
+                    sig_series.loc[valid_idx] = by_p <= fp1_threshold
+                sig_cols[pheno] = sig_series
+
+            # Full p-value matrix: ALL phenotypes (one point per window x phenotype)
+            cols = list(by_cols.keys())
+            if suffix == 'BY':
+                p_matrix = pd.DataFrame(by_cols)[cols]
+            else:
+                p_matrix = data[cols]
+            sig_matrix = pd.DataFrame(sig_cols)[cols]
+
+            # Adequate threshold: the strictest line such that EVERY point above it is
+            # a genuine FP1-significant window. We may drop a few weak true hits, but
+            # never draw a false one. = largest significant p still below the best
+            # (smallest) p among all non-significant points.
+            pv   = p_matrix.values.flatten()
+            sigv = sig_matrix.values.flatten()
+            good = ~np.isnan(pv) & (pv > 0)
+            pv, sigv = pv[good], sigv[good]
+            sig_p, nonsig_p = pv[sigv], pv[~sigv]
+
+            max_thresh = None
+            if sig_p.size > 0:
+                if nonsig_p.size > 0:
+                    floor_nonsig = nonsig_p.min()
+                    eligible = sig_p[sig_p < floor_nonsig]
+                    max_thresh = eligible.max() if eligible.size > 0 else None
+                else:
+                    max_thresh = sig_p.max()
+
+            n_sig   = int(sig_p.size)
+            n_shown = int((sig_p <= max_thresh).sum()) if max_thresh is not None else 0
+            print(f'  [{plot_anc} | {suffix}] sig windows={n_sig}  shown above line={n_shown}  '
+                  f'dropped={n_sig - n_shown}  '
+                  f'threshold p={max_thresh if max_thresh is not None else "none"}')
+
+            # Scatter all phenotype p-values per chromosome
+            for chrom, grp in sorted(data.groupby('#CHROM')):
+                abs_pos = grp['ABS_POS'].values
+                sub     = p_matrix.loc[grp.index].values   # (n_windows, n_phenotypes)
+                xs = np.repeat(abs_pos, sub.shape[1])
+                ys = sub.flatten()
+                valid = ~np.isnan(ys) & (ys > 0)
+                if valid.any():
+                    ax.scatter(
+                        xs[valid],
+                        -np.log10(ys[valid]),
+                        color=CHR_COLORS[int(chrom) % 2],
+                        s=0.8, linewidths=0, rasterized=True,
+                    )
+
+            # Significance line
+            if max_thresh is not None:
+                ax.axhline(y=-np.log10(max_thresh), color='r', linestyle='--',
+                           linewidth=LW_THRESH, zorder=3)
+
+            # Chromosome ticks — mark all, label only 1,5,9,13,17,21
+            LABEL_CHROMS = {1, 5, 9, 13, 17, 21}
+            all_ticks, all_labels = [], []
+            for chrom, grp in sorted(data.groupby('#CHROM')):
+                all_ticks.append(grp['ABS_POS'].mean())
+                all_labels.append(str(int(chrom)) if int(chrom) in LABEL_CHROMS else '')
+            ax.set_xticks(all_ticks)
+
+            # Labels: ylabel only col==0, xlabel only last row
+            if row == N_ROWS - 1:
+                ax.set_xticklabels(all_labels, fontsize=FONT_TICKS)
+                ax.set_xlabel('Chromosome', fontsize=FONT_DEFAULT, labelpad=2)
+            else:
+                ax.set_xticklabels([])
+                ax.set_xlabel('')
+
+            if col == 0:
+                ax.set_ylabel(r'$-\log_{10}(p)$', fontsize=FONT_DEFAULT, labelpad=2)
+            else:
+                ax.set_ylabel('')
+            ax.tick_params(axis='y', labelsize=FONT_TICKS, width=LW_AXES, length=2)
+            # All chr ticks same length; unlabelled ones slightly shorter
+            ax.tick_params(axis='x', width=LW_AXES, length=2)
+
+            # Spines — restore bottom, hide top/right
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['bottom'].set_visible(True)
+            ax.spines['bottom'].set_linewidth(LW_AXES)
+            ax.spines['left'].set_linewidth(LW_AXES)
+
+            ax.set_title(plot_anc, fontsize=FONT_TITLE, fontweight='bold', pad=2)
+            ax.set_xlim(data['ABS_POS'].min(), data['ABS_POS'].max())
+            # Remove auto-margin so points sit at y=0, same as snputils style
+            ax.set_ylim(bottom=0)
+            ax.margins(y=0.05)
+
+        for j in range(len(ancestry_list), N_ROWS * N_COLS):
+            axes[j // N_COLS, j % N_COLS].set_visible(False)
+
+        out_base = os.path.join(plot_output_folder, f'manhattan_panel_{suffix}')
+        plt.savefig(f'{out_base}.pdf', dpi=600, bbox_inches='tight')
+        plt.savefig(f'{out_base}.png', dpi=600, bbox_inches='tight')
+        plt.close()
+        print(f'Panel saved → {out_base}.pdf / .png')
 
 
 def fetch_cytoband(chromosome, start, end, genome="hg19", retries=3, retry_delay=5):

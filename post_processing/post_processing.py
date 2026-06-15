@@ -95,3 +95,8 @@ if __name__ == '__main__':
     create_combined_manhattan(ancestry_list, plot_output_folder, suffix='BY')
     create_combined_manhattan(ancestry_list, plot_output_folder, suffix='raw')
 
+    # Journal-quality panel (183×78 mm, 2×4 grid, PDF fonttype 42)
+    print("Creating journal panel Manhattan plots")
+    create_panel_manhattan(ancestry_list, general_output_folder, plot_output_folder, suffix='BY')
+    create_panel_manhattan(ancestry_list, general_output_folder, plot_output_folder, suffix='raw')
+
