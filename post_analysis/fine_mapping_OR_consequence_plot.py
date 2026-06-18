@@ -1,22 +1,20 @@
 """
-Two figures from the annotated fine-mapping candidate SNPs:
+Grouped OR bar plot from the annotated fine-mapping candidate SNPs.
 
-  1. fine_mapping_OR_barplot.{png,pdf}
-     Grouped bar plot. Y = OR (bars emanate from the OR=1 null line). X = hits
-     (ancestry x phenotype), each a group; within a group one bar per SNP.
-     Bars coloured by functional consequence category (Intronic, 3' UTR, ...).
-
-  2. fine_mapping_consequence_pie.{png,pdf}
-     Pie chart of the consequence-category composition, SAME palette.
+  fine_mapping_OR_barplot.{png,pdf}
+     Y = OR (bars emanate from the OR=1 null line). X = hits (ancestry x
+     phenotype), each a group; within a group at most the TOP 10 SNPs by effect
+     size, ordered so the lead (strongest, significant) SNP is the LAST bar.
+     Bars coloured by functional annotation category (Intronic, 3' UTR, ...).
 
 OR is hit-specific (comes from the per-hit fine-mapping regression), so the bar
-plot uses the full 179 (SNP x hit) rows from fine_mapping_all_candidates.tsv.
-The consequence category is a property of the variant, mapped by SNP ID from the
-annotated file. The pie chart uses the unique SNPs (one per ID).
+plot uses the per-hit (SNP x hit) rows from fine_mapping_all_candidates.tsv,
+kept only where concordant with the admixture analysis. The annotation category
+is a property of the variant, mapped by SNP ID from the annotated file.
 
 Inputs:
   fine_mapping_all_candidates.tsv        (cols: hit, ID, OR, beta, ...)  -> per-hit OR
-  fine_mapping_candidates_annotated.tsv  (cols: ID, category, ...)       -> consequence
+  fine_mapping_candidates_annotated.tsv  (cols: ID, category, ...)       -> annotation
 """
 
 import os
@@ -32,6 +30,7 @@ from matplotlib.patches import Patch
 CAND_FILE  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_all_candidates.tsv'
 ANNOT_FILE = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results/fine_mapping_candidates_annotated.tsv'
 EXCEL_PATH = '/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx'
+ADMIX_DIR  = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/ukbb'
 OUT_DIR    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/plots/ukbb'
 
 MM_TO_INCH = 1 / 25.4
@@ -46,7 +45,7 @@ mpl.rcParams.update({
     'ps.fonttype':     42,
     'savefig.dpi':     600,
     'font.family':     'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'font.sans-serif': ['Arial', 'Liberation Sans', 'Helvetica', 'DejaVu Sans'],
 })
 
 # Fixed palette + severity order so both figures match and colours are stable.
@@ -71,6 +70,22 @@ FALLBACK_COLOR = '#cccccc'
 
 def color_for(cat):
     return CATEGORY_COLORS.get(cat, FALLBACK_COLOR)
+
+
+# Window-level admixture-mapping OR (ADD test) for concordance filtering
+_or_cache = {}
+def admixture_window_or(hit, window_start):
+    key = (hit, window_start)
+    if key in _or_cache:
+        return _or_cache[key]
+    ancestry, pheno, _ = hit.split('_')
+    glm_file = os.path.join(ADMIX_DIR, f'output_ancestry_{ancestry}', pheno,
+                             f'output.{pheno}.glm.logistic.hybrid')
+    glm = pd.read_csv(glm_file, sep='\t')
+    row = glm[(glm['TEST'] == 'ADD') & (glm['POS'] == window_start)]
+    val = row['OR'].iloc[0] if not row.empty else np.nan
+    _or_cache[key] = val
+    return val
 
 
 def load_excel_labels(path):
@@ -116,8 +131,15 @@ def main():
     annot = pd.read_csv(ANNOT_FILE, sep='\t')
     id2cat = dict(zip(annot['ID'], annot['category']))
     df['category'] = df['ID'].map(id2cat).fillna('Unannotated')
-    print(f'Loaded {len(df)} SNP x hit rows across {df["hit"].nunique()} hits '
-          f'({df["ID"].nunique()} unique SNPs)')
+
+    # keep only SNPs concordant with the admixture analysis (OR direction matches
+    # the window-level admixture OR direction)
+    df['admixture_OR'] = df.apply(lambda r: admixture_window_or(r['hit'], r['window_start']), axis=1)
+    concordant = np.sign(np.log(df['OR'])) == np.sign(np.log(df['admixture_OR']))
+    n_before = len(df)
+    df = df[concordant].copy()
+    print(f'Loaded {n_before} SNP x hit rows; kept {len(df)} concordant with admixture '
+          f'across {df["hit"].nunique()} hits ({df["ID"].nunique()} unique SNPs)')
 
     # categories actually present, in severity order
     present = [c for c in CATEGORY_ORDER if c in set(df['category'])]
@@ -138,8 +160,13 @@ def main():
     group_centers, group_labels = [], []
     group_lead = []   # (x, OR, rsID) of the strongest-effect SNP per hit
 
+    TOP_N = 10   # at most this many SNPs per hit
     for hit in hits:
-        sub = df[df['hit'] == hit].sort_values('OR', ascending=False)
+        sub = df[df['hit'] == hit].copy()
+        sub['effect'] = np.abs(np.log(sub['OR']))
+        # keep the TOP_N strongest-effect SNPs, then order so the lead is LAST
+        sub = sub.sort_values('effect', ascending=False).head(TOP_N)
+        sub = sub.sort_values('effect', ascending=True)
         start = x
         g_x, g_or, g_id = [], [], []
         for _, row in sub.iterrows():
@@ -149,9 +176,8 @@ def main():
             g_x.append(x); g_or.append(row['OR']); g_id.append(row['ID'])
             x += 1.0
         end = x
-        # lead SNP = strongest effect = max |log(OR)| (furthest from the null)
-        lead_i = int(np.argmax(np.abs(np.log(np.array(g_or)))))
-        group_lead.append((g_x[lead_i], g_or[lead_i], g_id[lead_i]))
+        # lead SNP = strongest effect = the last bar of the group
+        group_lead.append((g_x[-1], g_or[-1], g_id[-1]))
         group_centers.append((start + end - 1) / 2)
         group_labels.append(hit_label(hit, excel_df))
         x += GAP
@@ -175,7 +201,8 @@ def main():
     ax.set_xticks(group_centers)
     ax.set_xticklabels(group_labels, fontsize=5, rotation=35, ha='right')
     ax.set_xlim(-1, x - GAP)
-    ax.margins(y=0.12)   # headroom for the rsID labels
+    ax.margins(y=0.12)        # headroom for the rsID labels (top, risk SNPs)
+    ax.set_ylim(bottom=0.7)   # room below the protective-SNP rsID labels
     ax.set_ylabel('Odds ratio (OR)', fontsize=6)
     ax.set_title('Fine-mapping candidate SNPs', fontsize=7)
     ax.tick_params(axis='both', width=0.5, length=2)
@@ -188,7 +215,7 @@ def main():
     handles = [Patch(facecolor=color_for(c), label=c) for c in present]
     ax.legend(handles=handles, loc='center left', bbox_to_anchor=(1.01, 0.5),
               ncol=1, frameon=False, fontsize=5, handletextpad=0.5,
-              labelspacing=0.4, title='Consequence', title_fontsize=6)
+              labelspacing=0.4, title='Annotations', title_fontsize=6)
 
     plt.tight_layout()
     base1 = os.path.join(OUT_DIR, 'fine_mapping_OR_barplot')
@@ -196,34 +223,6 @@ def main():
     plt.savefig(f'{base1}.pdf', bbox_inches='tight', pad_inches=0.02, format='pdf')
     plt.close()
     print(f'Saved → {base1}.png / .pdf')
-
-    # ── Figure 2: consequence pie chart (all 179 SNP x hit rows) ───────────────
-    counts = df['category'].value_counts()
-    counts = counts.reindex([c for c in present if c in counts.index])
-    pie_colors = [color_for(c) for c in counts.index]
-
-    fig, ax = plt.subplots(figsize=(90 * MM_TO_INCH, 75 * MM_TO_INCH))
-    wedges, _texts, autotexts = ax.pie(
-        counts.values, colors=pie_colors, startangle=90, counterclock=False,
-        autopct=lambda p: f'{p:.0f}%' if p >= 4 else '',
-        pctdistance=0.75, wedgeprops={'linewidth': 0.3, 'edgecolor': 'white'},
-    )
-    for t in autotexts:
-        t.set_fontsize(5)
-    ax.set_title('Consequence composition of candidate SNPs', fontsize=7)
-    ax.axis('equal')
-
-    handles = [Patch(facecolor=color_for(c), label=f'{c} ({counts[c]})')
-               for c in counts.index]
-    ax.legend(handles=handles, loc='center left', bbox_to_anchor=(1.0, 0.5),
-              frameon=False, fontsize=5)
-
-    plt.tight_layout()
-    base2 = os.path.join(OUT_DIR, 'fine_mapping_consequence_pie')
-    plt.savefig(f'{base2}.png', bbox_inches='tight', pad_inches=0.02)
-    plt.savefig(f'{base2}.pdf', bbox_inches='tight', pad_inches=0.02, format='pdf')
-    plt.close()
-    print(f'Saved → {base2}.png / .pdf')
 
 
 if __name__ == '__main__':

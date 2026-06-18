@@ -17,11 +17,32 @@ fine_mapping_6wind_folder = '/private/groups/ioannidislab/smeriglio/out_cleaned_
 output_folder             = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_conditional_results'
 output_file               = os.path.join(output_folder, 'fine_mapping_summary.tsv')
 snp_list_file             = os.path.join(output_folder, 'fine_mapping_all_candidates.tsv')
+admix_dir                 = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/output/ukbb'
 
 os.makedirs(output_folder, exist_ok=True)
 
 
 ALPHA = 0.05
+
+
+# Window-level admixture-mapping OR (ADD test) — for concordance filtering
+_admix_or_cache = {}
+def admixture_window_or(ancestry, pheno, window_start):
+    key = (ancestry, pheno, window_start)
+    if key in _admix_or_cache:
+        return _admix_or_cache[key]
+    glm_file = os.path.join(admix_dir, f'output_ancestry_{ancestry}', pheno,
+                            f'output.{pheno}.glm.logistic.hybrid')
+    val = np.nan
+    try:
+        glm = pd.read_csv(glm_file, sep='\t')
+        row = glm[(glm['TEST'] == 'ADD') & (glm['POS'] == window_start)]
+        if not row.empty:
+            val = pd.to_numeric(row['OR'].iloc[0], errors='coerce')
+    except Exception:
+        val = np.nan
+    _admix_or_cache[key] = val
+    return val
 
 
 
@@ -65,10 +86,11 @@ def load_hit_data(hit_path, allowed_windows=None):
     return pd.concat(add_rows, ignore_index=True), pd.concat(lai_rows, ignore_index=True)
 
 
-def run_analysis(all_add, all_lai, label):
+def run_analysis(all_add, all_lai, label, ancestry, pheno):
     """
     BY on ADD and LAI p-values; fixed threshold ALPHA for significance.
-    Candidates: ADD_P_BY <= ALPHA AND LAI_P_BY > ALPHA.
+    Candidates: ADD_P_BY <= ALPHA AND LAI_P_BY > ALPHA AND OR direction concordant
+    with the admixture-mapping window-level OR.
     """
     _, add_by, _, _ = multipletests(all_add['P'].values, alpha=ALPHA, method='fdr_by')
     all_add = all_add.copy()
@@ -87,16 +109,30 @@ def run_analysis(all_add, all_lai, label):
     merged['LAI_sig'] = merged['LAI_P_BY'] <= ALPHA
 
     candidates = merged[merged['ADD_sig'] & ~merged['LAI_sig']].copy()
+    n_pre_concordance = len(candidates)
+
+    # Keep only candidates whose OR direction is concordant with the
+    # admixture-mapping window-level OR direction.
+    if n_pre_concordance > 0:
+        candidates['admixture_OR'] = candidates['window_start'].apply(
+            lambda ws: admixture_window_or(ancestry, pheno, ws)
+        )
+        candidates['concordant_direction'] = (
+            np.sign(np.log(candidates['OR'])) == np.sign(np.log(candidates['admixture_OR']))
+        )
+        candidates = candidates[candidates['concordant_direction']].copy()
 
     stats = {
-        'label':           label,
-        'n_snps':          len(merged),
-        'alpha':           ALPHA,
-        'n_add_sig':       int(merged['ADD_sig'].sum()),
-        'n_add_not_sig':   int((~merged['ADD_sig']).sum()),
-        'n_lai_sig':       int(merged['LAI_sig'].sum()),
-        'n_lai_not_sig':   int((~merged['LAI_sig']).sum()),
-        'n_candidates':    len(candidates),
+        'label':              label,
+        'n_snps':             len(merged),
+        'alpha':              ALPHA,
+        'n_add_sig':          int(merged['ADD_sig'].sum()),
+        'n_add_not_sig':      int((~merged['ADD_sig']).sum()),
+        'n_lai_sig':          int(merged['LAI_sig'].sum()),
+        'n_lai_not_sig':      int((~merged['LAI_sig']).sum()),
+        'n_pre_concordance':  n_pre_concordance,
+        'n_discordant':       n_pre_concordance - len(candidates),
+        'n_candidates':       len(candidates),
     }
     return merged, candidates, stats
 
@@ -105,7 +141,8 @@ def print_stats(hit_dir, stats):
     print(f"  [{stats['label']}]  SNPs: {stats['n_snps']}  (BY threshold: {stats['alpha']})")
     print(f"  ADD sig: {stats['n_add_sig']}  |  ADD not sig: {stats['n_add_not_sig']}")
     print(f"  LAI sig: {stats['n_lai_sig']}  |  LAI not sig: {stats['n_lai_not_sig']}")
-    print(f"  Candidates (ADD sig + LAI not sig): {stats['n_candidates']}")
+    print(f"  Candidates (ADD sig + LAI not sig): {stats['n_pre_concordance']}  "
+          f"-> concordant: {stats['n_candidates']}  (discordant removed: {stats['n_discordant']})")
 
 
 all_candidates = []
@@ -129,7 +166,8 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
         print('  Skipping: no data found')
         continue
 
-    merged, candidates, stats = run_analysis(all_add, all_lai, label='sig windows only')
+    merged, candidates, stats = run_analysis(all_add, all_lai, label='sig windows only',
+                                             ancestry=hit_ancestry, pheno=pheno)
     print_stats(hit_dir, stats)
 
     # Step 2: extend ±N_EXT if no candidates
@@ -169,7 +207,8 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
                 all_add_ext = pd.concat([all_add, all_add_ext], ignore_index=True)
                 all_lai_ext = pd.concat([all_lai, all_lai_ext], ignore_index=True)
                 merged, candidates, stats = run_analysis(
-                    all_add_ext, all_lai_ext, label=f'sig ± {N_EXT} windows'
+                    all_add_ext, all_lai_ext, label=f'sig ± {N_EXT} windows',
+                    ancestry=hit_ancestry, pheno=pheno
                 )
                 print_stats(hit_dir, stats)
 
@@ -187,6 +226,8 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
             'n_add_not_sig': stats['n_add_not_sig'],
             'n_lai_sig':     stats['n_lai_sig'],
             'n_lai_not_sig': stats['n_lai_not_sig'],
+            'n_pre_concordance': stats['n_pre_concordance'],
+            'n_discordant':  stats['n_discordant'],
             'n_candidates':  0,
         })
         continue
@@ -203,6 +244,7 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
     out_cols = ['hit', 'ID', 'CHROM', 'POS', 'REF', 'ALT', 'A1',
                 'OR', 'beta', 'LOG_OR_SE', 'L95', 'U95',
                 'P', 'P_BY', 'LAI_P', 'LAI_P_BY', 'LAI_OR', 'LAI_L95', 'LAI_U95',
+                'admixture_OR', 'concordant_direction',
                 'window_start', 'window_end', 'OBS_CT']
     candidates[out_cols].to_csv(cand_file, sep='\t', index=False)
 
@@ -225,6 +267,8 @@ for hit_dir in sorted(os.listdir(fine_mapping_folder)):
         'n_add_not_sig':    stats['n_add_not_sig'],
         'n_lai_sig':        stats['n_lai_sig'],
         'n_lai_not_sig':    stats['n_lai_not_sig'],
+        'n_pre_concordance': stats['n_pre_concordance'],
+        'n_discordant':     stats['n_discordant'],
         'n_candidates':     len(candidates),
         'top_snp':          top['ID'],
         'top_pos':          top['POS'],

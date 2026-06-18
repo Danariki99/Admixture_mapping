@@ -45,7 +45,7 @@ mpl.rcParams.update({
     'ps.fonttype':     42,
     'savefig.dpi':     600,
     'font.family':     'sans-serif',
-    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'font.sans-serif': ['Arial', 'Liberation Sans', 'Helvetica', 'DejaVu Sans'],
 })
 
 
@@ -118,19 +118,24 @@ def compute_ancestry(ancestry):
     return data, by_cols, sig_cols, hit_phenos
 
 
-def make_panel(results, color_map, excel_df, suffix):
-    # Only ancestries with at least one hit, 2 rows x 3 cols,
-    # but with the SAME subplot dimensions / dot sizes as the original 2x4 panel.
-    anc_with_hits = [a for a in ANCESTRY_LIST if results.get(a) and results[a][3]]
+# Per-subplot size, identical across all panels (= original 2x4 panel element:
+# 183/3 mm wide, 78/2 mm tall). Both split figures reuse the exact same element.
+SUBPLOT_W_MM = 183 / 3
+SUBPLOT_H_MM = 78 / 2
+
+
+def make_panel(results, color_map, excel_df, suffix, ancestry_subset, out_name, n_cols=2):
+    # Keep the given subset order; only ancestries that actually have hits.
+    anc_with_hits = [a for a in ancestry_subset if results.get(a) and results[a][3]]
     if not anc_with_hits:
-        print(f'[{suffix}] no ancestry with hits — nothing to plot')
+        print(f'[{out_name} | {suffix}] no ancestry with hits — nothing to plot')
         return
 
-    # Full journal width (183 mm) like the original panel, 3 per row.
-    N_ROWS, N_COLS = 2, 3
+    N_COLS = n_cols
+    N_ROWS = int(np.ceil(len(anc_with_hits) / N_COLS))
     fig, axes = plt.subplots(
         N_ROWS, N_COLS,
-        figsize=(183 * MM_TO_INCH, 78 * MM_TO_INCH),
+        figsize=(N_COLS * SUBPLOT_W_MM * MM_TO_INCH, N_ROWS * SUBPLOT_H_MM * MM_TO_INCH),
         gridspec_kw={'hspace': 0.35, 'wspace': 0.25},
     )
     axes = np.atleast_2d(axes)
@@ -203,23 +208,22 @@ def make_panel(results, color_map, excel_df, suffix):
     for j in range(len(anc_with_hits), N_ROWS * N_COLS):
         axes[j // N_COLS, j % N_COLS].set_visible(False)
 
-    # ── shared global legend (phenotype NAME only, no code) ──
-    # placed below the plots, constrained to ~plot width (3 columns)
-    legend_phenos = sorted(color_map.keys())
+    # ── legend: only phenotypes present in this subset (global colours) ──
+    legend_phenos = sorted({p for a in anc_with_hits for p in results[a][3]})
     handles = [Line2D([0], [0], marker='o', linestyle='', markersize=3,
                       markerfacecolor=color_map[p], markeredgewidth=0,
                       label=pheno_label(excel_df, p))
                for p in legend_phenos]
-    fig.legend(handles=handles, loc='upper center', ncol=3,
+    fig.legend(handles=handles, loc='upper center', ncol=min(3, len(handles)),
                frameon=False, fontsize=FONT_TICKS, bbox_to_anchor=(0.5, 0.0),
                columnspacing=1.0, handletextpad=0.4, labelspacing=0.3)
 
-    out_base = os.path.join(PLOT_OUTPUT_FOLDER, f'manhattan_significant_colored_{suffix}')
+    out_base = os.path.join(PLOT_OUTPUT_FOLDER, f'manhattan_{out_name}_{suffix}')
     plt.savefig(f'{out_base}.pdf', dpi=600, bbox_inches='tight')
     plt.savefig(f'{out_base}.png', dpi=600, bbox_inches='tight')
     plt.close()
-    print(f'[{suffix}] panel saved → {out_base}.pdf / .png  '
-          f'({len(legend_phenos)} phenotypes in legend)')
+    print(f'[{out_name} | {suffix}] saved → {out_base}.pdf / .png  '
+          f'({len(anc_with_hits)} ancestries, {len(legend_phenos)} phenotypes)')
 
 
 def main():
@@ -244,9 +248,13 @@ def main():
     color_map = {p: cmap(i % 20) for i, p in enumerate(hit_list)}
     print(f'\nGlobal hit phenotypes ({len(hit_list)}): {hit_list}\n')
 
-    # ── PASS 2: panels ──
+    # ── PASS 2: two split panels, same element size ──
+    # novelty = NAT/AMR + EAS ; existing = AFR, EUR, SAS, WAS
+    NOVELTY  = ['NAT', 'EAS']
+    EXISTING = ['AFR', 'EUR', 'SAS', 'WAS']
     for suffix in ('BY', 'raw'):
-        make_panel(results, color_map, excel_df, suffix)
+        make_panel(results, color_map, excel_df, suffix, NOVELTY,  out_name='novelty',  n_cols=2)
+        make_panel(results, color_map, excel_df, suffix, EXISTING, out_name='existing', n_cols=2)
 
 
 if __name__ == '__main__':

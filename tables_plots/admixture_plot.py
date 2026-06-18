@@ -15,7 +15,7 @@ mpl.rcParams.update({
     'pdf.fonttype':       42,
     'savefig.dpi':        600,
     'font.family':        'sans-serif',
-    'font.sans-serif':    ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'font.sans-serif':    ['Arial', 'Liberation Sans', 'Helvetica', 'DejaVu Sans'],
 })
 
 Q_FILE   = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/ancestry_keep_files_old/ukbb/output_normalized_with_ids.Q'
