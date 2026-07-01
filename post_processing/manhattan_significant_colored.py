@@ -146,7 +146,7 @@ def make_panel(results, color_map, excel_df, suffix, ancestry_subset, out_name, 
         is_bottom = (i + N_COLS) >= len(anc_with_hits)
 
         data, by_cols, sig_cols, hit_phenos = results[ancestry]
-        plot_anc = 'AMR' if ancestry == 'NAT' else ancestry
+        plot_anc = ancestry
 
         # plotted values
         p_lookup = by_cols if suffix == 'BY' else {p: data[p] for p in by_cols}
