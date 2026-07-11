@@ -250,8 +250,8 @@ def main():
 
     # ── PASS 2: two split panels, same element size ──
     # novelty = NAT/AMR + EAS ; existing = AFR, EUR, SAS, WAS
-    NOVELTY  = ['NAT', 'EAS']
-    EXISTING = ['AFR', 'EUR', 'SAS', 'WAS']
+    NOVELTY  = ['NAT', 'EAS', 'EUR']
+    EXISTING = ['AFR', 'SAS', 'WAS']
     for suffix in ('BY', 'raw'):
         make_panel(results, color_map, excel_df, suffix, NOVELTY,  out_name='novelty',  n_cols=2)
         make_panel(results, color_map, excel_df, suffix, EXISTING, out_name='existing', n_cols=2)

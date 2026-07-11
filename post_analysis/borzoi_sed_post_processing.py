@@ -16,7 +16,7 @@ import h5py
 import numpy as np
 import pandas as pd
 
-SED_BASE = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/borzoi_results/sed_leads'
+SED_BASE = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/borzoi_results/sed_all'
 FOLDS = ['f3c0', 'f3c1', 'f3c2', 'f3c3']
 
 # ── Load + average folds ──────────────────────────────────────────────────────

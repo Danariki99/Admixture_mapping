@@ -123,7 +123,7 @@ def plot_snp(ax, info):
 
     ax.set_xlim(min(0, min(vals)) - span * 0.30, max(0, max(vals)) + span * 0.30)
     ax.set_title(info['title'], fontsize=6, fontweight='bold')
-    ax.set_xlabel('SED (ALT − REF)', fontsize=5)
+    ax.set_xlabel('RNA SED (ALT − REF)', fontsize=5)
     ax.tick_params(axis='both', width=0.5, length=2)
     for s in ('top', 'right'):
         ax.spines[s].set_visible(False)
