@@ -52,11 +52,35 @@ From: python:3.8.20
         requests==2.32.3 \
         Pillow==9.5.0 \
         snputils==0.2.11 \
+        statsmodels==0.13.5 \
+        pyliftover==0.4 \
+        h5py==3.7.0 \
+        polars==0.20.31 \
+        openpyxl==3.1.2 \
 
     pip install --no-deps \
         scikit-allel==1.3.1 \
-        
+
     pip uninstall -y dask distributed || true
+
+    # bedtools: required by pybedtools in the Borzoi SED step
+    apt-get update && apt-get install -y bedtools
+
+    # =====================================================================
+    # BORZOI environment (SEPARATE venv — TensorFlow needs a newer numpy than
+    # the 1.20 pinned in the main env). Left commented so the base container
+    # still builds without the (large, GPU-oriented) Borzoi stack. Uncomment
+    # and mount the Borzoi repo + saved models to run the Borzoi SED steps.
+    #
+    # python3 -m venv /opt/borzoi_env
+    # /opt/borzoi_env/bin/pip install --upgrade pip
+    # /opt/borzoi_env/bin/pip install tensorflow==2.15.* \
+    #     pybedtools intervaltree pysam pyfaidx h5py pandas numpy scipy
+    # # GPU CUDA libs (match TF 2.15): install the nvidia-*-cu12 packages, then
+    # # export LD_LIBRARY_PATH from their lib dirs at runtime.
+    # # baskerville + borzoi come from the Borzoi repo:
+    # #   /opt/borzoi_env/bin/pip install -e /path/to/borzoi
+    # =====================================================================
 
     apt-get update && apt-get install -y --no-install-recommends \
         software-properties-common \
