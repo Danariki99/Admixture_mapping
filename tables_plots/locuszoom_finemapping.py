@@ -28,10 +28,20 @@ OUTPUT_FOLDER = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/locusz
 PHENO_TABLE   = '/private/home/rsmerigl/codes/cleaned_codes/Admixture_mapping/tables_plots/ukbb_v1.xlsx'
 
 
+# hits dropped from the paper (TTE_asthma)
+EXCLUDED_PHENOS = {'HC1036'}
+
+
 def pheno_label(excel_df, pheno):
+    """Display name: drop the HC#### code and the TTE_/AD_ token."""
     row = excel_df.loc[excel_df['ID'] == pheno, 'ID2']
-    name = row.iloc[0] if not row.empty else pheno
-    return ' '.join(name.split('_')[1:]) if '_' in name else name
+    name = str(row.iloc[0] if not row.empty else pheno)
+    parts = name.split('_')
+    if len(parts) > 1:
+        parts = parts[1:]                       # drop the leading HC#### code
+    if parts and parts[0] in ('TTE', 'AD'):
+        parts = parts[1:]                       # drop the TTE_/AD_ token
+    return ' '.join(parts)
 
 
 def load_hit_add(hit):
@@ -107,7 +117,9 @@ if __name__ == '__main__':
     cand = pd.read_csv(CAND_FILE, sep='\t')
     lead = pd.read_csv(LEAD_FILE, sep='\t')
 
-    hits = sorted(cand['hit'].unique())          # the 7 fine-mapped (significant) hits
+    # fine-mapped (significant) hits, minus the ones dropped from the paper
+    hits = sorted(h for h in cand['hit'].unique()
+                  if h.split('_')[1] not in EXCLUDED_PHENOS)
     counter = starting_number(QQ_DIR)
     print(f'Starting at Supplementary Figure {counter} (after {counter - 1} QQ plots)\n')
 
@@ -125,9 +137,8 @@ if __name__ == '__main__':
                        else sub.loc[sub['P'].idxmin(), 'ID'])
 
         anc, pheno, chrom = hit.split('_')
-        anc_disp = 'AMR' if anc == 'NAT' else anc
         pname    = pheno_label(excel_df, pheno)
-        title    = f'{anc_disp} | {pname} | {chrom} | lead {lead_snp}'
+        title    = f'{anc} | {pname} | {chrom} | lead {lead_snp}'
         out_png  = os.path.join(OUTPUT_FOLDER, f'Supplementary Figure {counter}.png')
 
         plot_locuszoom(d, lead_snp, cand_ids, threshold_p, chrom, title, out_png)

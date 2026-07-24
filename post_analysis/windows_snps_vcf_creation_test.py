@@ -3,6 +3,7 @@ import sys
 import glob
 import subprocess
 import pandas as pd
+import pysam
 from pyliftover import LiftOver
 
 # TEST version of windows_snps_vcf_creation.py.
@@ -45,6 +46,28 @@ if n_fail:
 df = df.dropna(subset=['CHROM_hg38', 'POS_hg38']).copy()
 df['CHROM_hg38'] = df['CHROM_hg38'].apply(lambda x: str(int(float(x))))
 df['POS_hg38'] = df['POS_hg38'].astype(int)
+
+# Drop SNPs whose REF does not match the hg38 reference (liftover strand flips):
+# Borzoi builds an EMPTY sequence for them and CRASHES the whole run, leaving the
+# pre-allocated sed.h5 full of zeros.
+HG38_FA = os.environ.get(
+    'BORZOI_HG38_FA',
+    '/private/home/rsmerigl/codes/cleaned_codes/borzoi/examples/hg38/assembly/ucsc/hg38.fa')
+_fa = pysam.Fastafile(HG38_FA)
+
+def _ref_matches_hg38(r):
+    base = _fa.fetch(f"chr{r['CHROM_hg38']}", r['POS_hg38'] - 1,
+                     r['POS_hg38'] - 1 + len(r['REF'])).upper()
+    return base == r['REF'].upper()
+
+_ok = df.apply(_ref_matches_hg38, axis=1)
+if (~_ok).any():
+    print(f'  Dropping {int((~_ok).sum())} SNPs whose REF does not match hg38 (strand flips)')
+df = df[_ok].copy()
+
+# sort by (chromosome, position): keeps chromosomes contiguous and lets Borzoi
+# cluster neighbouring SNPs
+df = df.sort_values(['CHROM_hg38', 'POS_hg38'], key=lambda c: c.astype(int) if c.name == 'CHROM_hg38' else c)
 
 os.makedirs(os.path.dirname(OUT_VCF), exist_ok=True)
 with open(OUT_VCF, 'w') as f:

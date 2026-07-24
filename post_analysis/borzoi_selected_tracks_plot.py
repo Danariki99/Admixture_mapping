@@ -4,8 +4,9 @@ Difference (SED) across a hand-picked set of relevant RNA tracks.
 
 Values are taken from sed_mean_long.csv (RNA tracks of the relevant cell types;
 GM12878 cell line, whole spleen/thymus and activated/stimulated samples excluded).
-Bars coloured by direction: orange = ALT increases expression (+), light blue =
-ALT decreases expression (-). One panel per SNP, 1x4 row at A4 width, no title.
+Vertical bars coloured by direction: orange = ALT increases expression (+), light blue =
+ALT decreases expression (-). One panel per SNP (tracks on the x-axis), single row
+at A4 width, no title. The TTE_asthma hit (SAS_HC1036 -> rs28732226) was dropped.
 
 Output: borzoi_results/plots_causal_candidates/selected_tracks.{png,pdf}
 """
@@ -20,6 +21,10 @@ import matplotlib.pyplot as plt
 OUT_DIR    = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/borzoi_results/plots_causal_candidates'
 MM_TO_INCH = 1 / 25.4
 A4_WIDTH_MM = 210
+FIG_WIDTH_MM  = 195     # just under A4 width
+FIG_HEIGHT_MM = 48      # short strip: low plot area, short bars (as in the template)
+BAR_WIDTH     = 0.80    # in x-units; panels are sized proportionally to the number
+                        # of tracks, so every bar ends up the SAME physical width
 
 mpl.rcParams.update({
     'font.size':       6,
@@ -49,22 +54,6 @@ DATA = {
             ('lung, F 30y (rep)',  -34.18),
             ('lung, embryo',       -10.32),
             ('lung',                -7.35),
-        ],
-    },
-    # rs28732226 — HLA-DRA (discordant, large +) and HLA-DRB9 (concordant, small -)
-    'rs28732226': {
-        'title': 'rs28732226\nHLA-DRA / HLA-DRB9',
-        'tracks': [
-            ('DRA · CD14 monocyte',     23.31),
-            ('DRA · IgD mem B cell',    20.60),
-            ('DRA · naive B cell',      19.79),
-            ('DRA · immature NK cell',  16.18),
-            ('DRA · CD8 mem T cell',    13.90),
-            ('DRA · lung, M 3y',         5.28),
-            ('DRA · lung, F 30y',        4.61),
-            ('DRB9 · naive B cell',     -0.13),
-            ('DRB9 · IgD mem B cell',   -0.08),
-            ('DRB9 · CD14 monocyte',    -0.05),
         ],
     },
     # rs9274569 — HLA-DQB1, lymphoid/myeloid (+), thyroid (-)
@@ -101,44 +90,52 @@ DATA = {
 
 
 def plot_snp(ax, info):
-    # sort ascending by value → most positive at top, most negative at bottom
-    tracks = sorted(info['tracks'], key=lambda t: t[1])
+    # VERTICAL bars: tracks on the x-axis, SED on the y-axis (least extreme first)
+    tracks = sorted(info['tracks'], key=lambda t: -t[1])
     labels = [t[0] for t in tracks]
     vals   = [t[1] for t in tracks]
     colors = [POS_COLOR if v >= 0 else NEG_COLOR for v in vals]
 
-    y = np.arange(len(vals))
-    ax.barh(y, vals, color=colors, height=0.72, linewidth=0)
-    ax.set_yticks(y)
-    ax.set_yticklabels(labels, fontsize=5)
-    ax.axvline(0, color='black', lw=0.5)
+    x = np.arange(len(vals))
+    ax.bar(x, vals, color=colors, width=BAR_WIDTH, linewidth=0)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=5, rotation=45, ha='right',
+                       rotation_mode='anchor')
+    ax.axhline(0, color='black', lw=0.5, ls=':')
 
     span = max(abs(min(vals)), abs(max(vals)))
     fmt = lambda v: f'{v:+.2f}' if abs(v) < 1 else f'{v:+.1f}'
-    for yi, v in zip(y, vals):
+    for xi, v in zip(x, vals):
         if v >= 0:
-            ax.text(v + span * 0.03, yi, fmt(v), va='center', ha='left', fontsize=4.5)
+            ax.text(xi, v + span * 0.03, fmt(v), ha='center', va='bottom',
+                    fontsize=4.5, rotation=0)
         else:
-            ax.text(v - span * 0.03, yi, fmt(v), va='center', ha='right', fontsize=4.5)
+            ax.text(xi, v - span * 0.03, fmt(v), ha='center', va='top',
+                    fontsize=4.5, rotation=0)
 
-    ax.set_xlim(min(0, min(vals)) - span * 0.30, max(0, max(vals)) + span * 0.30)
+    ax.set_ylim(min(0, min(vals)) - span * 0.22, max(0, max(vals)) + span * 0.22)
+    ax.set_xlim(-0.7, len(vals) - 0.3)
     ax.set_title(info['title'], fontsize=6, fontweight='bold')
-    ax.set_xlabel('RNA SED (ALT − REF)', fontsize=5)
+    ax.set_ylabel('RNA SED (ALT − REF)', fontsize=5)
     ax.tick_params(axis='both', width=0.5, length=2)
     for s in ('top', 'right'):
         ax.spines[s].set_visible(False)
     ax.spines['left'].set_linewidth(0.5)
     ax.spines['bottom'].set_linewidth(0.5)
+    # y tick labels rotated 90°, as in the template (last, so nothing resets it)
+    ax.tick_params(axis='y', labelrotation=90)
 
 
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
     snps = list(DATA.keys())
 
+    n_tracks = [len(DATA[s]['tracks']) for s in snps]
     fig, axes = plt.subplots(
-        1, 4, figsize=(A4_WIDTH_MM * MM_TO_INCH, 80 * MM_TO_INCH),
-        gridspec_kw={'wspace': 0.9},
+        1, len(snps), figsize=(FIG_WIDTH_MM * MM_TO_INCH, FIG_HEIGHT_MM * MM_TO_INCH),
+        gridspec_kw={'wspace': 0.45, 'width_ratios': n_tracks},
     )
+    axes = np.atleast_1d(axes)
     for ax, snp in zip(axes, snps):
         plot_snp(ax, DATA[snp])
 

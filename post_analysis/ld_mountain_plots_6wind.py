@@ -77,7 +77,7 @@ def make_plot(hit):
     axm.set_yticks([])
     for s in ('top', 'right', 'left'):
         axm.spines[s].set_visible(False)
-    axm.set_title(hit.replace('NAT', 'AMR') + '  (±6 windows)', fontsize=9, fontweight='bold')
+    axm.set_title(hit + '  (±6 windows)', fontsize=9, fontweight='bold')
     # colorbar in an external inset so it does NOT shrink the triangle
     # (keeps top and bottom panels the same width -> aligned)
     cax = inset_axes(axm, width='2%', height='65%', loc='lower left',

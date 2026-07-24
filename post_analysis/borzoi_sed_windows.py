@@ -21,6 +21,13 @@ BORZOI_SED   = os.path.join(BORZOI_DIR, 'src/scripts/borzoi_sed.py')
 
 FOLDS = ['f3c0', 'f3c1', 'f3c2', 'f3c3']
 
+# When run as a SLURM array (sbatch --array=0-3), each task does ONE fold, so
+# every fold gets the full time budget and none is truncated. Otherwise all 4
+# folds run sequentially in this single process.
+_aid = os.environ.get('SLURM_ARRAY_TASK_ID')
+if _aid is not None:
+    FOLDS = [FOLDS[int(_aid)]]
+
 os.makedirs(OUTPUT_BASE, exist_ok=True)
 
 if not os.path.exists(VCF_FILE):

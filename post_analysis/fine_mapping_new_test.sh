@@ -39,9 +39,9 @@ for wind_file in ${wind_folder}/*.txt; do
         output_folder="${base_output}/${hit_ancestry}_${pheno}_chr${chr}"
         mkdir -p "$output_folder"
 
-        # per-window covariate file: base covariates + LAI of THIS window
-        # cols: IID(1) age(2) sex(3) BMI(4) AFR(5) AHG(6) EAS(7) EUR(8) NAT(9) OCE(10) SAS(11) WAS(12) LAI(13)
-        # EUR (col 8) dropped as reference, LAI (col 13) included -> ADD + LAI tests
+        # per-window covariate file: base covariates + LAI of THIS window.
+        # TEST layout (3 ancestries): IID(1) age(2) sex(3) BMI(4) AFR(5) EAS(6) EUR(7) LAI(8)
+        # -> EUR (col 7) dropped as reference, LAI (col 8) included -> ADD + LAI tests
         covar_file="${covar_folder}/${hit_ancestry}_${pheno}_chr${chr}_${start}_${end}_covar.tsv"
         output_file="${output_folder}/${hit_ancestry}_${pheno}_chr${chr}_${start}_${end}"
 
@@ -52,7 +52,7 @@ for wind_file in ${wind_folder}/*.txt; do
 
         ../plink2 --vcf "$vcf_file" --pheno "$phe_file" --glm firth-fallback --ci 0.95 \
             --adjust --covar "$covar_file" --chr "$chr" --from-bp "$start" --to-bp "$end" \
-            --covar-variance-standardize $keep_arg --out "$output_file" --covar-col-nums 2-7,9-13
+            --covar-variance-standardize $keep_arg --out "$output_file" --covar-col-nums 2-6,8
 
     done < <(tail -n +2 "$wind_file")
 

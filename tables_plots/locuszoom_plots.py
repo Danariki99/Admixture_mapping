@@ -16,6 +16,20 @@ def get_pheno_name(df_pheno: pd.DataFrame, pheno_id: str) -> str:
         return str(pheno_row.iloc[0])
     return "Unknown"
 
+
+def clean_pheno_name(name: str) -> str:
+    """ID2 -> display name: drop the HC#### code and the TTE_/AD_ token."""
+    parts = str(name).split('_')
+    if len(parts) > 1:
+        parts = parts[1:]                       # drop the leading HC#### code
+    if parts and parts[0] in ('TTE', 'AD'):
+        parts = parts[1:]                       # drop the TTE_/AD_ token
+    return '_'.join(parts)
+
+
+# hits dropped from the paper (TTE_asthma) — skipped wherever they appear
+EXCLUDED_PHENOS = {'HC1036'}
+
 def plot_locuszoom(
     df_add: pd.DataFrame,
     snp: str,
@@ -162,14 +176,11 @@ if __name__ == "__main__":
                 'ancestry_tested': 'WAS',
                 'ancestry_of_population': 'WAS',
                 'phenotype': 'HC643'}],
+  # HC1036 (TTE_asthma) removed from the paper -> only HC1581 kept here
   'rs28383172': [{'chromosome': 'chr6',
                   'ancestry_tested': 'SAS',
                   'ancestry_of_population': 'EAS',
-                  'phenotype': 'HC1581'},
-                 {'chromosome': 'chr6',
-                  'ancestry_tested': 'SAS',
-                  'ancestry_of_population': 'EAS',
-                  'phenotype': 'HC1036'}],
+                  'phenotype': 'HC1581'}],
   'rs4248166': [{'chromosome': 'chr6',
                  'ancestry_tested': 'SAS',
                  'ancestry_of_population': 'EUR',
@@ -256,10 +267,13 @@ if __name__ == "__main__":
                  'phenotype': 'HC221'}]
 }
 
-    counter = 30
+    counter = 30   # NOTE: legacy script (old hit set); numbering kept away from the finemapping locuszooms
     for snp, info_list in snp_to_info.items():
         
         for info in info_list:
+            if info['phenotype'] in EXCLUDED_PHENOS:      # TTE_asthma hit removed
+                print(f'Skipping excluded hit: {snp} {info["phenotype"]}')
+                continue
             folder = f'{HIT_FOLDER}/{info["ancestry_tested"]}_{info["phenotype"]}_{info["chromosome"]}'
             p_file = os.path.join(folder, f'{info["ancestry_tested"]}_{info["phenotype"]}_{info["chromosome"]}_output.{info["ancestry_of_population"]}.{info["phenotype"]}.glm.logistic.hybrid')
 
@@ -281,8 +295,7 @@ if __name__ == "__main__":
                 pheno_name = 'HC1007_TTE_acute_upper_respiratory_infections'
 
             # 4) Title similar to your plot naming
-            title = f'{info["ancestry_tested"]} | {"_".join(pheno_name.split("_")[1:])} | {info["ancestry_of_population"]} population | {info["chromosome"]} | {snp}'
-            title = title.replace('NAT', 'AMR')
+            title = f'{info["ancestry_tested"]} | {clean_pheno_name(pheno_name)} | {info["ancestry_of_population"]} population | {info["chromosome"]} | {snp}'
 
             # 5) Plot
             plot_locuszoom(

@@ -76,11 +76,11 @@ MM_TO_INCH = 1 / 25.4
 import matplotlib as mpl
 from scipy.stats import gaussian_kde
 mpl.rcParams.update({
-    'font.size':          6,
-    'axes.titlesize':     6,
-    'axes.labelsize':     6,
-    'xtick.labelsize':    5,
-    'ytick.labelsize':    5,
+    'font.size':          10,
+    'axes.titlesize':     13,
+    'axes.labelsize':     12,
+    'xtick.labelsize':    10,
+    'ytick.labelsize':    10,
     'pdf.fonttype':       42,
     'savefig.dpi':        600,
     'font.family':        'sans-serif',
@@ -97,29 +97,29 @@ print('  SNPs/window  median={:.0f}  IQR={:.0f}-{:.0f}  p99={:.0f}  max={:.0f}'.
 x_top = np.percentile(vals, 99) * 1.05
 NBINS = 75         # middle ground between blocky (60) and too fine (100)
 
-fig, ax = plt.subplots(figsize=(90 * MM_TO_INCH, 60 * MM_TO_INCH))
+fig, ax = plt.subplots(figsize=(130 * MM_TO_INCH, 85 * MM_TO_INCH))
 
 # histogram: light bars as a soft backdrop
 counts, edges, _ = ax.hist(vals, bins=NBINS, range=(0, x_top),
-                           color='#82aed0', edgecolor='white', linewidth=0.2, alpha=0.7)
+                           color='#82aed0', edgecolor='white', linewidth=0.3, alpha=0.7)
 bin_width = edges[1] - edges[0]
 
 # smooth KDE overlay (mild extra smoothing so it still tracks the peak)
 kde = gaussian_kde(vals)
 kde.set_bandwidth(kde.factor * 1.15)
 xs = np.linspace(0, x_top, 400)
-ax.plot(xs, kde(xs) * len(vals) * bin_width, color='#3d6aad', lw=1.2)
+ax.plot(xs, kde(xs) * len(vals) * bin_width, color='#3d6aad', lw=2.0)
 
 # median reference
-ax.axvline(med, color='#c0392b', ls='--', lw=0.7,
+ax.axvline(med, color='#c0392b', ls='--', lw=1.4,
            label=f'median = {med:.0f} SNPs/window')
 
 ax.set_xlim(0, x_top)
-ax.set_title('UKBB SNP coverage per window', fontsize=6)
-ax.set_xlabel('SNPs per window', fontsize=6)
-ax.set_ylabel('Number of windows', fontsize=6)
-ax.tick_params(axis='both', labelsize=5)
-ax.legend(loc='upper right', fontsize=5, frameon=False)
+ax.set_title('UKBB SNP coverage per window', fontsize=13, fontweight='bold')
+ax.set_xlabel('SNPs per window', fontsize=12)
+ax.set_ylabel('Number of windows', fontsize=12)
+ax.tick_params(axis='both', labelsize=10)
+ax.legend(loc='upper right', fontsize=12, frameon=False)
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 

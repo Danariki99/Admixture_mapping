@@ -114,7 +114,7 @@ def make_plot(hit):
     axm.tick_params(axis='x', labelbottom=False, bottom=False)   # no shared x labels on top panel
     for s in ('top', 'right', 'left'):
         axm.spines[s].set_visible(False)
-    axm.set_title(hit.replace('NAT', 'AMR') + '  (±6 windows)', fontsize=9, fontweight='bold')
+    axm.set_title(hit + '  (±6 windows)', fontsize=9, fontweight='bold')
     cb = fig.colorbar(pc, cax=cax)
     cb.set_label(r'LD $r^2$', fontsize=7); cb.ax.tick_params(labelsize=6)
 

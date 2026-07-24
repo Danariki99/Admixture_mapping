@@ -75,7 +75,7 @@ def make_plot(hit):
     axm.set_yticks([])
     for s in ('top', 'right', 'left'):
         axm.spines[s].set_visible(False)
-    axm.set_title(hit.replace('NAT', 'AMR'), fontsize=9, fontweight='bold')
+    axm.set_title(hit, fontsize=9, fontweight='bold')
     cb = fig.colorbar(pc, ax=axm, fraction=0.03, pad=0.01)
     cb.set_label(r'LD $r$', fontsize=7); cb.ax.tick_params(labelsize=6)
 

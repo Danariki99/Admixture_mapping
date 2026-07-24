@@ -54,8 +54,9 @@ From: python:3.8.20
         snputils==0.2.11 \
         statsmodels==0.13.5 \
         pyliftover==0.4 \
+        pysam==0.22.1 \
         h5py==3.7.0 \
-        polars==0.20.31 \
+        polars-lts-cpu==0.20.31 \
         openpyxl==3.1.2 \
 
     pip install --no-deps \

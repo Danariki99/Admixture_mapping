@@ -33,18 +33,28 @@ vcf_folder="${result_folder}/vcf_folder"
 msp_folder="${result_folder}/msp_folder"
 
 # =============================================================================
-# 1) LOCAL ANCESTRY INFERENCE  (GNomix — unchanged)
+# 1) LOCAL ANCESTRY INFERENCE  (RFMix — default; GNomix kept as fallback)
 # =============================================================================
-#python LAI/chrom_division.py --results "$result_folder" --data "$data_folder"
-echo "Using GnoMix software for LAI"
-#python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --data_folder "$data_folder" --result_folder "$result_folder"
+# split the multi-chromosome query VCF into result_folder/vcf_folder/chrN.vcf.gz
+python LAI/chrom_division.py --results "$result_folder" --data "$data_folder"
 
-./LAI/files_moving.sh "$result_folder"
+echo "Using RFMix for LAI"
+# RFMix per chromosome -> result_folder/msp_folder/chrN.msp  (binary ../rfmix/rfmix)
+python LAI/rfmix_test.py --vcf_folder "$vcf_folder" --data_folder "$data_folder" --result_folder "$result_folder"
+
+# --- GNomix fallback (legacy): train per chrom, then move the MSPs ---
+#python LAI/gnomix_training_test.py --vcf_folder "$vcf_folder" --data_folder "$data_folder" --result_folder "$result_folder"
+#./LAI/files_moving.sh "$result_folder"
 
 # =============================================================================
 # 2) ADMIXTURE MAPPING
 # =============================================================================
 python pre_processing/pre_processing_test.py "$msp_folder" "$result_folder"
+
+# NEW: build the ancestry-PROPORTIONS covar from the LAI (GNomix/RFMix MSP).
+# Replaces the PC-based input.covar; used by admixture mapping AND as the base
+# for the conditional fine-mapping per-window covar.
+python post_analysis/proportions_covar_creation_test.py "$result_folder" "$data_folder"
 
 # local-ancestry logistic association, per ancestry / phenotype
 ./association_execution/analysis_execution_test.sh "$result_folder" "$data_folder"

@@ -17,7 +17,9 @@ data_dir="$2"
 # Define base directories
 vcf_dir="$output_root/vcf_files"
 pheno_dir="$data_dir/phe_files"
-covar_file="$data_dir/input.covar"
+# NEW pipeline: ancestry-PROPORTIONS covar built from the LAI by
+# proportions_covar_creation_test.py (age, sex, BMI, then the ancestries).
+covar_file="$output_root/covar_file/covar_proportions.phe"
 keep_file="$data_dir/input.keep"
 
 # Loop over each VCF file
@@ -47,7 +49,9 @@ for vcf_file in "$vcf_dir"/*.vcf; do
             --covar-variance-standardize \
             --keep "$keep_file" \
             --out "$output_file" \
-            --covar-col-nums 2-14
+            --covar-col-nums 2-6
+            # covar layout: IID(1) age(2) sex(3) BMI(4) AFR(5) EAS(6) EUR(7)
+            # -> EUR (col 7) dropped as reference category
 
     done
 done

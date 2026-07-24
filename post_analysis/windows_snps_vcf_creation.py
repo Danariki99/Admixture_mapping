@@ -12,6 +12,7 @@ import os
 import glob
 import subprocess
 import pandas as pd
+import pysam
 from pyliftover import LiftOver
 
 FINE_MAP_DIR = '/private/groups/ioannidislab/smeriglio/out_cleaned_codes/vcf_files_windows/ukbb/fine_mapping_new'
@@ -48,6 +49,29 @@ if n_fail:
 df = df.dropna(subset=['CHROM_hg38', 'POS_hg38']).copy()
 df['CHROM_hg38'] = df['CHROM_hg38'].apply(lambda x: str(int(float(x))))
 df['POS_hg38'] = df['POS_hg38'].astype(int)
+
+# Drop SNPs whose REF does not match the hg38 reference. The liftover moves the
+# position but not the alleles, so a few SNPs end up strand-flipped. Borzoi builds
+# an EMPTY input sequence for them ("reference genome does not match any allele")
+# and CRASHES the whole run — leaving the pre-allocated sed.h5 full of zeros.
+HG38_FA = os.environ.get(
+    'BORZOI_HG38_FA',
+    '/private/home/rsmerigl/codes/cleaned_codes/borzoi/examples/hg38/assembly/ucsc/hg38.fa')
+_fa = pysam.Fastafile(HG38_FA)
+
+def _ref_matches_hg38(r):
+    base = _fa.fetch(f"chr{r['CHROM_hg38']}", r['POS_hg38'] - 1,
+                     r['POS_hg38'] - 1 + len(r['REF'])).upper()
+    return base == r['REF'].upper()
+
+_ok = df.apply(_ref_matches_hg38, axis=1)
+if (~_ok).any():
+    print(f'  Dropping {int((~_ok).sum())} SNPs whose REF does not match hg38 (strand flips)')
+df = df[_ok].copy()
+
+# Sort by (chromosome, position): keeps each chromosome contiguous and lets Borzoi
+# cluster neighbouring SNPs into shared prediction windows.
+df = df.sort_values(['CHROM_hg38', 'POS_hg38'], key=lambda c: c.astype(int) if c.name == 'CHROM_hg38' else c)
 
 # ── 3. Write VCF ───────────────────────────────────────────────────────────────
 os.makedirs(os.path.dirname(OUT_VCF), exist_ok=True)

@@ -161,7 +161,7 @@ def make_plot(hit, ldsource, track, by_id, by_pos):
     axp = fig.add_subplot(gs[1, 0], sharex=axm)
     cax = fig.add_subplot(gs[0, 1])
 
-    title = f"{hit.replace('NAT', 'AMR')}  ({srclabel} LD, ±6 windows)"
+    title = f"{hit}  ({srclabel} LD, ±6 windows)"
     draw_triangle(fig, axm, cax, ld2, N, title)
 
     x = np.arange(N)

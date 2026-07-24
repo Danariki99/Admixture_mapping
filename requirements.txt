@@ -15,8 +15,9 @@ snputils==0.2.11
 # --- NEW pipeline dependencies (main environment) ---
 statsmodels==0.13.5        # BY (fdr_by) correction: admixture-mapping post-processing + conditional fine mapping
 pyliftover==0.4            # hg19 -> hg38 liftover for the Borzoi input VCF
+pysam==0.22.1              # check each lifted-over REF against the hg38 fasta (Borzoi crashes on allele mismatches)
 h5py==3.7.0                # read Borzoi SED .h5 output (post-processing)
-polars==0.20.31            # fast covariate-file handling (new_covariable_creation)
+polars-lts-cpu==0.20.31    # fast covariate-file handling (new_covariable_creation); LTS-CPU build works on nodes without AVX2/BMI2 (plain `polars` crashes with Illegal instruction there)
 openpyxl==3.1.2            # .xlsx tables
 
 # =====================================================================

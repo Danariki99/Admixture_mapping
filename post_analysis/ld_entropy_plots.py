@@ -162,7 +162,7 @@ def make_plot(hit):
     axm.tick_params(axis='x', labelbottom=False, bottom=False)
     for s in ('top', 'right', 'left'):
         axm.spines[s].set_visible(False)
-    axm.set_title(f"{hit.replace('NAT', 'AMR')}  (all samples LD + haplotype entropy, ±6 windows)",
+    axm.set_title(f"{hit}  (all samples LD + haplotype entropy, ±6 windows)",
                   fontsize=9, fontweight='bold')
     cb = fig.colorbar(pc, cax=cax)
     cb.set_label(r'LD $r^2$', fontsize=7); cb.ax.tick_params(labelsize=6)
