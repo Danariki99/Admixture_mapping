@@ -1,25 +1,31 @@
 # ADMIXTURE MAPPING PROJECT
 
 ## abstract
-In recent years, large-scale genome-wide association studies (GWAS) and sequencing projects have identified over 70,000 associations between genetic variants and human traits or diseases. However, the majority of these studies rely on individuals who are genetically similar to the European superpopulation reference panels, reflecting the composition of biobanks enriched for individuals with predominantly European-like genetic backgrounds. This bias limits insights into the full spectrum of human genetic diversity and its impact on disease.  Admixture mapping offers a complementary approach to GWAS by leveraging differences in haplotype frequencies across populations represented in reference panels to identify risk loci for complex traits. Here, we perform large-scale admixture mapping across the UK Biobank and All of Us Research Program datasets, examining associations between local haplotype ancestry and 172 phenotypes. Our approach not only replicates previously reported associations but also identifies novel loci with important implications for human disease. Additionally, we apply a fine-mapping strategy to the 31 identified genomic regions by analyzing subsets of individuals stratified by their predominant ancestry components. This allows the same genomic region to yield distinct association signals across ancestry-defined subsamples. Overall, this approach localized 55 association signals and highlighted the importance of modeling ancestry structure to refine genetic associations and quantify their contribution to trait variability.
+Genome-wide association studies have successfully identified thousands of genetic associations, yet their predominant reliance on European-descent populations limits insights into the full spectrum of human genetic diversity and its impact on disease. Admixture mapping offers a powerful, complementary approach by leveraging differences in haplotype frequencies across ancestral backgrounds to identify risk loci for complex traits. Here, we perform a large-scale, multi-ancestry admixture mapping study across 415,792 unrelated individuals in the UK Biobank, examining associations between local haplotype ancestry and 108 phenotypes. Our approach identifies 13 genome-wide significant ancestry-phenotype associations, recovering previously reported signals while uncovering four novel ancestry-associated findings, including new risk loci for atrial fibrillation, dermatitis, and angina pectoris. To overcome the limited resolution of traditional admixture mapping, we implemented a conditional fine-mapping framework, which enabled us to localize four putatively causal variants. In silico variant effect prediction and eQTL integration revealed regulatory and missense effects predominantly localized to lung, and immune tissues, aligning with captured phenotypes such as asthma, dermatitis, and hypothyroidism. Notably, our findings demonstrate striking genetic heterogeneity, revealing how the same clinical phenotype can arise through distinct genetic pathways depending on the ancestral background. Overall, this work highlights the critical importance of modeling local ancestry structure to refine genetic associations, uncover novel disease mechanisms, and improve the equitable translation of genomic medicine.
 
 ## Authors 
-Riccardo Smeriglio<sup>2</sup> Sonia Moreno-Grau<sup>1</sup>, Daniel Mas-Montserrat<sup>1,3</sup> Christophe Thomassin<sup>1,7</sup>, Guhan Ventakaraman<sup>1</sup>, Caterina Fuses<sup>4,6</sup>, Manuel A. Rivas<sup>1</sup>, Alessandro Savino<sup>2</sup>, Jordi Abante<sup>4,6</sup>, Stefano Di Carlo<sup>2</sup> , Alexander G. Ioannidis<sup>1,3,7</sup>.
-Affiliations
-1. Department of Biomedical Data Science, Stanford University School of Medicine, Stanford, CA, USA.  
-2. Control and Computer Engineering Department, Politecnico di Torino, Torino, Italy
-3. Galatea Bio, Inc, Miami Lakes, FL, USA.
-4. Department of Biomedical Sciences, School of Medicine, Universitat de Barcelona, Barcelona, Spain 
-5. Creatio, School of Medicine, Universitat de Barcelona, Barcelona, Spain
-6. Institute of Neurosciences, Universitat de Barcelona, Barcelona, Spain
-7. Department of Biomolecular Engineering, University of California, Santa Cruz.
+Riccardo Smeriglio<sup>1,a</sup>, Sonia Moreno-Grau<sup>2,3,a,b</sup>, Daniel Mas Montserrat<sup>2</sup>, Guhan Venkataraman<sup>2</sup>, David Bonet<sup>2,4-8</sup>, Caterina Fuses<sup>5-8</sup>, Manuel A. Rivas<sup>2</sup>, Alessandro Savino<sup>1</sup>, Stefano Di Carlo<sup>1</sup>, Jordi Abante<sup>5-8,b</sup>, Alexander G. Ioannidis<sup>2,4,9,b</sup>
+
+
+1. Control and Computer Engineering Department, Politecnico di Torino, Torino, Italy 
+2. Department of Biomedical Data Science, Stanford University School of Medicine, Stanford, CA, USA
+3. Faculty of Health Sciences, Universidad Europea de Valencia, Valencia, Spain
+4. Genomics Institute, University of California, Santa Cruz, Santa Cruz, CA, USA
+5. Department of Biomedical Sciences, School of Medicine, Universitat de Barcelona, Barcelona, Spain
+6. Institute of Neurosciences, Universitat de Barcelona, Barcelona, Spain 
+7. Institut d'Investigacions Biomèdiques August Pi i Sunyer (IDIBAPS), Barcelona, Spain
+8. Centro de Investigación Biomédica en Red Sobre Enfermedades Neurodegenerativas (CIBERNED), Instituto de Salud Carlos III, Madrid, Spain
+9. Institute for Computational and Mathematical Engineering, Stanford University, Stanford, CA, USA  
+a. These authors contributed equally  
+b. Corresponding authors
+
 
 ## Code testing
 This repository includes the code developed for the manuscript:
 
-**"Large-scale admixture mapping unveils new genetic insights into human disease"**
+**"Multi-ancestry admixture mapping reveals ancestry-associated disease loci in the UK Biobank"**
 
-Due to access restrictions, reproducing the results presented in the manuscript requires access to the UK Biobank (UKBB) and All of Us datasets, which are not publicly available.  
+Due to access restrictions, reproducing the results presented in the manuscript requires access to the UK Biobank (UKBB) which is not publicly available.  
 However, we provide a **testing pipeline** that can be run on a small synthetic VCF file to validate the code structure and functionality.
 
 
@@ -34,7 +40,7 @@ git clone https://github.com/Danariki99/Admixture_mapping
 
 ### 2) Install the Requirements
 
-All the codes have been executed with python:3.8.20 
+All the codes have been executed with python: 3.8.20 
 
 Install the necessary Python packages using:
 
@@ -55,17 +61,28 @@ chmod +x plink2
 
 ```
 
-### 4) install gnomix
-clone gnomix
+### 4) install RFMix (local ancestry inference — default)
+RFMix v2 is the default LAI step of the pipeline. Clone and compile it from
+source **as a sibling of `Admixture_mapping/`** (needs `gcc/g++`, `make`,
+`autoreconf`):
 ```bash
-git clone https://github.com/AI-sandbox/gnomix
-
+cd ../
+git clone https://github.com/slowkoni/rfmix.git
+cd rfmix
+autoreconf --force --install
+./configure
+make
+rm -rf .git          # keep only the files/binary, no nested git repo
+./rfmix               # sanity check: prints "RFMIX v2.03 ..."
+cd ../Admixture_mapping
 ```
+This produces the `rfmix/rfmix` binary that the LAI wrapper
+(`LAI/rfmix_test.py`) calls via the relative path `../rfmix/rfmix`.
 
-### 5) install bcftools
-
+### 5) install bcftools and tabix
+`tabix` is required to index the per-chromosome VCFs for RFMix.
 ```bash
-    sudo apt install -y bcftools
+    sudo apt install -y bcftools tabix
 
 ```
 
@@ -84,7 +101,7 @@ git clone https://github.com/AI-sandbox/gnomix
 
 
 ### 7) Execute the pipeline:
-The pipeline includes all the steps performed after the execution of Gnomix for Local Ancestry Inference (LAI).
+The pipeline includes all the steps performed.
 Since the original input files (such as VCFs and reference panels) used in the study cannot be shared, we provide a minimal example .vcf.gz file to illustrate the full pipeline structure. you can find the data folder here: https://drive.cloud.polito.it/index.php/s/mkaNL3pidDZXa7f
 
 To run the pipeline, use the following command:
@@ -128,14 +145,16 @@ chmod +x plink2
 
 ```
 
-### 4) install gnomix
-clone gnomix
+### 4) install RFMix (default LAI)
+Clone and compile RFMix as a sibling of the repository (the pipeline calls it via
+`../rfmix/rfmix`):
 ```bash
-git clone https://github.com/AI-sandbox/gnomix
+git clone https://github.com/slowkoni/rfmix.git
+cd rfmix && autoreconf --force --install && ./configure && make && rm -rf .git && cd ..
 
 ```
 
-### 5) Move to the source subfolder, and build the Singularity container with 
+### 5) Move to the `Admixture_mapping` subfolder, and build the Singularity container with 
 ```bash
 cd Admixture_mapping
 sudo singularity build singularity.sif singularity.def
@@ -176,14 +195,15 @@ be careful, the data folder and the output folders need to be inside the folder 
 
 ## Reproducing the analysis running the Singularity container
 
-To reproduce the analysis from this paper, you can also run the Singularity container singularity container.sif in this way:
+To reproduce the analysis from this paper, you can also run the `singularity.sif`
+container directly (its runscript calls `code_test.sh` with the two arguments):
 
-Move to the `source` folder and run the `singularity.sif` file
+Move to the `Admixture_mapping` folder and run the `singularity.sif` file
 ```bash
 cd Admixture_mapping
-singularity run -- bind /path/to/your/folder:/linked/path/in/singularity singularity.sif /linked/path/in/singularity/data/folder /linked/path/in/singularity/output/folder
+singularity run --bind /path/to/your/folder:/linked/path/in/singularity singularity.sif /linked/path/in/singularity/data/folder /linked/path/in/singularity/output/folder
 ```
 
 ## Disclaimer
 
-Since both the UK Biobank (UKBB) and All of Us datasets cannot be publicly shared, the test pipeline has been adapted to run on a small synthetic dataset, which you can find at (https://drive.cloud.polito.it/index.php/s/mkaNL3pidDZXa7f). Although the images generated by the pipeline are similar to those presented in the paper, the results should not be considered significant. Additionally, some significance thresholds have been adjusted to ensure that the pipeline can run successfully on the example data.
+Since the UK Biobank (UKBB) cannot be publicly shared, the test pipeline has been adapted to run on a small synthetic dataset, which you can find at (https://drive.cloud.polito.it/index.php/s/mkaNL3pidDZXa7f). Although the images generated by the pipeline are similar to those presented in the paper, the results should not be considered significant. Additionally, some significance thresholds have been adjusted to ensure that the pipeline can run successfully on the example data.

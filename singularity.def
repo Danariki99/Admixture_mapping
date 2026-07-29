@@ -9,7 +9,12 @@ From: python:3.8.20
 
 %post
 
-    apt-get update && apt-get install -y bcftools
+    # bcftools + tabix: VCF handling and per-chromosome VCF indexing for RFMix.
+    # NOTE: the plink2 and rfmix BINARIES are NOT installed here on purpose — they
+    # live on the host as siblings of Admixture_mapping/ (see README) and the
+    # pipeline reaches them through the relative paths ../plink2 and ../rfmix/rfmix,
+    # which Singularity's auto-mount of $HOME/$PWD makes visible inside the container.
+    apt-get update && apt-get install -y bcftools tabix
 
 
 
